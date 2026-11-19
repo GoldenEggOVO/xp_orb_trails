@@ -10,7 +10,7 @@
   <a href="https://github.com/GoldenEggOVO/xp_orb_trails"><img src="docs/images/github.png" alt="XP Orb Trails on GitHub"></a>
   <a href="https://github.com/GoldenEggOVO/xp_orb_trails/releases"><img src="docs/images/releases.png" alt="Browse GitHub releases"></a>
   <a href="CHANGELOG.md"><img src="docs/images/changelog.png" alt="Read the changelog"></a>
-  <a href="https://goldeneggovo.github.io/xp_orb_trails/"><img src="docs/images/player_guide.png" alt="Read the player guide"></a>
+  <a href="https://goldeneggovo.github.io/xp_orb_trails/wiki/"><img src="docs/images/player_guide.png" alt="Read the player guide"></a>
   <a href="examples/"><img src="docs/images/examples.png" alt="Browse example profiles and sprite sheets"></a>
   <a href="https://ko-fi.com/goldeneggovo"><img src="docs/images/ko_fi.png" alt="Support GoldenEggOVO on Ko-fi"></a>
 </p>
@@ -107,10 +107,10 @@ Open **Config** in Mod Menu on Fabric, or the mod’s config button on the **Mod
 Choose **Profiles → Open Config Folder** to work with your own PNGs and JSON files. The player guide takes you from a first profile to a shareable look.
 
 - [Preview and download four animated sprite profiles](examples/README.md)
-- [Make your first profile](https://goldeneggovo.github.io/xp_orb_trails/#make-your-first-file-profile)
-- [Import a PNG or sprite sheet](https://goldeneggovo.github.io/xp_orb_trails/#bring-your-own-sprite)
-- [Design a trail or map a ribbon texture](https://goldeneggovo.github.io/xp_orb_trails/#choose-how-a-trail-is-drawn)
-- [Animate a pickup or emit particles](https://goldeneggovo.github.io/xp_orb_trails/#write-a-pickup-effect)
+- [Make your first profile](https://goldeneggovo.github.io/xp_orb_trails/wiki/#make-your-first-file-profile)
+- [Import a PNG or sprite sheet](https://goldeneggovo.github.io/xp_orb_trails/wiki/#bring-your-own-sprite)
+- [Design a trail or map a ribbon texture](https://goldeneggovo.github.io/xp_orb_trails/wiki/#choose-how-a-trail-is-drawn)
+- [Animate a pickup or emit particles](https://goldeneggovo.github.io/xp_orb_trails/wiki/#write-a-pickup-effect)
 
 <details>
 <summary>Two ready-to-edit effects — Prism Star and Double Burst</summary>
