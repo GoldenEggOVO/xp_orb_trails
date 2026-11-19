@@ -5,6 +5,8 @@ const hits = document.querySelector('#hits');
 const contents = document.querySelector('#contents');
 const compact = matchMedia('(max-width: 800px)');
 const sections = [...document.querySelectorAll('.chapter')];
+const chapterLinks = [...contents.querySelectorAll('.nav-group a')];
+const mobileChapter = document.querySelector('#mobile-chapter');
 const entries = [];
 
 function addEntry(node, label, description, section) {
@@ -21,7 +23,8 @@ for (const chapter of sections) {
   }
   for (const row of chapter.querySelectorAll('tr[id]')) {
     const label = [...row.querySelectorAll('th code')].map(code => code.textContent).join(' / ');
-    addEntry(row, label, row.cells[1].textContent + ' · ' + row.cells[2].textContent, title);
+    const values = [...row.cells[1].childNodes].map(node => node.textContent).join(' ');
+    addEntry(row, label, values + ' · ' + row.cells[2].textContent, title);
   }
   for (const term of chapter.querySelectorAll('dt')) {
     term.id = 'topic-' + term.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '');
@@ -55,13 +58,59 @@ function clearSearch() {
   showResults();
 }
 
-function selectSection() {
-  const target = document.getElementById(location.hash.slice(1));
-  const current = target?.closest('.chapter')?.id;
-  for (const link of contents.querySelectorAll('a')) {
-    if (link.hash === '#' + current) link.setAttribute('aria-current', 'location');
+function markChapter() {
+  const offset = compact.matches
+    ? contents.querySelector('summary').getBoundingClientRect().bottom + 40
+    : document.querySelector('.top').getBoundingClientRect().bottom + 40;
+  const chapter = reading.hidden ? null : sections.findLast(section => section.getBoundingClientRect().top <= offset);
+  mobileChapter.textContent = chapter?.querySelector('h2').textContent || '';
+  for (const link of chapterLinks) {
+    if (chapter && link.hash === '#' + chapter.id) link.setAttribute('aria-current', 'location');
     else link.removeAttribute('aria-current');
   }
+}
+
+for (const sample of document.querySelectorAll('figure.sample')) {
+  const code = sample.querySelector('pre code');
+  const json = code.textContent;
+  const tokens = /"(?:\\.|[^"\\])*"|-?\b\d+(?:\.\d+)?|\b(?:true|false|null)\b/g;
+  const highlighted = document.createDocumentFragment();
+  let end = 0;
+  for (const match of json.matchAll(tokens)) {
+    highlighted.append(json.slice(end, match.index));
+    const token = document.createElement('span');
+    const [value] = match;
+    end = match.index + value.length;
+    const isKey = json.slice(end).trimStart().startsWith(':');
+    token.className = isKey ? 'token-key' : value.startsWith('"') ? 'token-string' : 'token-value';
+    token.textContent = value;
+    highlighted.append(token);
+  }
+  highlighted.append(json.slice(end));
+  code.replaceChildren(highlighted);
+
+  const copy = document.createElement('button');
+  copy.type = 'button';
+  copy.className = 'copy';
+  copy.textContent = 'Copy JSON';
+  copy.setAttribute('aria-live', 'polite');
+  let resetLabel;
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(json);
+      copy.textContent = 'Copied ✓';
+    } catch {
+      const range = document.createRange();
+      range.selectNodeContents(code);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      copy.textContent = 'JSON selected';
+    }
+    clearTimeout(resetLabel);
+    resetLabel = setTimeout(() => { copy.textContent = 'Copy JSON'; }, 2200);
+  });
+  sample.querySelector('figcaption').append(copy);
 }
 
 document.querySelector('.search').hidden = false;
@@ -69,7 +118,11 @@ contents.open = !compact.matches;
 compact.addEventListener('change', () => { contents.open = !compact.matches; });
 input.addEventListener('input', () => {
   showResults();
-  if (input.value.trim()) document.documentElement.scrollTop = 0;
+  if (input.value.trim()) {
+    if (compact.matches) contents.open = false;
+    document.documentElement.scrollTop = 0;
+  }
+  markChapter();
 });
 input.addEventListener('keydown', event => {
   if (event.key === 'Escape') clearSearch();
@@ -81,8 +134,30 @@ document.querySelector('#clear').addEventListener('click', () => {
 document.addEventListener('click', event => {
   const link = event.target.closest('a[href^="#"]');
   if (!link) return;
+  const fromSearch = hits.contains(link);
   if (!results.hidden) clearSearch();
   if (compact.matches) contents.open = false;
+  if (fromSearch) {
+    const target = document.getElementById(link.hash.slice(1));
+    target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
+  }
 });
-window.addEventListener('hashchange', () => { clearSearch(); selectSection(); });
-selectSection();
+document.addEventListener('keydown', event => {
+  if (event.key === '/' && !event.altKey && !event.ctrlKey && !event.metaKey
+      && !event.target.closest('input, textarea, select, [contenteditable="true"]')) {
+    event.preventDefault();
+    input.focus();
+  }
+});
+let scrollFrame = 0;
+function queueChapterUpdate() {
+  if (!scrollFrame) scrollFrame = requestAnimationFrame(() => {
+    scrollFrame = 0;
+    markChapter();
+  });
+}
+window.addEventListener('scroll', queueChapterUpdate, { passive: true });
+window.addEventListener('resize', queueChapterUpdate);
+window.addEventListener('hashchange', () => { clearSearch(); queueChapterUpdate(); });
+queueChapterUpdate();
