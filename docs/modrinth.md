@@ -47,4 +47,6 @@ Yes. Leave **Show Vanilla Orb** enabled under **Orb Body** to see your resource 
 
 ![Golden XP trails following orbs toward the player](https://cdn.modrinth.com/data/cached_images/007599090538a98fda3fd67c1417d9876045502a.gif)
 
+![Moth-shaped XP orbs in flight at night with curved purple trails](https://cdn.modrinth.com/data/7RhLudfA/images/41e76a2460a0be9e62be91a9113085b60937ce05.gif)
+
 ![Comet Pennant in the effect preview, with a moth-shaped orb and a purple ribbon](https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/comet_pennant_preview.png)
