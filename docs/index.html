@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Build custom XP orb bodies, trails and pickup effects. Look up profile, sprite sheet and particle emitter parameters for XP Orb Trails 2.0.0.">
+  <title>Player Wiki · XP Orb Trails</title>
+  <link rel="stylesheet" href="wiki.css">
+  <script defer src="wiki.js"></script>
+</head>
+<body>
+<a class="skip" href="#guide">Skip to guide</a>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="#guide"><span class="orb-mark" aria-hidden="true"></span>XP Orb Trails</a>
+    <span class="brand-part">Player wiki</span>
+    <div class="out-links"><a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples">Examples ↗</a><a href="https://github.com/GoldenEggOVO/xp_orb_trails">GitHub ↗</a></div>
+  </div>
+</header>
+<div class="layout">
+  <aside aria-label="Wiki navigation">
+    <div class="rail">
+      <div class="search" hidden><label for="find">Search the wiki</label><div class="search-box"><span aria-hidden="true">⌕</span><input id="find" type="search" placeholder="Setting or keyword" autocomplete="off"></div></div>
+      <details id="contents" open>
+        <summary>Contents</summary>
+        <nav aria-label="Contents">
+          <div class="nav-group">
+        <p>Start here</p>
+            <a href="#make-your-first-file-profile">Your first profile</a>
+            <a href="#where-your-files-go">Files & profiles</a>
+          </div>
+          <div class="nav-group">
+        <p>Customize</p>
+            <a href="#general">General & shared colors</a>
+            <a href="#orb-body">Orb body</a>
+            <a href="#choose-how-a-trail-is-drawn">Trails & ribbons</a>
+            <a href="#write-a-pickup-effect">Pickup effects</a>
+          </div>
+          <div class="nav-group">
+        <p>Asset reference</p>
+            <a href="#bring-your-own-sprite">PNG & sprite sheets</a>
+            <a href="#animate-a-shape">Shapes & keyframes</a>
+            <a href="#tune-the-emitter">Particle emitters</a>
+          </div>
+          <div class="nav-group">
+        <p>Resources</p>
+            <a href="#test-and-share-your-look">Test & share</a>
+          </div>
+        </nav>
+      </details>
+    </div>
+  </aside>
+  <main id="guide" tabindex="-1">
+    <div id="reading">
+      <div class="hero">
+        <div class="hero-copy">
+        <p class="version">XP ORB TRAILS <span>/</span> 2.0.0</p>
+          <h1>Player wiki</h1>
+          <p>Design an orb, trace its flight and choose what happens at pickup. Start with a working profile or look up a JSON field.</p>
+          <a class="jump" href="#general">Browse settings <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-art" aria-hidden="true"></div>
+      </div>
+      <section class="chapter" id="make-your-first-file-profile" aria-labelledby="title-make-your-first-file-profile">
+        <h2 id="title-make-your-first-file-profile">Your first profile</h2>
+        <p class="intro">Make a moth leave a blue-to-mint trail and an expanding ring at pickup. Everything this recipe needs ships with the mod.</p>
+        <ol class="steps"><li>Press the key assigned to <strong>Open Trail Settings</strong>, or use Mod Menu on Fabric or the Mods screen on Forge and NeoForge.</li><li>Choose <strong>Profiles → Open Config Folder</strong>. Create <code>profiles/moonwake.json</code> inside that folder and paste the example below.</li><li>Choose <strong>Profiles → File Profiles → Reload Files</strong>, then select <strong>Moonwake</strong> to apply it.</li><li>Open <strong>Effect Preview → Replay Animation</strong>. Collect an orb in your world to see the star-shaped trail from another angle.</li></ol>
+        <figure class="sample"><figcaption>profiles/moonwake.json</figcaption>
+<pre><code>{
+  "version": 1,
+  "name": "Moonwake",
+  "showVanillaOrb": false,
+  "flightEffect": "sprite:orb/luna-moth",
+  "trailSprite": "none",
+  "width": 0.22,
+  "crossSectionRadii": [1, 0.32, 1, 0.32, 1, 0.32, 1, 0.32, 1, 0.32],
+  "colorMode": "gradient",
+  "startColor": "#3650A9",
+  "gradientStops": ["#42B7DB"],
+  "endColor": "#B0FFDE",
+  "pickupFlash": true,
+  "pickupFlashStyle": "file:pickup/ring"
+}</code></pre></figure>
+        <p>Each short radius makes a groove between two points. Change all five <code>0.32</code> values to <code>0.7</code>, then reload and select Moonwake again to see a softer outline.</p>
+      </section>
+      <section class="chapter" id="where-your-files-go" aria-labelledby="title-where-your-files-go">
+        <h2 id="title-where-your-files-go">Files &amp; profiles</h2>
+        <p class="intro">Open the config folder from the Profiles page. The folders below are inside config/xp_orb_trails/ in your Minecraft instance.</p>
+        <pre class="tree"><code>xp_orb_trails/
+├── defaults.json
+├── profiles/                 Shareable looks
+├── orb/
+│   ├── effects/              JSON animations
+│   └── sprites/              One folder per sprite
+├── pickup/
+│   ├── effects/              JSON animations
+│   └── sprites/              One folder per sprite
+└── trail/
+    └── sprites/              Stamps and ribbon textures</code></pre>
+        <p>An effect ID uses its JSON filename without the extension. A sprite ID uses its folder name. Asset IDs accept 1–64 lowercase letters, digits, underscores or hyphens. For example, <code>orb/sprites/moon_moth/sheet.png</code> is <code>sprite:orb/moon_moth</code>.</p>
+        <h3 id="profile-fields">File profile format</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="profile-version"><th scope="row"><code>version</code></th><td>1</td><td>Required JSON format version. Use a number.</td></tr>
+<tr id="profile-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>Text / translation key</td><td>The filename supplies a fallback label. An explicit name takes priority over nameKey.</td></tr>
+</tbody></table></div>
+        <p>A file profile starts with your <code>defaults.json</code> values, then applies the visual fields it supplies. Personal settings live one level up in <code>config/xp_orb_trails.json</code>. File profiles preserve the active master switch, render range and trail limit. An in-game saved profile captures all three. The raw settings and defaults use integer RGB colors. File profiles use quoted <code>#RRGGBB</code> values.</p>
+        <h3 id="editable-templates">Editable starting points</h3>
+        <p>Browse the installed JSON and PNG files for working examples. Try <code>profiles/comet-pennant.json</code> for a textured ribbon, <code>orb/effects/twin-orbit.json</code> for orbital motion, or <code>pickup/effects/soft.json</code>, <code>ring.json</code> and <code>star.json</code> in the same pickup folder for simple flashes. The Starfall profile connects a five-point trail with two particle emitters. Copy a template under a new filename and give it a name to compare both looks in game.</p>
+      </section>
+      <section class="chapter" id="general" aria-labelledby="title-general">
+        <h2 id="title-general">General &amp; shared colors</h2>
+        <p class="intro">Set the rendering budget and the palette used by geometric trails and effects. PNG artwork keeps the colors painted into the image.</p>
+        <h3 id="general-global">Instance settings</h3>
+        <p>Use General for the master switch and rendering limits. Edit point spacing and vertical offset in the main config with the game closed. All five fields belong to the instance and are outside the shareable file profile format.</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values / default</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="global-enabled"><th scope="row"><code>enabled</code></th><td>Boolean<small>Default: <code>true</code></small></td><td>Master switch for the mod.</td></tr>
+<tr id="global-renderRange"><th scope="row"><code>renderRange</code></th><td>4–128 blocks<small>Default: <code>36</code></small></td><td>Maximum viewing distance for tracked trails.</td></tr>
+<tr id="global-trailCap"><th scope="row"><code>trailCap</code></th><td>8–256, integer<small>Default: <code>96</code></small></td><td>Maximum number of simultaneous trails.</td></tr>
+<tr id="global-pointSpacing"><th scope="row"><code>pointSpacing</code></th><td>0.03–1 block<small>Default: <code>0.18</code></small></td><td>Sampling distance along the path. Smaller spacing records points closer together.</td></tr>
+<tr id="global-orbYOffset"><th scope="row"><code>orbYOffset</code></th><td>Finite number, blocks<small>Default: <code>0.175</code></small></td><td>Vertical offset of the effect anchor relative to the orb.</td></tr>
+</tbody></table></div>
+        <p>The main config also stores <code>savedPresets</code> (up to 12 named color palettes) and <code>savedProfiles</code> (up to eight personal looks). Both can be managed in game.</p>
+        <h3 id="shared-colors">Color & light</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values / default</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="general-colorMode"><th scope="row"><code>colorMode</code></th><td>solid · gradient · rainbow<small>Default: <code>gradient</code></small></td><td>Select one color, a gradient along the trail, or a cycling rainbow.</td></tr>
+<tr id="general-startColor"><th scope="row"><code>startColor</code><br><code>endColor</code></th><td>#RRGGBB<small>Default: <code>#E6FF2A / #66FF00</code></small></td><td>Set the start and end of the gradient.</td></tr>
+<tr id="general-gradientStops"><th scope="row"><code>gradientStops</code></th><td>0–8 hex colors<small>Default: <code>[]</code></small></td><td>Intermediate colors in order between the endpoints.</td></tr>
+<tr id="general-rainbowSpeed"><th scope="row"><code>rainbowSpeed</code></th><td>0.02–2<small>Default: <code>0.2</code></small></td><td>Cycle rate in rainbow mode.</td></tr>
+<tr id="general-effectStrength"><th scope="row"><code>effectStrength</code></th><td>0.005–2<small>Default: <code>0.78</code></small></td><td>Overall visibility of orb artwork, trails and pickup effects.</td></tr>
+<tr id="general-additiveGlow"><th scope="row"><code>additiveGlow</code></th><td>Boolean<small>Default: <code>true</code></small></td><td>Blend light additively when enabled. Disable for alpha blending.</td></tr>
+</tbody></table></div>
+      </section>
+      <section class="chapter" id="orb-body" aria-labelledby="title-orb-body">
+        <h2 id="title-orb-body">Orb body</h2>
+        <p class="intro">Keep the vanilla orb, layer an animation over it, or replace it with a looping sprite or a procedural effect.</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values / default</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="orb-showVanillaOrb"><th scope="row"><code>showVanillaOrb</code></th><td>Boolean<small>Default: <code>true</code></small></td><td>Shows the original orb, including its resource-pack texture. Turn off to use replacement artwork alone.</td></tr>
+<tr id="orb-flightEffect"><th scope="row"><code>flightEffect</code></th><td>none · file:orb/&lt;id&gt; · sprite:orb/&lt;id&gt;<small>Default: <code>none</code></small></td><td>Select an orb animation or PNG. For example: file:orb/twin-orbit or sprite:orb/luna-moth.</td></tr>
+<tr id="orb-orbScale"><th scope="row"><code>orbScale</code></th><td>0.25–4×<small>Default: <code>1</code></small></td><td>Size of custom orb artwork.</td></tr>
+</tbody></table></div>
+        <p>To make your own orbit, copy <code>orb/effects/twin-orbit.json</code> to <code>orb/effects/moon_orbit.json</code>. Set its <code>name</code> to <strong>Moon Orbit</strong> and change the second layer’s middle keyframe radius from <code>1.05</code> to <code>2</code>. Reload, then choose <strong>Orb Body → Orb Artwork → Moon Orbit</strong>. The five head-colored pieces now swing wider than the six tail-colored pieces.</p>
+      </section>
+      <section class="chapter" id="choose-how-a-trail-is-drawn" aria-labelledby="title-choose-how-a-trail-is-drawn">
+        <h2 id="title-choose-how-a-trail-is-drawn">Trails &amp; ribbons</h2>
+        <p class="intro">Choose a geometric trail, a continuous textured ribbon, separate stamps, or afterimages of the orb body.</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values / default</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="trail-trailSprite"><th scope="row"><code>trailSprite</code></th><td>none · body · sprite:trail/&lt;id&gt;<small>Default: <code>none</code></small></td><td>Use none for geometry. Use body for afterimages of the orb, or select a trail sprite for stamps or a textured ribbon.</td></tr>
+<tr id="trail-trailSpriteMode"><th scope="row"><code>trailSpriteMode</code></th><td>stamps · ribbon<small>Default: <code>stamps</code></small></td><td>Choose the layout of the selected PNG.</td></tr>
+<tr id="trail-width"><th scope="row"><code>width</code></th><td>0.02–1<small>Default: <code>0.1</code></small></td><td>Overall width of geometry or a continuous ribbon.</td></tr>
+<tr id="trail-tailWidthScale"><th scope="row"><code>tailWidthScale</code><br><code>middleWidthScale</code><br><code>headWidthScale</code></th><td>Tail 0–1.5 · middle 0–2 · head 0.05–2<small>Default: <code>0.18 / 0.7 / 1</code></small></td><td>Width multipliers from the oldest point to the orb. A zero tail width creates a pointed end.</td></tr>
+<tr id="trail-crossSectionSides"><th scope="row"><code>crossSectionSides</code></th><td>2–32, integer<small>Default: <code>2</code></small></td><td>Two sides face the camera. Three to 32 sides form a tube.</td></tr>
+<tr id="trail-crossSectionRadii"><th scope="row"><code>crossSectionRadii</code></th><td>[] or 3–32 numbers in (0, 1]<small>Default: <code>[]</code></small></td><td>Set the radius at equally spaced angles around a geometric trail. Alternating ten long and short radii makes a five-point star.</td></tr>
+<tr id="trail-customCrossSectionEnabled"><th scope="row"><code>customCrossSectionEnabled</code></th><td>Boolean<small>Default: <code>true</code></small></td><td>Use the supplied radii. Disable to switch back to the regular side count.</td></tr>
+<tr id="trail-stampSpacing"><th scope="row"><code>stampSpacing</code><br><code>stampScale</code></th><td>Spacing 0.25–10 · scale 0.2–10<small>Default: <code>1 / 1</code></small></td><td>Stamps and afterimages have their own density and size. A spacing of 1 targets one mark every 0.2 blocks.</td></tr>
+<tr id="trail-fixedStamps"><th scope="row"><code>fixedStamps</code></th><td>Boolean<small>Default: <code>false</code></small></td><td>Anchor PNG stamps where the orb passed. Each starts its own animation there.</td></tr>
+<tr id="trail-lifetimeSeconds"><th scope="row"><code>lifetimeSeconds</code></th><td>0.25–10 s<small>Default: <code>2.6</code></small></td><td>Time before old points expire. A longer lifetime usually leaves a longer trail.</td></tr>
+<tr id="trail-pickupFadeSeconds"><th scope="row"><code>pickupFadeSeconds</code></th><td>0.05–3 s<small>Default: <code>0.35</code></small></td><td>Time for the remaining trail to fade after the orb disappears, including collection.</td></tr>
+<tr id="trail-flightPulse"><th scope="row"><code>flightPulse</code></th><td>Boolean<small>Default: <code>false</code></small></td><td>Send a traveling band of light along the trail.</td></tr>
+<tr id="trail-pulseSpeed"><th scope="row"><code>pulseSpeed</code></th><td>0.1–4×<small>Default: <code>1</code></small></td><td>Adjust the animation rate of the traveling highlight and keyframed flight artwork.</td></tr>
+<tr id="trail-smoothFlow"><th scope="row"><code>smoothFlow</code></th><td>0–1<small>Default: <code>0.48</code></small></td><td>Move older trail points smoothly toward the orb.</td></tr>
+<tr id="trail-motionShift"><th scope="row"><code>motionShift</code><br><code>cameraPush</code></th><td>0–1 each<small>Default: <code>0.1 / 0.1</code></small></td><td>Shift the anchor backward during fast movement or push it away from the camera to reduce overlap.</td></tr>
+<tr id="trail-ribbonMapping"><th scope="row"><code>ribbonMapping</code></th><td>Five modes below<small>Default: <code>stretch</code></small></td><td>Map the horizontal axis of the PNG along the path. A capped sprite supplies its own middle mapping.</td></tr>
+<tr id="trail-ribbonRepeatLength"><th scope="row"><code>ribbonRepeatLength</code></th><td>0.1–4 blocks<small>Default: <code>0.5</code></small></td><td>Distance per repeat in distance-based tiling.</td></tr>
+</tbody></table></div>
+        <h3 id="map-a-texture-along-the-ribbon">Ribbon mapping</h3>
+        <dl class="modes">
+        <dt><code>stretch</code></dt><dd>Fit one image from tail to head as the path grows.</dd>
+        <dt><code>tile</code></dt><dd>Repeat at a chosen length along the current path.</dd>
+        <dt><code>distribute_per_segment</code></dt><dd>Give each path segment an equal share of one image.</dd>
+        <dt><code>repeat_per_segment</code></dt><dd>Place a whole copy on every segment, whatever its length.</dd>
+        <dt><code>static</code></dt><dd>Anchor texture coordinates to accumulated travel. Existing points keep their phase as the tail expires.</dd></dl>
+        <p>Draw the tail on the left of the PNG and the head on the right. The <a href="#sprite-ribbon">ribbon descriptor</a> can reserve pixels for each end.</p>
+      </section>
+      <section class="chapter" id="write-a-pickup-effect" aria-labelledby="title-write-a-pickup-effect">
+        <h2 id="title-write-a-pickup-effect">Pickup effects</h2>
+        <p class="intro">Choose the instant an orb is collected: a soft glow, a ring, star-shaped shards, an animated sprite or a burst of particles.</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values / default</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="pickup-pickupFlash"><th scope="row"><code>pickupFlash</code></th><td>Boolean<small>Default: <code>true</code></small></td><td>Enable the pickup effect.</td></tr>
+<tr id="pickup-pickupFlashStyle"><th scope="row"><code>pickupFlashStyle</code></th><td>file:pickup/&lt;id&gt; · sprite:pickup/&lt;id&gt;<small>Default: <code>file:pickup/soft</code></small></td><td>Choose an effect or atlas. Try file:pickup/ring or sprite:pickup/collect-burst.</td></tr>
+<tr id="pickup-pickupFlashSize"><th scope="row"><code>pickupFlashSize</code><br><code>pickupFlashStrength</code></th><td>Size 0.02–8.34 · strength 0.1–2<small>Default: <code>0.65 / 0.55</code></small></td><td>Size and intensity of the pickup effect, independent of trail width.</td></tr>
+<tr id="pickup-pickupFlashSeconds"><th scope="row"><code>pickupFlashSeconds</code></th><td>0.08–1 s<small>Default: <code>0.22</code></small></td><td>Duration of the keyframed pickup animation. Pickup sprites play once at their own frame timing. Emitted particles have their own lifetime.</td></tr>
+<tr id="pickup-shardCount"><th scope="row"><code>shardCount</code></th><td>3–16, integer<small>Default: <code>6</code></small></td><td>Number of copies in layers whose count is bound to shardCount.</td></tr>
+<tr id="pickup-spiralTurns"><th scope="row"><code>spiralTurns</code></th><td>0.15–2<small>Default: <code>0.65</code></small></td><td>Number of turns in layers whose turns field is bound to spiralTurns.</td></tr>
+</tbody></table></div>
+        <h3 id="moon-burst">Recipe: a two-wave pickup</h3>
+        <p>Save this effect in <code>pickup/effects/</code>. In Moonwake, set <code>pickupFlashStyle</code> to <code>file:pickup/moon_burst</code> and <code>pickupFlashSeconds</code> to <code>0.45</code>. Reload and reselect the profile. Two waves of diamonds rise, spread out and fade.</p>
+        <figure class="sample"><figcaption>pickup/effects/moon_burst.json</figcaption>
+<pre><code>{
+  "version": 1,
+  "name": "Moon Burst",
+  "emitter": {
+    "space": "world",
+    "bursts": [{"time": 0, "count": 10}, {"time": 0.18, "count": 5}],
+    "direction": [0, 1, 0],
+    "spread": 45,
+    "lifetime": [0.35, 0.7],
+    "speed": [0.8, 1.8],
+    "size": [0.7, 1.2],
+    "spin": [-120, 120],
+    "gravity": 2.5,
+    "drag": 0.6,
+    "colors": ["#8CEFFF", "#C1A2FF"]
+  },
+  "layers": [{
+    "shape": "diamond_xy",
+    "easing": "smooth",
+    "frames": [
+      {"t": 0, "width": 0.6, "height": 0.6, "color": "head", "opacity": 1},
+      {"t": 1, "width": 0.15, "height": 0.15, "opacity": 0}
+    ]
+  }]
+}</code></pre></figure>
+      </section>
+      <section class="chapter" id="bring-your-own-sprite" aria-labelledby="title-bring-your-own-sprite">
+        <h2 id="title-bring-your-own-sprite">PNG &amp; sprite sheets</h2>
+        <p class="intro">A single square PNG makes a still sprite. A horizontal or vertical strip of square frames animates at 12 FPS without a descriptor.</p>
+        <p>Give each asset its own folder under <code>orb/sprites/</code>, <code>pickup/sprites/</code> or <code>trail/sprites/</code>. For a grid or rectangular frames, add a JSON descriptor beside the PNG. Here, a 48 × 32 image contains six 16 × 16 frames in reading order.</p>
+        <figure class="sample"><figcaption>orb/sprites/moon_moth/sheet.json</figcaption>
+<pre><code>{
+  "image": "sheet.png",
+  "name": "Moon Moth",
+  "frameWidth": 16,
+  "frameHeight": 16,
+  "frames": 6,
+  "fps": 10,
+  "loop": true,
+  "pivot": [8, 8]
+}</code></pre></figure>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="sprite-image"><th scope="row"><code>image</code></th><td>PNG filename</td><td>Select an image in the same folder. With a single PNG, the filename can be inferred. For an exported atlas use meta.image.</td></tr>
+<tr id="sprite-name"><th scope="row"><code>name</code></th><td>Text</td><td>Label in the artwork picker.</td></tr>
+<tr id="sprite-frameWidth"><th scope="row"><code>frameWidth</code><br><code>frameHeight</code></th><td>Positive integer pixels</td><td>Supply both dimensions. Each must divide the corresponding PNG dimension exactly.</td></tr>
+<tr id="sprite-frames"><th scope="row"><code>frames</code></th><td>1–1,024 frames</td><td>For a grid, set the number of cells to play, row by row. For an atlas, supply ordered frame entries as an array or object.</td></tr>
+<tr id="sprite-fps"><th scope="row"><code>fps</code></th><td>Greater than 0, up to 1,000</td><td>Frame rate. Defaults to 12 when per-frame timing is absent.</td></tr>
+<tr id="sprite-loop"><th scope="row"><code>loop</code></th><td>Boolean, default true</td><td>Repeat a sheet. Replacement orb sprites always loop while active. Pickup sprites always play once.</td></tr>
+<tr id="sprite-pivot"><th scope="row"><code>pivot</code></th><td>[x, y] in frame pixels</td><td>Anchor relative to the original frame. Defaults to its center.</td></tr>
+</tbody></table></div>
+        <h3 id="sprite-atlas">PixelFX Studio & packed atlases</h3>
+        <p>Export the PNG and atlas JSON together with frame rotation disabled. The loader reads atlas metadata and artwork. Keep editable project files in your sprite editor.</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="atlas-meta.image"><th scope="row"><code>meta.image</code><br><code>meta.size</code></th><td>Filename · {w,h}</td><td>Identify the atlas PNG. If included, size must match its actual dimensions.</td></tr>
+<tr id="atlas-meta.pixelfx"><th scope="row"><code>meta.pixelfx</code></th><td>Object</td><td>Put name, fps, loop and pivot here for packed frames.</td></tr>
+<tr id="atlas-frame"><th scope="row"><code>frame</code></th><td>{x,y,w,h} in pixels</td><td>Rectangle inside the atlas for each entry in frames.</td></tr>
+<tr id="atlas-duration"><th scope="row"><code>duration</code></th><td>Positive integer milliseconds</td><td>Per-frame display time, overriding fps for that frame.</td></tr>
+<tr id="atlas-trimmed"><th scope="row"><code>trimmed</code><br><code>rotated</code></th><td>Booleans</td><td>Trimmed frames require both size records below. Export with rotated set to false.</td></tr>
+<tr id="atlas-sourceSize"><th scope="row"><code>sourceSize</code><br><code>spriteSourceSize</code></th><td>{w,h} · {x,y,w,h}</td><td>Original frame dimensions and the position of the trimmed rectangle inside that frame.</td></tr>
+</tbody></table></div>
+        <h3 id="sprite-ribbon">Ribbon caps</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="ribbon-ribbon"><th scope="row"><code>ribbon</code></th><td>Object</td><td>Optional for a trail sheet. Put it at descriptor level or in the atlas settings. Include all three fields below.</td></tr>
+<tr id="ribbon-tailPixels"><th scope="row"><code>tailPixels</code><br><code>headPixels</code></th><td>Nonnegative integers</td><td>Reserve this many original frame pixels at the left and right ends. Leave at least one middle pixel in every frame.</td></tr>
+<tr id="ribbon-middle"><th scope="row"><code>middle</code></th><td>Ribbon mapping name</td><td>Mapping of the region between the caps. For example, tile the middle and keep both tips intact.</td></tr>
+</tbody></table></div>
+        <p>The <a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/common/src/main/resources/assets/xporbtrails/sprites/trail/comet-pennant/sheet.json">Comet Pennant descriptor</a> reserves 10 pixels for the tail and 14 for the head. The <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/common/src/main/resources/assets/xporbtrails/sprites/pickup/collect-burst">Collect Burst atlas</a> shows trimmed pickup frames.</p>
+      </section>
+      <section class="chapter" id="animate-a-shape" aria-labelledby="title-animate-a-shape">
+        <h2 id="title-animate-a-shape">Shapes &amp; keyframes</h2>
+        <p class="intro">Use layered JSON when you want an effect to change shape, orbit, spin or fade. Orb and pickup effects share the same format.</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="effect-version"><th scope="row"><code>version</code></th><td>1</td><td>Required effect format version.</td></tr>
+<tr id="effect-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>Text / translation key</td><td>Display label or localization key. An explicit name wins. The filename supplies a fallback.</td></tr>
+<tr id="effect-layers"><th scope="row"><code>layers</code></th><td>1–8 layers</td><td>Draw in layers. Each layer needs a sequence of frames.</td></tr>
+<tr id="effect-emitter"><th scope="row"><code>emitter</code></th><td>Optional object</td><td>Spawn independently moving copies of the layers. See the particle emitter reference.</td></tr>
+<tr id="effect-reflow"><th scope="row"><code>reflow</code></th><td>Boolean, default false</td><td>For a pickup, move the effect along the recorded trail toward the collection point.</td></tr>
+<tr id="effect-rainbowSaturation"><th scope="row"><code>rainbowSaturation</code></th><td>0–1, default 0.88</td><td>Saturation when this effect takes colors from the rainbow palette.</td></tr>
+</tbody></table></div>
+        <h3 id="layer-fields">Layer fields</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="layer-shape"><th scope="row"><code>shape</code></th><td>rectangle · diamond_xy · diamond_yz · diamond_zx · ring · arc · radial</td><td>Choose a plane for a diamond, a segmented ring or arc, or a filled radial silhouette. Default: rectangle.</td></tr>
+<tr id="layer-radii"><th scope="row"><code>radii</code></th><td>3–32 entries in [0, 1]</td><td>Required only for radial. Two neighboring radii must be positive to enclose an area.</td></tr>
+<tr id="layer-count"><th scope="row"><code>count</code></th><td>1–32 or "shardCount"</td><td>Copies around the center. Bind to the profile value with the literal string "shardCount".</td></tr>
+<tr id="layer-rotateCopies"><th scope="row"><code>rotateCopies</code></th><td>Boolean, default true</td><td>Rotate each copy by its own angular offset.</td></tr>
+<tr id="layer-color"><th scope="row"><code>color</code><br><code>alternateColor</code></th><td>head · tail · #RRGGBB</td><td>Primary and alternating copy colors. Keyframes can override either.</td></tr>
+<tr id="layer-contrast"><th scope="row"><code>contrast</code><br><code>light</code></th><td>Boolean · 0–1</td><td>Contrast distinguishes identical alternating colors. Light brightens the layer toward white.</td></tr>
+<tr id="layer-turns"><th scope="row"><code>turns</code></th><td>−10 to 10 or "spiralTurns"</td><td>Full turns over the animation. Negative values reverse direction.</td></tr>
+<tr id="layer-segments"><th scope="row"><code>segments</code></th><td>1–64, ring minimum 3</td><td>Pieces used to draw a ring or arc.</td></tr>
+<tr id="layer-sweep"><th scope="row"><code>sweep</code></th><td>−720° to 720°</td><td>Signed angle spanned by an arc.</td></tr>
+<tr id="layer-startRadiusScale"><th scope="row"><code>startRadiusScale</code><br><code>startOpacity</code></th><td>0–4 · 0–1</td><td>Radius multiplier and visibility at the beginning of an arc.</td></tr>
+<tr id="layer-radiusVariation"><th scope="row"><code>radiusVariation</code><br><code>sizeVariation</code></th><td>0–0.5 each</td><td>Vary the orbital radius or size across copies.</td></tr>
+<tr id="layer-radiusFrequency"><th scope="row"><code>radiusFrequency</code><br><code>sizeFrequency</code></th><td>−32 to 32 each</td><td>Change the rate of that variation across copy indices.</td></tr>
+<tr id="layer-easing"><th scope="row"><code>easing</code><br><code>radiusEasing</code><br><code>opacityEasing</code></th><td>linear · smooth · out</td><td>Interpolate steadily, ease in and out, or ease out. Radius and opacity inherit easing unless overridden.</td></tr>
+<tr id="layer-frames"><th scope="row"><code>frames</code></th><td>2–16 keyframes</td><td>Start at t = 0 and finish at t = 1 with strictly increasing times.</td></tr>
+</tbody></table></div>
+        <h3 id="effect-frames">Keyframe fields</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="frame-t"><th scope="row"><code>t</code></th><td>0–1, required</td><td>Normalized time. For an emitter, the interval covers one particle’s lifetime.</td></tr>
+<tr id="frame-x"><th scope="row"><code>x</code><br><code>y</code></th><td>−8 to 8</td><td>Move the center in the effect plane.</td></tr>
+<tr id="frame-radius"><th scope="row"><code>radius</code><br><code>angle</code></th><td>0–8 · −3,600° to 3,600°</td><td>Set orbital distance and angle around the layer center.</td></tr>
+<tr id="frame-width"><th scope="row"><code>width</code><br><code>height</code></th><td>0–8</td><td>Size along each axis. For a ring, the two dimensions set its two diameters.</td></tr>
+<tr id="frame-rotation"><th scope="row"><code>rotation</code></th><td>−3,600° to 3,600°</td><td>Turn the shape around its own center.</td></tr>
+<tr id="frame-opacity"><th scope="row"><code>opacity</code></th><td>0–1</td><td>Visibility from transparent to fully visible.</td></tr>
+<tr id="frame-color"><th scope="row"><code>color</code><br><code>alternateColor</code></th><td>head · tail · #RRGGBB</td><td>Change and interpolate the primary and alternating colors over time.</td></tr>
+</tbody></table></div>
+        <p>After the first keyframe, missing values carry forward. At the first frame, position, orbit and rotation begin at zero, width and height at 0.25, opacity at 1, and colors inherit from the layer.</p>
+      </section>
+      <section class="chapter" id="tune-the-emitter" aria-labelledby="title-tune-the-emitter">
+        <h2 id="title-tune-the-emitter">Particle emitters</h2>
+        <p class="intro">Choose when particles are born, what varies from one to the next, and how they move after emission.</p>
+        <p>Enable at least one emission source: a positive rate, a distance interval, or a timed burst. Combine them for a stream with an opening flash. Distances are in blocks and positive Y points up.</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
+        <tbody>
+<tr id="emitter-rate"><th scope="row"><code>rate</code></th><td>0–128 particles/s</td><td>Continuous emission by time. Zero disables this source.</td></tr>
+<tr id="emitter-distance"><th scope="row"><code>distance</code></th><td>0.01–64 blocks</td><td>Emit at each interval traveled. Useful for evenly spaced particles along a moving orb’s path.</td></tr>
+<tr id="emitter-bursts"><th scope="row"><code>bursts</code></th><td>Up to 16 {time,count} waves</td><td>time is 0–30 seconds from the start and count is 1–64 particles per wave.</td></tr>
+<tr id="emitter-direction"><th scope="row"><code>direction</code></th><td>Nonzero [x,y,z]</td><td>Normalized launch direction, default [0,1,0]. Each component can range from −1,000,000 to 1,000,000.</td></tr>
+<tr id="emitter-spread"><th scope="row"><code>spread</code></th><td>0–180°</td><td>Half-angle of the launch cone. Try 10 for a jet or 80 for a spray.</td></tr>
+<tr id="emitter-lifetime"><th scope="row"><code>lifetime</code></th><td>0.01–10 s</td><td>Seconds each particle lives. Accepts one value or [min,max].</td></tr>
+<tr id="emitter-speed"><th scope="row"><code>speed</code></th><td>0–32 blocks/s</td><td>Initial launch speed. Accepts one value or [min,max].</td></tr>
+<tr id="emitter-size"><th scope="row"><code>size</code></th><td>0.01–8×</td><td>Particle size multiplier. Accepts one value or [min,max].</td></tr>
+<tr id="emitter-rotation"><th scope="row"><code>rotation</code><br><code>spin</code></th><td>−3,600 to 3,600</td><td>Initial angle in degrees and spin in degrees/second. Both accept a number or [min,max].</td></tr>
+<tr id="emitter-colors"><th scope="row"><code>colors</code></th><td>1–16 hex colors</td><td>Choose a color independently at birth. Use head in the layer to pick it up.</td></tr>
+<tr id="emitter-gravity"><th scope="row"><code>gravity</code></th><td>−64 to 64 blocks/s²</td><td>Positive values pull particles downward. Negative values lift them.</td></tr>
+<tr id="emitter-drag"><th scope="row"><code>drag</code></th><td>0–32</td><td>Slow particles over time. Zero preserves velocity apart from gravity.</td></tr>
+<tr id="emitter-space"><th scope="row"><code>space</code></th><td>world · local</td><td>World anchors a particle at its emission point. Local moves the origin with the orb. Default: world.</td></tr>
+</tbody></table></div>
+        <p>In <a href="#moon-burst">Moon Burst</a>, try changing only <code>spread</code> from <code>45</code> to <code>10</code> and replay the effect. To emit along an orb’s flight, copy the file into <code>orb/effects/</code>, add <code>"distance": 0.25</code>, then select it as your orb artwork. The <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples/starfall/config/xp_orb_trails">Starfall example</a> includes working flight and pickup emitters.</p>
+      </section>
+      <section class="chapter" id="test-and-share-your-look" aria-labelledby="title-test-and-share-your-look">
+        <h2 id="title-test-and-share-your-look">Test &amp; share</h2>
+        <p class="intro">Reload edited files, apply the profile again, then replay the preview and collect an orb in a world.</p>
+        <dl class="help">
+        <dt>My file is missing from the menu.</dt><dd>Check the reload result and <code>logs/latest.log</code>. File profiles and drawn effects require strict JSON with <code>"version": 1</code>. Check the role, duplicate or unknown keys, and hex color spelling. An invalid edit to an existing effect or sprite can leave its last working version visible.</dd>
+        <dt>The original orb is still visible.</dt><dd>Check <strong>Show Vanilla Orb</strong> and the artwork ID. An orb outside the tracking range or count limit can use the vanilla body. Turning the vanilla body off and deliberately selecting no artwork hides it.</dd>
+        <dt>The sheet is rejected.</dt><dd>Check frame dimensions, the filename, and atlas trim information. Each sheet supports up to 1,024 frames, 4,096 pixels per side and 4,194,304 pixels total. Use at most one descriptor per folder. The library supports 64 atlases and 16,777,216 pixels combined.</dd>
+        <dt>Some particles disappear in a large burst.</dt><dd>Each effect has a geometry budget of 96 pieces across up to eight layers. Rings, arcs and radial shapes spend several pieces per copy. An emitter keeps at most 64 live particles with a 384-quad budget. Reduce copies or segments to keep more particles visible.</dd>
+        <dt>How do I send my look to another player?</dt><dd>Share the profile JSON and every asset it references. Preserve the <code>profiles/</code>, <code>orb/</code>, <code>pickup/</code> and <code>trail/</code> paths. Test the pack in a fresh instance, then have the recipient merge the folders into <code>config/xp_orb_trails/</code>, reload, and select the profile.</dd></dl>
+        <p><a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples">Browse example packs</a> · <a href="https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/sprite_sheet_examples.zip">Download four sprite profiles (.zip)</a></p>
+      </section>
+    </div>
+    <section id="results" hidden aria-labelledby="results-title">
+      <h1 id="results-title">Search results</h1>
+        <p id="count" role="status"></p><ul id="hits"></ul>
+      <button id="clear" type="button">Clear search</button>
+    </section>
+    <footer><a href="#guide">Back to top ↑</a><a href="https://github.com/GoldenEggOVO/xp_orb_trails/issues">Report a documentation issue ↗</a></footer>
+  </main>
+</div>
+</body>
+</html>
