@@ -61,16 +61,31 @@ Install on your **Minecraft client** using Java 25 or newer. Choose one **2.0.0*
 
 <p align="center"><img src="docs/images/orb_divider.png" alt=""></p>
 
+<a name="qa"></a>
+
+<img src="docs/images/heading_qa.png" alt="Q&amp;A">
+
+**Does XP Orb Trails work with shaders?**
+
+Yes, it supports shader packs.
+
+**Can I use a resource pack that changes the XP orb texture?**
+
+Yes. Leave **Show Vanilla Orb** enabled under **Orb Body** to see your resource pack’s texture.
+
+<p align="center"><img src="docs/images/orb_divider.png" alt=""></p>
+
 <a name="in-game"></a><a name="gallery"></a>
 
 <img src="docs/images/heading_gallery.png" alt="Gallery">
 
 <p align="center">
   <a href="https://cdn.modrinth.com/data/cached_images/007599090538a98fda3fd67c1417d9876045502a.gif"><img src="https://cdn.modrinth.com/data/cached_images/007599090538a98fda3fd67c1417d9876045502a.gif" alt="Golden trails curving around a player as experience orbs fly toward them" width="400"></a>
+  <a href="https://cdn.modrinth.com/data/7RhLudfA/images/41e76a2460a0be9e62be91a9113085b60937ce05.gif"><img src="https://cdn.modrinth.com/data/7RhLudfA/images/41e76a2460a0be9e62be91a9113085b60937ce05.gif" alt="Moth-shaped XP orbs in flight at night with curved purple trails" width="400"></a>
   <a href="docs/images/comet_pennant_preview.png"><img src="docs/images/comet_pennant_preview.png" alt="Comet Pennant in the effect preview, with a moth-shaped orb and a purple ribbon" width="400"></a>
 </p>
 
-The animation shows orbs in flight. To try the moth and its purple ribbon, open **Profiles → File Profiles** and select **Comet Pennant**.
+To try the moth and its purple ribbon, open **Profiles → File Profiles** and select **Comet Pennant**.
 
 <p align="center"><img src="docs/images/orb_divider.png" alt=""></p>
 
