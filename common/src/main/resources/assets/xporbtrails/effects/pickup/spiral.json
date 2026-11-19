@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.flash_style.spiral",
+  "layers": [
+    {
+      "shape": "arc",
+      "count": 2,
+      "segments": 12,
+      "turns": "spiralTurns",
+      "sweep": 77.34930234266115,
+      "startRadiusScale": 1.3,
+      "startOpacity": 0.22,
+      "color": "head",
+      "alternateColor": "tail",
+      "contrast": true,
+      "opacityEasing": "smooth",
+      "frames": [
+        { "t": 0, "radius": 2.15, "width": 0.09, "height": 0.26 },
+        { "t": 1, "radius": 0, "width": 0.0315, "height": 0.091, "opacity": 0 }
+      ]
+    }
+  ]
+}

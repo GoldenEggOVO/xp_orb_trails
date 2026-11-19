@@ -6,8 +6,98 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class TrailConfigTest {
+    @Test
+    void storesTrailLayoutsAcrossProfileCopiesAndConfigReloads() {
+        var source = new TrailConfig();
+        source.trailSprite = "body";
+        source.fixedStamps = true;
+        source.ribbonMapping = "tile";
+        source.ribbonRepeatLength = 0.75;
+        var profile = new TrailConfig.SavedProfile("Runes", source);
+        var gson = new Gson();
+        var restored = new TrailConfig();
+        gson.fromJson(gson.toJson(profile), TrailConfig.SavedProfile.class).applyTo(restored);
+        var disk = gson.fromJson(gson.toJson(restored), TrailConfig.class).sanitized();
+        assertEquals("body", disk.trailSprite);
+        assertEquals(true, disk.fixedStamps);
+        assertEquals("tile", disk.ribbonMapping);
+        assertEquals(0.75, disk.ribbonRepeatLength);
+        var partial = gson.fromJson("{\"trailSpriteMode\":\"ribbon\"}", TrailConfig.class).sanitized();
+        assertEquals(false, partial.fixedStamps);
+        assertEquals("stretch", partial.ribbonMapping);
+        assertEquals(0.5, partial.ribbonRepeatLength);
+        disk.ribbonMapping = "typo";
+        disk.ribbonRepeatLength = 0;
+        assertEquals("stretch", disk.sanitized().ribbonMapping);
+        assertEquals(0.1, disk.ribbonRepeatLength);
+    }
+
+    @Test
+    void customColorsAndAnimationSurviveProfileCopyAndReload() {
+        TrailConfig config = new TrailConfig();
+        config.startColor = 0;
+        config.endColor = 0xffffff;
+        config.gradientStops = new int[]{0xff0000};
+        config.flightPulse = true;
+        config.flightEffect = "file:orb/favorite";
+        config.trailSprite = "sprite:trail/comet-strip";
+        config.showVanillaOrb = false;
+        config.orbScale = 1.5;
+        config.trailSpriteMode = "ribbon";
+        config.stampSpacing = 2.75;
+        config.stampScale = 0.75;
+        config.pulseSpeed = 2.3;
+        config.shardCount = 10;
+        config.spiralTurns = 1.25;
+        for (String style : new String[]{"file:pickup/reflow", "file:pickup/shards", "file:pickup/spiral", "file:pickup/other-effect", "sprite:pickup/collect-burst"}) {
+            config.pickupFlashStyle = style;
+            var profile = new TrailConfig.SavedProfile("Test", config);
+            var gson = new Gson();
+            var restored = new TrailConfig();
+            gson.fromJson(gson.toJson(profile), TrailConfig.SavedProfile.class).applyTo(restored);
+            assertEquals(style, restored.pickupFlashStyle);
+            assertEquals(true, restored.flightPulse);
+            assertEquals("file:orb/favorite", restored.flightEffect);
+            assertEquals("sprite:trail/comet-strip", restored.trailSprite);
+            assertEquals(false, restored.showVanillaOrb);
+            assertEquals(1.5, restored.orbScale);
+            assertEquals("ribbon", restored.trailSpriteMode);
+            assertEquals(2.75, restored.stampSpacing);
+            assertEquals(0.75, restored.stampScale);
+            assertEquals(2.3, restored.pulseSpeed);
+            assertEquals(10, restored.shardCount);
+            assertEquals(1.25, restored.spiralTurns);
+            assertEquals(0xff0000, restored.gradientColor(0.5));
+            assertEquals(0x7f0000, restored.gradientColor(0.25));
+            assertEquals(0xffffff, restored.gradientColor(1));
+            restored.gradientStops[0] = 0;
+            assertArrayEquals(new int[]{0xff0000}, config.gradientStops);
+        }
+    }
+
+    @Test
+    void missingSettingsAndInvalidFileIdsGetSafeDefaults() {
+        var gson = new Gson();
+        TrailConfig config = gson.fromJson("{}", TrailConfig.class).sanitized();
+        assertEquals("none", config.flightEffect);
+        assertEquals("none", config.trailSprite);
+        config.flightEffect = "sprite:orb/future";
+        config.trailSprite = "file:orb/vector";
+        config.sanitized();
+        assertEquals("sprite:orb/future", config.flightEffect);
+        assertEquals("none", config.trailSprite);
+        for (String invalid : new String[]{null, "", "file:", "file:../x", "file:old", "sprite:old",
+                "file:pickup/alien", "sprite:trail/alien", "soft"}) {
+            config.flightEffect = invalid;
+            assertEquals("none", config.sanitized().flightEffect);
+        }
+        config.pickupFlashStyle = "file:../x";
+        assertEquals("file:pickup/soft", config.sanitized().pickupFlashStyle);
+    }
+
     @Test
     void repairsNonFiniteNumbersWithoutDiscardingOtherSettings() throws ReflectiveOperationException {
         Gson gson = new Gson();
@@ -47,29 +137,13 @@ class TrailConfigTest {
     }
 
     @Test
-    void repairsNonFiniteLegacyValuesBeforeMigration() {
-        Gson gson = new Gson();
-        TrailConfig config = gson.fromJson("""
-                {"configVersion":8,"width":"NaN","opacity":"NaN","glowStrength":"Infinity",
-                 "pickupFlashSize":"NaN","savedProfiles":[
-                   {"name":"Legacy","width":"NaN","opacity":"NaN","glowStrength":"NaN","pickupFlashSize":"NaN"}
-                 ]}
-                """, TrailConfig.class).sanitized();
-        gson.toJson(config);
-        config.savedProfiles.getFirst().applyTo(config);
-        assertEquals(true, Double.isFinite(config.width) && Double.isFinite(config.effectStrength)
-                && Double.isFinite(config.pickupFlashSize));
-    }
-
-    @Test
     void crossSectionSurvivesProfilesAndReloadAndClampsInvalidValues() {
         Gson gson = new Gson();
         TrailConfig config = gson.fromJson("{\"crossSectionSides\":32}", TrailConfig.class).sanitized();
         assertEquals(32, gson.toJsonTree(config).getAsJsonObject().get("crossSectionSides").getAsInt());
         TrailConfig copy = new TrailConfig();
-        copy.copyFrom(config);
-        TrailConfig.SavedProfile profile = new TrailConfig.SavedProfile("Round", copy);
-        profile = gson.fromJson(gson.toJson(new TrailConfig.SavedProfile(profile)), TrailConfig.SavedProfile.class);
+        TrailConfig.SavedProfile profile = new TrailConfig.SavedProfile("Round", config);
+        profile = gson.fromJson(gson.toJson(profile), TrailConfig.SavedProfile.class);
         profile.applyTo(copy);
         assertEquals(32, gson.toJsonTree(copy).getAsJsonObject().get("crossSectionSides").getAsInt());
         for (int value : new int[]{-1, 2, 3, 8, 32, 100}) {
@@ -84,45 +158,13 @@ class TrailConfigTest {
     }
 
     @Test
-    void migratesLegacyStrengthAndFlashSizeWithoutChangingTheEffect() {
-        Gson gson = new Gson();
-        TrailConfig config = gson.fromJson("""
-                {"configVersion":8,"width":0.48,"opacity":0.6,"glowStrength":1.5,
-                 "pickupFlashSize":0.8,"savedProfiles":[
-                   {"name":"Legacy","width":0.12,"opacity":0.8,"glowStrength":1.25,"pickupFlashSize":0.6}
-                 ]}
-                """, TrailConfig.class).sanitized();
-        assertEquals(9, config.configVersion);
-        assertEquals(0.9, gson.toJsonTree(config).getAsJsonObject().get("effectStrength").getAsDouble(), 1e-9);
-        assertEquals(1.6, config.pickupFlashSize, 1e-9);
-        config.savedProfiles.getFirst().applyTo(config);
-        assertEquals(1.0, gson.toJsonTree(config).getAsJsonObject().get("effectStrength").getAsDouble(), 1e-9);
-        assertEquals(0.3, config.pickupFlashSize, 1e-9);
-    }
-
-    @Test
-    void migrationIsStableAcrossSavingAndChangingTrailWidth() {
-        Gson gson = new Gson();
-        TrailConfig config = gson.fromJson("""
-                {"configVersion":8,"width":0.48,"opacity":0.6,"glowStrength":1.5,"pickupFlashSize":0.8}
-                """, TrailConfig.class).sanitized();
-        config.width = 0.1;
-        config = gson.fromJson(gson.toJson(config), TrailConfig.class).sanitized();
-        assertEquals(9, config.configVersion);
-        assertEquals(1.6, config.pickupFlashSize, 1e-9);
-        assertEquals(0.9, gson.toJsonTree(config).getAsJsonObject().get("effectStrength").getAsDouble(), 1e-9);
-    }
-
-    @Test
     void newProfilesAndCopiesPreserveIndependentControlsAfterReload() {
         TrailConfig config = new TrailConfig();
         config.effectStrength = 1.35;
         config.pickupFlashSize = 1.7;
         config.savedProfiles.add(new TrailConfig.SavedProfile("New", config));
         Gson gson = new Gson();
-        config = gson.fromJson(gson.toJson(config), TrailConfig.class).sanitized();
-        TrailConfig copy = new TrailConfig();
-        copy.copyFrom(config);
+        TrailConfig copy = gson.fromJson(gson.toJson(config), TrailConfig.class).sanitized();
         copy.width = 0.8;
         copy.effectStrength = 0.5;
         copy.savedProfiles.getFirst().applyTo(copy);
@@ -137,7 +179,7 @@ class TrailConfigTest {
         TrailConfig config = new TrailConfig();
         config.trailCap = 999;
         config.renderRange = -1;
-        config.opacity = -1;
+        config.effectStrength = -1;
         config.colorMode = "invalid";
         config.pickupFlashStyle = "invalid";
         config.savedProfiles = new ArrayList<>();
@@ -150,27 +192,11 @@ class TrailConfigTest {
 
         assertEquals(256, config.trailCap);
         assertEquals(4.0, config.renderRange);
-        assertEquals(0.05, config.opacity);
+        assertEquals(0.005, config.effectStrength);
         assertEquals("gradient", config.colorMode);
-        assertEquals("soft", config.pickupFlashStyle);
+        assertEquals("file:pickup/soft", config.pickupFlashStyle);
         assertEquals(8, config.savedProfiles.size());
         assertEquals("Profile 0", config.savedProfiles.getFirst().name);
-    }
-
-    @Test
-    void migratesOldConfigToCurrentDefaults() {
-        TrailConfig config = new TrailConfig();
-        config.configVersion = 1;
-        config.motionShift = 0.9;
-        config.pickupFadeSeconds = 2.0;
-        config.pickupFlashStyle = "star";
-
-        config.sanitized();
-
-        assertEquals(9, config.configVersion);
-        assertEquals(0.10, config.motionShift);
-        assertEquals(0.35, config.pickupFadeSeconds);
-        assertEquals("soft", config.pickupFlashStyle);
     }
 
     @Test
@@ -181,14 +207,14 @@ class TrailConfigTest {
         config.trailCap = 24;
         config.width = 0.42;
         config.colorMode = "rainbow";
-        config.pickupFlashStyle = "ring";
+        config.pickupFlashStyle = "file:pickup/ring";
         TrailConfig.SavedProfile profile = new TrailConfig.SavedProfile("Favorite", config);
         config.enabled = true;
         config.renderRange = 36;
         config.trailCap = 96;
         config.width = 0.12;
         config.colorMode = "solid";
-        config.pickupFlashStyle = "soft";
+        config.pickupFlashStyle = "file:pickup/soft";
 
         profile.applyTo(config);
 
@@ -197,6 +223,6 @@ class TrailConfigTest {
         assertEquals(24, config.trailCap);
         assertEquals(0.42, config.width);
         assertEquals("rainbow", config.colorMode);
-        assertEquals("ring", config.pickupFlashStyle);
+        assertEquals("file:pickup/ring", config.pickupFlashStyle);
     }
 }

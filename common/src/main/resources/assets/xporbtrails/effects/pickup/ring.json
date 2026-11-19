@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.flash_style.ring",
+  "rainbowSaturation": 0.75,
+  "layers": [
+    {
+      "shape": "ring",
+      "segments": 16,
+      "easing": "smooth",
+      "frames": [
+        { "t": 0, "width": 1.3, "height": 0.884 },
+        { "t": 1, "width": 5.3, "height": 3.604, "opacity": 0 }
+      ]
+    }
+  ]
+}
