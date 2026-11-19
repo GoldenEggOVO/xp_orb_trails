@@ -19,4 +19,4 @@ The animated swatches below show the **orb**, **trail** and **pickup** artwork f
 
 To draw a replacement, edit a `sheet.png` in the role’s `sprites/` folder. Most sheets have a neighboring `sheet.json` that defines frame size, order and timing. Koi Stream’s orb demonstrates automatic square-frame detection and plays at 12 FPS using the PNG alone. After editing, reload files and select the profile again.
 
-[Starfall](starfall/config/xp_orb_trails/) is a separate example for JSON particle emitters and a star-shaped trail. The [player guide](../docs/advanced_customization.md) explains sprite sheets, texture mapping and sharing profiles.
+[Starfall](starfall/config/xp_orb_trails/) is a separate example for JSON particle emitters and a star-shaped trail. The [player guide](https://goldeneggovo.github.io/xp_orb_trails/) explains sprite sheets, texture mapping and sharing profiles.
