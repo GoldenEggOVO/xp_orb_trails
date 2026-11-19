@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "name": "Brass Clockwork",
+  "showVanillaOrb": false,
+  "flightEffect": "sprite:orb/winding_gear",
+  "orbScale": 0.92,
+  "trailSprite": "sprite:trail/turnkey",
+  "trailSpriteMode": "stamps",
+  "fixedStamps": false,
+  "stampSpacing": 1.3,
+  "stampScale": 0.95,
+  "lifetimeSeconds": 1.15,
+  "pickupFlash": true,
+  "pickupFlashStyle": "sprite:pickup/mainspring",
+  "pickupFlashSize": 1.15,
+  "pickupFlashSeconds": 0.63,
+  "effectStrength": 1,
+  "additiveGlow": false,
+  "colorMode": "solid",
+  "startColor": "#FFFFFF",
+  "endColor": "#FFFFFF"
+}
