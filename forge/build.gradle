@@ -16,8 +16,9 @@ dependencies {
     annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.6'
 }
 processResources {
-    inputs.property 'version', project.version
-    filesMatching('META-INF/mods.toml') { expand version: "${project.version}+mc${rootProject.minecraft_version}" }
+    def modVersion = "${project.version}+mc${rootProject.minecraft_version}"
+    inputs.property 'version', modVersion
+    filesMatching('META-INF/mods.toml') { expand version: modVersion }
 }
 jar { manifest.attributes 'MixinConfigs': 'xporbtrails.client.mixins.json,xporbtrails.forge.mixins.json' }
 if (project.hasProperty('clientTests')) {
