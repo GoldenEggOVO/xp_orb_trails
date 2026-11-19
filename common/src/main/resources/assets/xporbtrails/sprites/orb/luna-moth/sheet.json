@@ -1,0 +1,9 @@
+{
+  "image": "sheet.png",
+  "name": "Luna Moth",
+  "frameWidth": 24,
+  "frameHeight": 20,
+  "frames": 8,
+  "fps": 10,
+  "loop": true
+}

@@ -1,0 +1,9 @@
+orb/luna-moth/sheet.png
+orb/luna-moth/sheet.json
+pickup/collect-burst/sheet.png
+pickup/collect-burst/sheet.json
+pickup/collect-burst/LICENSE.txt
+pickup/collect-burst/NOTICE.txt
+pickup/collect-burst/SOURCE.txt
+trail/comet-pennant/sheet.png
+trail/comet-pennant/sheet.json

@@ -56,7 +56,7 @@ Run the graphical client checks separately:
 
 Forge/NeoForge probes load the packaged mod JAR. Prepare a disposable world at
 `<loader>/build/run/clientProbe/saves/Probe World`, disable `pauseOnLostFocus`
-in that run's options, and seed `config/xp-orb-trails.json` with width `0.42`
+in that run's options, and seed `config/xp_orb_trails.json` with width `0.42`
 and a saved color named `Existing`. The initial probe checks loader settings
 factories, the key binding, English/Chinese menus, page resets, real pickup
 packets, disappearance without pickup, cleanup, and rendered trail pixels
@@ -94,13 +94,13 @@ Shader mods are only loaded into this optional test run.
 3. Commit and push verified source only when authorized.
 4. Publish one release per mod version with tag/title `v<mod-version>`.
    Attach all supported loader and Minecraft builds as
-   `xp-orb-trails-<loader>-<mod-version>+<minecraft-version>.jar`.
+   `xp_orb_trails-<loader>-<mod-version>+<minecraft-version>.jar`.
    Use the default Minecraft branch for the release tag; other Minecraft sources
    remain on their version branches. Preserve existing tags unless their removal
    is explicitly requested.
 5. Download published JARs and compare SHA-256 with local builds.
 
-Metadata uses the semantic version `1.4.1+mc26.3`; the loader prefix belongs
+Metadata uses the semantic version `2.0.0+mc26.3`; the loader prefix belongs
 in JAR filenames. Release names and tags contain only the mod version. Minecraft
 branches may share a mod version. On Modrinth, select the correct game version and loader as well.
 Use Git and GitHub CLI for publishing. This repository has no Actions workflows.

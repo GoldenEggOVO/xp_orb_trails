@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "name": "Twin Orbit",
+  "layers": [
+    {
+      "color": "tail",
+      "count": 6,
+      "frames": [
+        {"t": 0, "width": 0.01, "height": 0.01, "opacity": 0},
+        {"t": 0.5, "radius": 1.7, "angle": 180, "width": 0.38, "height": 0.18, "rotation": 180, "opacity": 0.9},
+        {"t": 1, "radius": 0, "angle": 360, "width": 0.01, "height": 0.01, "rotation": 360, "opacity": 0}
+      ]
+    },
+    {
+      "color": "head",
+      "count": 5,
+      "frames": [
+        {"t": 0, "width": 0.01, "height": 0.01, "opacity": 0},
+        {"t": 0.5, "radius": 1.05, "angle": -180, "width": 0.22, "height": 0.30, "rotation": -180, "opacity": 1},
+        {"t": 1, "radius": 0, "angle": -360, "width": 0.01, "height": 0.01, "rotation": -360, "opacity": 0}
+      ]
+    }
+  ]
+}

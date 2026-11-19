@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "flightEffect": "sprite:orb/luna-moth",
+  "showVanillaOrb": false,
+  "orbScale": 0.85,
+  "pickupFlashStyle": "sprite:pickup/collect-burst",
+  "pickupFlashSize": 1.2,
+  "pickupFlashStrength": 1.0,
+  "width": 0.22,
+  "lifetimeSeconds": 1.45,
+  "effectStrength": 1,
+  "additiveGlow": false,
+  "name": "Comet Pennant",
+  "trailSprite": "sprite:trail/comet-pennant",
+  "trailSpriteMode": "ribbon",
+  "ribbonRepeatLength": 0.48,
+  "tailWidthScale": 0.85,
+  "middleWidthScale": 1.0
+}

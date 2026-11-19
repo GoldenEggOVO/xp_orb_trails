@@ -2,14 +2,14 @@ modLoader="javafml"
 loaderVersion="[66,)"
 license="MIT"
 clientSideOnly=true
-issueTrackerURL="https://github.com/GoldenEggOVO/XP-Orb-Trails/issues"
+issueTrackerURL="https://github.com/GoldenEggOVO/xp_orb_trails/issues"
 
 [[mods]]
 modId="xporbtrails"
 version="${version}"
 displayName="XP Orb Trails"
 authors="GoldenEggOVO"
-displayURL="https://github.com/GoldenEggOVO/XP-Orb-Trails"
+displayURL="https://github.com/GoldenEggOVO/xp_orb_trails"
 logoFile="assets/xporbtrails/icon.png"
 description='''Adds smooth, colorful, customizable trails and pickup flashes to experience orbs without shaders.'''
 

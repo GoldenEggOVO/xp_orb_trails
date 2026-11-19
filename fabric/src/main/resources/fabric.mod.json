@@ -8,9 +8,9 @@
 		"GoldenEggOVO"
 	],
 	"contact": {
-		"homepage": "https://github.com/GoldenEggOVO/XP-Orb-Trails",
-		"sources": "https://github.com/GoldenEggOVO/XP-Orb-Trails",
-		"issues": "https://github.com/GoldenEggOVO/XP-Orb-Trails/issues"
+		"homepage": "https://github.com/GoldenEggOVO/xp_orb_trails",
+		"sources": "https://github.com/GoldenEggOVO/xp_orb_trails",
+		"issues": "https://github.com/GoldenEggOVO/xp_orb_trails/issues"
 	},
 	"license": "MIT",
 	"icon": "assets/xporbtrails/icon.png",

@@ -6,6 +6,8 @@
 	"client": [
 		"ClientPacketListenerMixin",
 		"ExperienceOrbMixin",
+		"ExperienceOrbRendererMixin",
+		"ExperienceOrbRenderStateMixin",
 		"GameRendererMixin",
 		"LevelRendererMixin",
 		"RenderPipelinesAccessor"

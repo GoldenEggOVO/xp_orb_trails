@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.0 — Minecraft 26.3
+
+- Customize orb bodies, trails and pickup effects independently. Load editable JSON animations, PNG sprites and file profiles from the in-game menu.
+- Add textured ribbons with five mapping modes, fixed stamps, orb afterimages and custom cross-sections. Starfall demonstrates particle emission, physics and a five-point trail.
+- Organize settings into General, Trail, Pickup, Orb Body and Profiles. The preview can replay the full flight and pickup.
+- Keep untracked experience orbs visible when replacement artwork is selected. Recover cleanly when an edited gradient contains an invalid entry.
+- Read settings from `config/xp_orb_trails.json` and assets from `config/xp_orb_trails/`. Version 2.0 starts with fresh defaults when only older configuration paths exist.
+
 ## 1.4.1 — Minecraft 26.3
 
 - Draw trails after final world composition so shader packs do not overwrite them.
