@@ -7,8 +7,9 @@ neoForge {
     mods { xporbtrails { sourceSet sourceSets.main } }
 }
 processResources {
-    inputs.property 'version', project.version
-    filesMatching('META-INF/neoforge.mods.toml') { expand version: "${project.version}+mc${rootProject.minecraft_version}" }
+    def modVersion = "${project.version}+mc${rootProject.minecraft_version}"
+    inputs.property 'version', modVersion
+    filesMatching('META-INF/neoforge.mods.toml') { expand version: modVersion }
 }
 if (project.hasProperty('clientTests')) {
     sourceSets {
