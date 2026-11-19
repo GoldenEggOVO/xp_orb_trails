@@ -1,4 +1,9 @@
-<p align="center"><img src="docs/images/orb_trails_banner.png" alt="XP Orb Trails" width="960"></p>
+<p align="center">
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="docs/images/orb_trails_banner.png">
+    <img src="docs/images/orb_trails_banner.gif" alt="XP Orb Trails" width="960">
+  </picture>
+</p>
 
 <p align="center">
   <a href="https://modrinth.com/mod/xporbtrails"><img src="docs/images/modrinth.png" alt="Download on Modrinth"></a>
