@@ -15,7 +15,8 @@ import java.util.concurrent.CompletableFuture;
 final class ShaderTrailClientTest {
     static void run(ClientGameTestContext context) {
         var failures = new ArrayList<String>();
-        try (TestSingleplayerContext world = context.worldBuilder().create()) {
+        TestSingleplayerContext world = context.worldBuilder().create();
+        try {
             world.getServer().runCommand("gamemode spectator @p");
             world.getServer().runCommand("tp @p 0 80 0 0 0");
             world.getServer().runCommand("time set day");
@@ -69,6 +70,8 @@ final class ShaderTrailClientTest {
                     if (occluded ? pixels > 2 : pixels < 8) failures.add(name + ": magenta pixels=" + pixels);
                 }
             }
+        } finally {
+            TrailClientTest.closeWorld(context, world);
         }
         if (!failures.isEmpty()) throw new AssertionError(String.join("; ", failures));
     }

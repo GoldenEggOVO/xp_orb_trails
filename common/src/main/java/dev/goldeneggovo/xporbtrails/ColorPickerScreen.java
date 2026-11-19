@@ -1,7 +1,7 @@
 package dev.goldeneggovo.xporbtrails;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -17,10 +17,11 @@ public final class ColorPickerScreen extends Screen {
     private float saturation;
     private float brightness;
     private EditBox hexBox;
+    private SettingsButton done;
     private boolean draggingPalette;
     private boolean draggingHue;
     private boolean syncingHex;
-    private int paletteHeight;
+    private int panelY, panelHeight, paletteY, paletteHeight;
     private int hueY;
     private int hexY;
 
@@ -36,32 +37,38 @@ public final class ColorPickerScreen extends Screen {
     protected void init() {
         int center = width / 2;
         paletteHeight = Math.max(16, Math.min(112, height - 160));
-        hueY = 48 + paletteHeight + 14;
+        panelHeight = paletteHeight + 150;
+        panelY = (height - panelHeight) / 2;
+        paletteY = panelY + 43;
+        hueY = paletteY + paletteHeight + 14;
         hexY = hueY + 31;
-        hexBox = new EditBox(font, center - 80, hexY, 160, 20, Component.translatable("screen.xporbtrails.hex"));
+        String draft = hexBox == null ? hex(currentColor()) : hexBox.getValue();
+        done = new SettingsButton(center - 80, panelY + panelHeight - 25, 160, Component.translatable("gui.done"),
+                b -> onClose(), SettingsButton.Style.PRIMARY, false);
+        hexBox = new SettingsEditBox(font, center - 80, hexY, 134, 20, Component.translatable("screen.xporbtrails.hex"));
         hexBox.setMaxLength(7);
-        hexBox.setValue(hex(currentColor()));
+        hexBox.setValue(draft);
+        done.active = validHex(draft);
         hexBox.setResponder(text -> {
-            if (syncingHex) return;
+            done.active = validHex(text);
+            if (syncingHex || !done.active) return;
             String value = text.startsWith("#") ? text.substring(1) : text;
-            if (value.matches("[0-9a-fA-F]{6}")) {
-                int color = Integer.parseInt(value, 16);
-                float[] hsv = rgbToHsv(color);
-                hue = hsv[0]; saturation = hsv[1]; brightness = hsv[2];
-                consumer.accept(color);
-            }
+            int color = Integer.parseInt(value, 16);
+            float[] hsv = rgbToHsv(color);
+            hue = hsv[0]; saturation = hsv[1]; brightness = hsv[2];
+            consumer.accept(color);
         });
         addRenderableWidget(hexBox);
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
-                .bounds(center - 80, height - 28, 160, 20).build());
+        addRenderableWidget(done);
     }
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-        super.extractRenderState(graphics, mouseX, mouseY, delta);
-        int px = width / 2 - 80, py = 48, pw = 160, ph = paletteHeight;
-        graphics.centeredText(font, title, width / 2, 16, 0xFFFFFFFF);
-        int hueColor = hsvToRgb(hue, 1.0F, 1.0F);
+        int px = width / 2 - 80, py = paletteY, pw = 160, ph = paletteHeight;
+        graphics.fill(px - 14, panelY, px + pw + 14, panelY + panelHeight, TrailConfigScreen.PANEL);
+        graphics.outline(px - 14, panelY, pw + 28, panelHeight, TrailConfigScreen.RULE);
+        graphics.text(font, title, px, panelY + 13, TrailConfigScreen.TEXT, false);
+        int hueColor = TrailEffects.hsvToRgb(hue, 1.0F, 1.0F);
         for (int x = 0; x < pw; x++) {
             float sat = x / (float) (pw - 1);
             graphics.fillGradient(px + x, py, px + x + 1, py + ph,
@@ -75,22 +82,25 @@ public final class ColorPickerScreen extends Screen {
 
         int hy = hueY, hh = 12;
         for (int x = 0; x < pw; x++) {
-            int color = hsvToRgb(x / (float) (pw - 1), 1.0F, 1.0F);
+            int color = TrailEffects.hsvToRgb(x / (float) (pw - 1), 1.0F, 1.0F);
             graphics.fill(px + x, hy, px + x + 1, hy + hh, 0xFF000000 | color);
         }
         graphics.outline(px - 1, hy - 1, pw + 2, hh + 2, 0xFFFFFFFF);
         int hx = px + Math.round(hue * (pw - 1));
         graphics.outline(hx - 2, hy - 2, 5, hh + 4, 0xFFFFFFFF);
-        graphics.fill(px + pw + 12, py, px + pw + 42, py + 30, 0xFF000000 | currentColor());
-        graphics.outline(px + pw + 11, py - 1, 32, 32, 0xFFFFFFFF);
-        graphics.text(font, Component.translatable("screen.xporbtrails.hex"), px, hexY - 12, 0xFFA0A0A0);
+        graphics.fill(px + pw - 20, hexY, px + pw, hexY + 20, 0xFF000000 | currentColor());
+        graphics.outline(px + pw - 20, hexY, 20, 20, TrailConfigScreen.RULE);
+        graphics.text(font, Component.translatable(done.active ? "screen.xporbtrails.hex" : "screen.xporbtrails.hex_format"),
+                px, hexY - 12, done.active ? TrailConfigScreen.TEXT : 0xFFFFC8BF, false);
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
     }
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
         if (super.mouseClicked(event, doubled)) return true;
+        if (event.button() != InputConstants.MOUSE_BUTTON_LEFT) return false;
         int px = width / 2 - 80;
-        if (inside(event.x(), event.y(), px, 48, 160, paletteHeight)) {
+        if (inside(event.x(), event.y(), px, paletteY, 160, paletteHeight)) {
             draggingPalette = true; updatePalette(event.x(), event.y()); return true;
         }
         if (inside(event.x(), event.y(), px, hueY, 160, 12)) {
@@ -108,14 +118,16 @@ public final class ColorPickerScreen extends Screen {
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
-        draggingPalette = false; draggingHue = false;
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
+            draggingPalette = false; draggingHue = false;
+        }
         return super.mouseReleased(event);
     }
 
     private void updatePalette(double mouseX, double mouseY) {
         int px = width / 2 - 80;
         saturation = clamp((float) ((mouseX - px) / 159.0));
-        brightness = 1.0F - clamp((float) ((mouseY - 48) / (paletteHeight - 1.0)));
+        brightness = 1.0F - clamp((float) ((mouseY - paletteY) / (paletteHeight - 1.0)));
         changed();
     }
 
@@ -136,7 +148,8 @@ public final class ColorPickerScreen extends Screen {
 
     @Override public void onClose() { if (minecraft != null) minecraft.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }
-    private int currentColor() { return hsvToRgb(hue, saturation, brightness); }
+    private static boolean validHex(String value) { return value.matches("#?[0-9a-fA-F]{6}"); }
+    private int currentColor() { return TrailEffects.hsvToRgb(hue, saturation, brightness); }
     private static boolean inside(double x, double y, int bx, int by, int bw, int bh) { return x >= bx && x < bx + bw && y >= by && y < by + bh; }
     private static float clamp(float v) { return Math.max(0.0F, Math.min(1.0F, v)); }
     private static String hex(int color) { return String.format(Locale.ROOT, "#%06X", color & 0xFFFFFF); }
@@ -146,22 +159,6 @@ public final class ColorPickerScreen extends Screen {
         int g = Math.round(((a >> 8) & 255) + (((b >> 8) & 255) - ((a >> 8) & 255)) * t);
         int bl = Math.round((a & 255) + ((b & 255) - (a & 255)) * t);
         return (r << 16) | (g << 8) | bl;
-    }
-
-    private static int hsvToRgb(float h, float s, float v) {
-        float sector = (h - (float) Math.floor(h)) * 6.0F;
-        int i = (int) sector; float f = sector - i;
-        float p = v * (1 - s), q = v * (1 - s * f), t = v * (1 - s * (1 - f));
-        float r, g, b;
-        switch (i % 6) {
-            case 0 -> { r = v; g = t; b = p; }
-            case 1 -> { r = q; g = v; b = p; }
-            case 2 -> { r = p; g = v; b = t; }
-            case 3 -> { r = p; g = q; b = v; }
-            case 4 -> { r = t; g = p; b = v; }
-            default -> { r = v; g = p; b = q; }
-        }
-        return (Math.round(r * 255) << 16) | (Math.round(g * 255) << 8) | Math.round(b * 255);
     }
 
     private static float[] rgbToHsv(int color) {

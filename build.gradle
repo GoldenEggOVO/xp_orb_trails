@@ -22,17 +22,24 @@ subprojects {
     tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
     repositories { mavenCentral() }
     tasks.withType(Test).configureEach { useJUnitPlatform() }
+    tasks.named('processResources') {
+        def example = rootProject.file('examples/starfall/config/xp_orb_trails')
+        from(new File(example, 'profiles')) { into 'assets/xporbtrails/profiles' }
+        ['orb', 'pickup'].each { role ->
+            from(new File(example, role + '/effects')) { into "assets/xporbtrails/effects/${role}" }
+        }
+    }
 }
 
 configure(subprojects.findAll { it.name != 'common' }) {
     sourceSets.main.java.srcDir rootProject.file('common/src/main/java')
     sourceSets.main.resources.srcDir rootProject.file('common/src/main/resources')
     tasks.withType(AbstractArchiveTask).configureEach {
-        archiveBaseName = 'xp-orb-trails'
+        archiveBaseName = 'xp_orb_trails'
         archiveVersion = "${project.name}-${project.version}+${rootProject.minecraft_version}"
     }
     tasks.named('jar') {
-        from(rootProject.file('LICENSE')) { rename { 'LICENSE_xp-orb-trails' } }
+        from(rootProject.file('LICENSE')) { rename { 'LICENSE_xp_orb_trails' } }
     }
     tasks.register('verifyReleaseJar') {
         dependsOn tasks.named('jar')
@@ -48,8 +55,17 @@ configure(subprojects.findAll { it.name != 'common' }) {
                 'dev/goldeneggovo/xporbtrails/mixin/LevelRendererMixin.class',
                 'dev/goldeneggovo/xporbtrails/mixin/RenderPipelinesAccessor.class',
                 'dev/goldeneggovo/xporbtrails/mixin/RenderTypeAccessor.class',
-                'xporbtrails.client.mixins.json', 'pack.mcmeta', 'LICENSE_xp-orb-trails',
-                'assets/xporbtrails/icon.png',
+                'xporbtrails.client.mixins.json', 'pack.mcmeta', 'LICENSE_xp_orb_trails',
+                'assets/xporbtrails/icon.png', 'assets/xporbtrails/defaults.json', 'assets/xporbtrails/profiles/defaults.txt',
+                'assets/xporbtrails/sprites/comet-strip/comet.png',
+                'assets/xporbtrails/sprites/defaults.txt',
+                'dev/goldeneggovo/xporbtrails/SpriteLibrary.class',
+                'dev/goldeneggovo/xporbtrails/SpriteRenderer.class',
+                'dev/goldeneggovo/xporbtrails/SpriteRibbon.class',
+                'dev/goldeneggovo/xporbtrails/FixedStampHistory.class',
+                'dev/goldeneggovo/xporbtrails/mixin/ExperienceOrbRendererMixin.class',
+                'dev/goldeneggovo/xporbtrails/mixin/ExperienceOrbRenderStateMixin.class',
+                'dev/goldeneggovo/xporbtrails/OrbBodyVisibility.class',
                 'assets/xporbtrails/lang/en_us.json', 'assets/xporbtrails/lang/zh_cn.json'
             ]
             if (project.name == 'fabric') required += ['fabric.mod.json',
@@ -63,6 +79,14 @@ configure(subprojects.findAll { it.name != 'common' }) {
             new java.util.zip.ZipFile(artifact).withCloseable { zip ->
                 required.each { entry ->
                     if (zip.getEntry(entry) == null) throw new GradleException("Release JAR is missing ${entry}: ${artifact}")
+                }
+                ['profiles', 'sprites', 'effects/orb', 'effects/pickup'].each { folder ->
+                    def prefix = "assets/xporbtrails/${folder}/"
+                    zip.getInputStream(zip.getEntry(prefix + 'defaults.txt')).withReader('UTF-8') { reader ->
+                        reader.eachLine { entry ->
+                            if (zip.getEntry(prefix + entry) == null) throw new GradleException("Bundled asset is missing: ${prefix}${entry}")
+                        }
+                    }
                 }
                 ['fabric.mod.json': 'fabric', 'META-INF/mods.toml': 'forge', 'META-INF/neoforge.mods.toml': 'neoforge'].each { entry, platform ->
                     if (project.name != platform && zip.getEntry(entry) != null) throw new GradleException("Unexpected ${platform} metadata in ${artifact}")

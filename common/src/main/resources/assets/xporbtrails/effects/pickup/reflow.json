@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.flash_style.reflow",
+  "reflow": true,
+  "layers": [
+    {
+      "light": 1,
+      "easing": "smooth",
+      "frames": [
+        { "t": 0, "width": 0.6, "height": 0.6, "rotation": 45 },
+        { "t": 0.82 },
+        { "t": 1, "width": 0.3, "height": 0.3, "opacity": 0 }
+      ]
+    }
+  ]
+}

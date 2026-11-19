@@ -1,0 +1,14 @@
+{
+  "image": "sheet.png",
+  "name": "Comet Pennant",
+  "frameWidth": 56,
+  "frameHeight": 14,
+  "frames": 8,
+  "fps": 10,
+  "loop": true,
+  "ribbon": {
+    "tailPixels": 10,
+    "headPixels": 14,
+    "middle": "tile"
+  }
+}

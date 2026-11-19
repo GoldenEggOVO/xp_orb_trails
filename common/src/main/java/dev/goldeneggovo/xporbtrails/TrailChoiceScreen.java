@@ -1,15 +1,18 @@
 package dev.goldeneggovo.xporbtrails;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import java.util.List;
 
 final class TrailChoiceScreen extends Screen {
-    record Choice(Component label, Runnable select) { }
+    record Choice(Component label, Runnable select, Component disabledReason) {
+        Choice(Component label, Runnable select) { this(label, select, null); }
+    }
     private final Screen parent;
     private final List<Choice> choices;
+    private int panelX, panelY, panelWidth, panelHeight;
 
     TrailChoiceScreen(Screen parent, Component title, List<Choice> choices) {
         super(title);
@@ -18,21 +21,31 @@ final class TrailChoiceScreen extends Screen {
     }
 
     @Override protected void init() {
-        int w = Math.min(380, width - 24);
-        var list = addRenderableWidget(new TrailSettingsList((width - w) / 2, 36, w, height - 76));
+        panelWidth = Math.min(280, width - 24);
+        panelHeight = Math.min(height - 12, 72 + choices.size() * 24);
+        panelX = (width - panelWidth) / 2;
+        panelY = (height - panelHeight) / 2;
+        var list = addRenderableWidget(new TrailSettingsList(panelX + 6, panelY + 30, panelWidth - 12, panelHeight - 64));
         for (Choice choice : choices) {
-            list.row(Component.empty(), Button.builder(choice.label(), b -> {
+            var button = new SettingsButton(0, 0, panelWidth - 24, choice.label(), b -> {
                 choice.select().run();
                 onClose();
-            }).bounds(0, 0, w - 24, 20).build());
+            }, SettingsButton.Style.CONTROL, false);
+            if (choice.disabledReason() != null) {
+                button.active = false;
+                button.setTooltip(Tooltip.create(choice.disabledReason()));
+            }
+            list.row(Component.empty(), button);
         }
-        addRenderableWidget(Button.builder(Component.translatable("gui.back"), b -> onClose())
-                .bounds(width / 2 - 75, height - 28, 150, 20).build());
+        addRenderableWidget(new SettingsButton(width / 2 - 48, panelY + panelHeight - 27, 96,
+                Component.translatable("gui.back"), b -> onClose(), SettingsButton.Style.CONTROL, false));
     }
 
     @Override public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        graphics.fill(panelX, panelY, panelX + panelWidth, panelY + panelHeight, TrailConfigScreen.PANEL);
+        graphics.outline(panelX, panelY, panelWidth, panelHeight, TrailConfigScreen.RULE);
+        graphics.text(font, title, panelX + 15, panelY + 12, TrailConfigScreen.TEXT, false);
         super.extractRenderState(graphics, mouseX, mouseY, delta);
-        graphics.centeredText(font, title, width / 2, 14, 0xFFFFFFFF);
     }
     @Override public void onClose() { minecraft.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }

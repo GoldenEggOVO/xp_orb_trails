@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.flash_style.star",
+  "rainbowSaturation": 0.75,
+  "layers": [
+    {
+      "shape": "diamond_xy",
+      "easing": "smooth",
+      "frames": [
+        { "t": 0, "width": 1.3, "height": 0.20800000000000002 },
+        { "t": 1, "width": 5.3, "height": 0.848, "opacity": 0 }
+      ]
+    },
+    {
+      "shape": "diamond_yz",
+      "easing": "smooth",
+      "frames": [
+        { "t": 0, "width": 1.3, "height": 0.20800000000000002 },
+        { "t": 1, "width": 5.3, "height": 0.848, "opacity": 0 }
+      ]
+    },
+    {
+      "shape": "diamond_zx",
+      "easing": "smooth",
+      "frames": [
+        { "t": 0, "width": 1.3, "height": 0.20800000000000002 },
+        { "t": 1, "width": 5.3, "height": 0.848, "opacity": 0 }
+      ]
+    }
+  ]
+}

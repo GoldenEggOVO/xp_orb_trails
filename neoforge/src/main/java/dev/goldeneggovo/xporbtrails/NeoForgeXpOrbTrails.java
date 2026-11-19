@@ -21,11 +21,14 @@ public final class NeoForgeXpOrbTrails {
         XpOrbTrailsClient.initialize(FMLPaths.CONFIGDIR.get());
         IConfigScreenFactory configScreen = (mod, parent) -> XpOrbTrailsClient.createConfigScreen(parent);
         container.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
-        KeyMapping.Category category = KeyMapping.Category.register(
+        KeyMapping.Category category = new KeyMapping.Category(
                 Identifier.fromNamespaceAndPath("xporbtrails", "settings"));
         KeyMapping openSettings = new KeyMapping("key.xporbtrails.open_settings",
                 InputConstants.UNKNOWN.getValue(), category);
-        modBus.addListener((RegisterKeyMappingsEvent event) -> event.register(openSettings));
+        modBus.addListener((RegisterKeyMappingsEvent event) -> {
+            event.registerCategory(category);
+            event.register(openSettings);
+        });
         NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> {
             Minecraft client = Minecraft.getInstance();
             TrailRenderer.updateWorld(client.level);

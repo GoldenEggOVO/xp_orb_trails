@@ -1,33 +1,105 @@
 package dev.goldeneggovo.xporbtrails;
 
+import com.google.gson.annotations.JsonAdapter;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public final class TrailConfig {
-    public int configVersion = 9;
+public final class TrailConfig extends ProfileSettings {
+    public double pointSpacing = 0.18;
+    public double orbYOffset = 0.175;
+    public List<SavedPreset> savedPresets = new ArrayList<>();
+    public List<SavedProfile> savedProfiles = new ArrayList<>();
+
+    boolean showsVanillaBody(boolean drawsArtwork) {
+        return !enabled || showVanillaOrb || (!drawsArtwork && !"none".equals(flightEffect));
+    }
+
+    public TrailConfig sanitized() {
+        var defaults = new TrailConfig();
+        sanitizeSettings(defaults);
+        pointSpacing = Math.clamp(finite(pointSpacing, defaults.pointSpacing), 0.03, 1.0);
+        orbYOffset = finite(orbYOffset, defaults.orbYOffset);
+        if (savedPresets == null) savedPresets = new ArrayList<>();
+        savedPresets.removeIf(p -> p == null || p.name == null || p.name.isBlank());
+        if (savedPresets.size() > 12) savedPresets = new ArrayList<>(savedPresets.subList(0, 12));
+        for (SavedPreset preset : savedPresets) preset.gradientStops = validStops(preset.gradientStops);
+        if (savedProfiles == null) savedProfiles = new ArrayList<>();
+        savedProfiles.removeIf(p -> p == null || p.name == null || p.name.isBlank());
+        if (savedProfiles.size() > 8) savedProfiles = new ArrayList<>(savedProfiles.subList(0, 8));
+        for (SavedProfile profile : savedProfiles) profile.sanitizeSettings(defaults);
+        return this;
+    }
+
+    public static final class SavedPreset {
+        public String name;
+        public int startColor;
+        public int endColor;
+        public int[] gradientStops = {};
+
+        public SavedPreset() { }
+        public SavedPreset(String name, int startColor, int endColor, int... gradientStops) {
+            this.name = name;
+            this.startColor = startColor;
+            this.endColor = endColor;
+            this.gradientStops = validStops(gradientStops).clone();
+        }
+    }
+
+    public static final class SavedProfile extends ProfileSettings {
+        public String name;
+
+        public SavedProfile() { }
+
+        public SavedProfile(String name, TrailConfig config) {
+            this.name = name;
+            copySettings(config);
+        }
+
+        public void applyTo(TrailConfig config) {
+            config.copySettings(this);
+            config.sanitizeSettings(new TrailConfig());
+        }
+    }
+}
+
+// Settings captured by a named profile. Global sampling and player libraries live on TrailConfig.
+abstract class ProfileSettings {
+    static final List<String> RIBBON_MAPPINGS = List.of("stretch", "tile", "distribute_per_segment", "repeat_per_segment", "static");
+    private static final String DEFAULT_PICKUP_STYLE = "file:pickup/soft";
+    static final int MAX_GRADIENT_STOPS = 8;
     public boolean enabled = true;
     public int trailCap = 96;
     public double renderRange = 36.0;
     public double lifetimeSeconds = 2.6;
     public double width = 0.1;
     public int crossSectionSides = 2;
-    public double opacity = 0.78;
+    @JsonAdapter(CrossSectionRadii.class)
+    public double[] crossSectionRadii = CrossSectionRadii.NONE;
+    public boolean customCrossSectionEnabled = true;
     public double effectStrength = 0.78;
-    public double pointSpacing = 0.18;
-    public double groundOffset = 0.025;
-    public double lift = 0.18;
-    public double groundHug = 0.68;
-    public double maxOrbHeight = 1.35;
     public int startColor = 0xE6FF2A;
     public int endColor = 0x66FF00;
-    public double orbYOffset = 0.175;
+    public int[] gradientStops = {};
+    public boolean flightPulse;
+    public String flightEffect = "none";
+    public boolean showVanillaOrb = true;
+    public double orbScale = 1.0;
+    public String trailSprite = "none";
+    public String trailSpriteMode = "stamps";
+    public boolean fixedStamps;
+    public String ribbonMapping = "stretch";
+    public double ribbonRepeatLength = 0.5;
+    public double stampSpacing = 1.0;
+    public double stampScale = 1.0;
+    public double pulseSpeed = 1.0;
     public double motionShift = 0.10;
     public double cameraPush = 0.10;
     public double smoothFlow = 0.48;
     public double pickupFadeSeconds = 0.35;
     public String colorMode = "gradient";
     public double rainbowSpeed = 0.20;
-    public double glowStrength = 1.0;
     public double tailWidthScale = 0.18;
     public double middleWidthScale = 0.70;
     public double headWidthScale = 1.0;
@@ -35,143 +107,42 @@ public final class TrailConfig {
     public double pickupFlashStrength = 0.55;
     public double pickupFlashSeconds = 0.22;
     public double pickupFlashSize = 0.65;
-    public String pickupFlashStyle = "soft";
-    public List<SavedPreset> savedPresets = new ArrayList<>();
-    public List<SavedProfile> savedProfiles = new ArrayList<>();
+    public String pickupFlashStyle = DEFAULT_PICKUP_STYLE;
+    public int shardCount = 6;
+    public double spiralTurns = 0.65;
     public boolean additiveGlow = true;
 
-    public TrailConfig sanitized() {
-        TrailConfig defaults = new TrailConfig();
-        renderRange = finite(renderRange, defaults.renderRange);
-        lifetimeSeconds = finite(lifetimeSeconds, defaults.lifetimeSeconds);
-        width = finite(width, defaults.width);
-        opacity = finite(opacity, defaults.opacity);
-        effectStrength = finite(effectStrength, defaults.effectStrength);
-        pointSpacing = finite(pointSpacing, defaults.pointSpacing);
-        groundOffset = finite(groundOffset, defaults.groundOffset);
-        lift = finite(lift, defaults.lift);
-        groundHug = finite(groundHug, defaults.groundHug);
-        maxOrbHeight = finite(maxOrbHeight, defaults.maxOrbHeight);
-        orbYOffset = finite(orbYOffset, defaults.orbYOffset);
-        motionShift = finite(motionShift, defaults.motionShift);
-        cameraPush = finite(cameraPush, defaults.cameraPush);
-        smoothFlow = finite(smoothFlow, defaults.smoothFlow);
-        pickupFadeSeconds = finite(pickupFadeSeconds, defaults.pickupFadeSeconds);
-        rainbowSpeed = finite(rainbowSpeed, defaults.rainbowSpeed);
-        glowStrength = finite(glowStrength, defaults.glowStrength);
-        tailWidthScale = finite(tailWidthScale, defaults.tailWidthScale);
-        middleWidthScale = finite(middleWidthScale, defaults.middleWidthScale);
-        headWidthScale = finite(headWidthScale, defaults.headWidthScale);
-        pickupFlashStrength = finite(pickupFlashStrength, defaults.pickupFlashStrength);
-        pickupFlashSeconds = finite(pickupFlashSeconds, defaults.pickupFlashSeconds);
-        pickupFlashSize = finite(pickupFlashSize, defaults.pickupFlashSize);
-        if (configVersion < 2) {
-            motionShift = 0.10;
-            cameraPush = 0.10;
-            smoothFlow = 0.48;
-            configVersion = 2;
-        }
-        if (configVersion < 3) {
-            pickupFadeSeconds = 0.35;
-            configVersion = 3;
-        }
-        if (configVersion < 4) {
-            colorMode = "gradient";
-            rainbowSpeed = 0.20;
-            glowStrength = 1.0;
-            tailWidthScale = 0.18;
-            headWidthScale = 1.0;
-            savedPresets = new ArrayList<>();
-            configVersion = 4;
-        }
-        if (configVersion < 5) {
-            middleWidthScale = 0.70;
-            configVersion = 5;
-        }
-        if (configVersion < 6) {
-            pickupFlash = true;
-            pickupFlashStrength = 0.55;
-            pickupFlashSeconds = 0.22;
-            configVersion = 6;
-        }
-        if (configVersion < 7) {
-            pickupFlashSize = 0.65;
-            configVersion = 7;
-        }
-        if (configVersion < 8) {
-            pickupFlashStyle = "soft";
-            savedProfiles = new ArrayList<>();
-            configVersion = 8;
-        }
-        trailCap = Math.max(8, Math.min(256, trailCap));
-        renderRange = Math.max(4.0, Math.min(128.0, renderRange));
-        lifetimeSeconds = Math.max(0.25, Math.min(10.0, lifetimeSeconds));
-        width = Math.max(0.02, Math.min(1.0, width));
-        crossSectionSides = Math.max(2, Math.min(32, crossSectionSides));
-        opacity = Math.max(0.05, Math.min(1.0, opacity));
-        pointSpacing = Math.max(0.03, Math.min(1.0, pointSpacing));
-        groundHug = Math.max(0.0, Math.min(1.0, groundHug));
-        maxOrbHeight = Math.max(0.2, Math.min(5.0, maxOrbHeight));
-        motionShift = Math.max(0.0, Math.min(1.0, motionShift));
-        cameraPush = Math.max(0.0, Math.min(1.0, cameraPush));
-        smoothFlow = Math.max(0.0, Math.min(1.0, smoothFlow));
-        pickupFadeSeconds = Math.max(0.05, Math.min(3.0, pickupFadeSeconds));
-        if (!"solid".equals(colorMode) && !"gradient".equals(colorMode) && !"rainbow".equals(colorMode)) colorMode = "gradient";
-        rainbowSpeed = Math.max(0.02, Math.min(2.0, rainbowSpeed));
-        glowStrength = Math.max(0.1, Math.min(2.0, glowStrength));
-        if (configVersion < 9) {
-            // Preserve the old alpha product and flash radius, then decouple their controls.
-            effectStrength = opacity * glowStrength;
-            pickupFlashSize = Math.max(0.25, Math.min(2.0, pickupFlashSize)) * width / 0.24;
-            configVersion = 9;
-        }
-        effectStrength = Math.max(0.005, Math.min(2.0, effectStrength));
-        tailWidthScale = Math.max(0.0, Math.min(1.5, tailWidthScale));
-        middleWidthScale = Math.max(0.0, Math.min(2.0, middleWidthScale));
-        headWidthScale = Math.max(0.05, Math.min(2.0, headWidthScale));
-        pickupFlashStrength = Math.max(0.1, Math.min(2.0, pickupFlashStrength));
-        pickupFlashSeconds = Math.max(0.08, Math.min(1.0, pickupFlashSeconds));
-        pickupFlashSize = Math.max(0.02, Math.min(8.34, pickupFlashSize));
-        if (!"soft".equals(pickupFlashStyle) && !"star".equals(pickupFlashStyle) && !"ring".equals(pickupFlashStyle)) pickupFlashStyle = "soft";
-        if (savedPresets == null) savedPresets = new ArrayList<>();
-        savedPresets.removeIf(p -> p == null || p.name == null || p.name.isBlank());
-        if (savedPresets.size() > 12) savedPresets = new ArrayList<>(savedPresets.subList(0, 12));
-        if (savedProfiles == null) savedProfiles = new ArrayList<>();
-        savedProfiles.removeIf(p -> p == null || p.name == null || p.name.isBlank());
-        if (savedProfiles.size() > 8) savedProfiles = new ArrayList<>(savedProfiles.subList(0, 8));
-        for (SavedProfile profile : savedProfiles) profile.sanitize();
-        return this;
-    }
-
-    private static double finite(double value, double fallback) {
-        return Double.isFinite(value) ? value : fallback;
-    }
-
-    public void copyFrom(TrailConfig other) {
-        configVersion = other.configVersion;
+    final void copySettings(ProfileSettings other) {
         enabled = other.enabled;
         trailCap = other.trailCap;
         renderRange = other.renderRange;
         lifetimeSeconds = other.lifetimeSeconds;
         width = other.width;
         crossSectionSides = other.crossSectionSides;
-        opacity = other.opacity;
+        crossSectionRadii = other.crossSectionRadii == null ? CrossSectionRadii.NONE : other.crossSectionRadii.clone();
+        customCrossSectionEnabled = other.customCrossSectionEnabled;
         effectStrength = other.effectStrength;
-        pointSpacing = other.pointSpacing;
-        groundOffset = other.groundOffset;
-        lift = other.lift;
-        groundHug = other.groundHug;
-        maxOrbHeight = other.maxOrbHeight;
         startColor = other.startColor;
         endColor = other.endColor;
-        orbYOffset = other.orbYOffset;
+        gradientStops = validStops(other.gradientStops).clone();
+        flightPulse = other.flightPulse;
+        flightEffect = other.flightEffect;
+        showVanillaOrb = other.showVanillaOrb;
+        orbScale = other.orbScale;
+        trailSprite = other.trailSprite;
+        trailSpriteMode = other.trailSpriteMode;
+        fixedStamps = other.fixedStamps;
+        ribbonMapping = other.ribbonMapping;
+        ribbonRepeatLength = other.ribbonRepeatLength;
+        stampSpacing = other.stampSpacing;
+        stampScale = other.stampScale;
+        pulseSpeed = other.pulseSpeed;
         motionShift = other.motionShift;
         cameraPush = other.cameraPush;
         smoothFlow = other.smoothFlow;
         pickupFadeSeconds = other.pickupFadeSeconds;
         colorMode = other.colorMode;
         rainbowSpeed = other.rainbowSpeed;
-        glowStrength = other.glowStrength;
         tailWidthScale = other.tailWidthScale;
         middleWidthScale = other.middleWidthScale;
         headWidthScale = other.headWidthScale;
@@ -180,100 +151,85 @@ public final class TrailConfig {
         pickupFlashSeconds = other.pickupFlashSeconds;
         pickupFlashSize = other.pickupFlashSize;
         pickupFlashStyle = other.pickupFlashStyle;
-        savedPresets = new ArrayList<>();
-        for (SavedPreset preset : other.savedPresets) savedPresets.add(new SavedPreset(preset.name, preset.startColor, preset.endColor));
-        savedProfiles = new ArrayList<>();
-        for (SavedProfile profile : other.savedProfiles) savedProfiles.add(new SavedProfile(profile));
+        shardCount = other.shardCount;
+        spiralTurns = other.spiralTurns;
         additiveGlow = other.additiveGlow;
     }
 
-    public static final class SavedPreset {
-        public String name;
-        public int startColor;
-        public int endColor;
-
-        public SavedPreset() { }
-        public SavedPreset(String name, int startColor, int endColor) {
-            this.name = name;
-            this.startColor = startColor;
-            this.endColor = endColor;
-        }
+    final void sanitizeSettings(ProfileSettings defaults) {
+        trailCap = Math.clamp(trailCap, 8, 256);
+        renderRange = Math.clamp(finite(renderRange, defaults.renderRange), 4.0, 128.0);
+        lifetimeSeconds = Math.clamp(finite(lifetimeSeconds, defaults.lifetimeSeconds), 0.25, 10.0);
+        width = Math.clamp(finite(width, defaults.width), 0.02, 1.0);
+        crossSectionSides = Math.clamp(crossSectionSides, 2, 32);
+        if (!CrossSectionRadii.valid(crossSectionRadii)) crossSectionRadii = CrossSectionRadii.NONE;
+        motionShift = Math.clamp(finite(motionShift, defaults.motionShift), 0.0, 1.0);
+        cameraPush = Math.clamp(finite(cameraPush, defaults.cameraPush), 0.0, 1.0);
+        smoothFlow = Math.clamp(finite(smoothFlow, defaults.smoothFlow), 0.0, 1.0);
+        pickupFadeSeconds = Math.clamp(finite(pickupFadeSeconds, defaults.pickupFadeSeconds), 0.05, 3.0);
+        if (!"solid".equals(colorMode) && !"gradient".equals(colorMode) && !"rainbow".equals(colorMode)) colorMode = "gradient";
+        rainbowSpeed = Math.clamp(finite(rainbowSpeed, defaults.rainbowSpeed), 0.02, 2.0);
+        effectStrength = Math.clamp(finite(effectStrength, defaults.effectStrength), 0.005, 2.0);
+        tailWidthScale = Math.clamp(finite(tailWidthScale, defaults.tailWidthScale), 0.0, 1.5);
+        middleWidthScale = Math.clamp(finite(middleWidthScale, defaults.middleWidthScale), 0.0, 2.0);
+        headWidthScale = Math.clamp(finite(headWidthScale, defaults.headWidthScale), 0.05, 2.0);
+        pickupFlashStrength = Math.clamp(finite(pickupFlashStrength, defaults.pickupFlashStrength), 0.1, 2.0);
+        pickupFlashSeconds = Math.clamp(finite(pickupFlashSeconds, defaults.pickupFlashSeconds), 0.08, 1.0);
+        pickupFlashSize = Math.clamp(finite(pickupFlashSize, defaults.pickupFlashSize), 0.02, 8.34);
+        if (!isExternalEffect(pickupFlashStyle, AssetRole.PICKUP)) pickupFlashStyle = DEFAULT_PICKUP_STYLE;
+        if (!isExternalEffect(flightEffect, AssetRole.ORB)) flightEffect = "none";
+        if (!validTrailArtwork(trailSprite)) trailSprite = "none";
+        if (!"ribbon".equals(trailSpriteMode)) trailSpriteMode = "stamps";
+        if (ribbonMapping == null || !RIBBON_MAPPINGS.contains(ribbonMapping)) ribbonMapping = "stretch";
+        ribbonRepeatLength = Math.clamp(finite(ribbonRepeatLength, defaults.ribbonRepeatLength), 0.1, 4.0);
+        orbScale = Math.clamp(finite(orbScale, defaults.orbScale), 0.25, 4.0);
+        stampSpacing = Math.clamp(finite(stampSpacing, defaults.stampSpacing), 0.25, 10.0);
+        stampScale = Math.clamp(finite(stampScale, defaults.stampScale), 0.20, 10.0);
+        pulseSpeed = Math.clamp(finite(pulseSpeed, defaults.pulseSpeed), 0.1, 4.0);
+        shardCount = Math.clamp(shardCount, 3, 16);
+        spiralTurns = Math.clamp(finite(spiralTurns, defaults.spiralTurns), 0.15, 2.0);
+        gradientStops = validStops(gradientStops);
     }
 
-    public static final class SavedProfile {
-        public String name;
-        public int settingsVersion;
-        public int crossSectionSides = 3;
-        public double effectStrength = 0.78;
-        public boolean enabled, additiveGlow, pickupFlash;
-        public int trailCap, startColor, endColor;
-        public double renderRange, lifetimeSeconds, width, opacity, motionShift, cameraPush, smoothFlow,
-                pickupFadeSeconds, rainbowSpeed, glowStrength, tailWidthScale, middleWidthScale, headWidthScale,
-                pickupFlashStrength, pickupFlashSeconds, pickupFlashSize;
-        public String colorMode, pickupFlashStyle;
+    static double finite(double value, double fallback) {
+        return Double.isFinite(value) ? value : fallback;
+    }
 
-        public SavedProfile() { }
-        public SavedProfile(String name, TrailConfig c) {
-            this.name = name;
-            capture(c);
-        }
-        public SavedProfile(SavedProfile other) {
-            other.migrate();
-            settingsVersion = other.settingsVersion;
-            crossSectionSides = other.crossSectionSides;
-            effectStrength = other.effectStrength;
-            this.name = other.name;
-            enabled = other.enabled; additiveGlow = other.additiveGlow; pickupFlash = other.pickupFlash;
-            trailCap = other.trailCap; startColor = other.startColor; endColor = other.endColor;
-            renderRange = other.renderRange; lifetimeSeconds = other.lifetimeSeconds; width = other.width; opacity = other.opacity;
-            motionShift = other.motionShift; cameraPush = other.cameraPush; smoothFlow = other.smoothFlow;
-            pickupFadeSeconds = other.pickupFadeSeconds; rainbowSpeed = other.rainbowSpeed; glowStrength = other.glowStrength;
-            tailWidthScale = other.tailWidthScale; middleWidthScale = other.middleWidthScale; headWidthScale = other.headWidthScale;
-            pickupFlashStrength = other.pickupFlashStrength; pickupFlashSeconds = other.pickupFlashSeconds; pickupFlashSize = other.pickupFlashSize;
-            colorMode = other.colorMode; pickupFlashStyle = other.pickupFlashStyle;
-        }
-        private void capture(TrailConfig c) {
-            crossSectionSides = c.crossSectionSides;
-            settingsVersion = 9;
-            effectStrength = c.effectStrength;
-            enabled = c.enabled; additiveGlow = c.additiveGlow; pickupFlash = c.pickupFlash;
-            trailCap = c.trailCap; startColor = c.startColor; endColor = c.endColor;
-            renderRange = c.renderRange; lifetimeSeconds = c.lifetimeSeconds; width = c.width; opacity = c.opacity;
-            motionShift = c.motionShift; cameraPush = c.cameraPush; smoothFlow = c.smoothFlow;
-            pickupFadeSeconds = c.pickupFadeSeconds; rainbowSpeed = c.rainbowSpeed; glowStrength = c.glowStrength;
-            tailWidthScale = c.tailWidthScale; middleWidthScale = c.middleWidthScale; headWidthScale = c.headWidthScale;
-            pickupFlashStrength = c.pickupFlashStrength; pickupFlashSeconds = c.pickupFlashSeconds; pickupFlashSize = c.pickupFlashSize;
-            colorMode = c.colorMode; pickupFlashStyle = c.pickupFlashStyle;
-        }
-        public void applyTo(TrailConfig c) {
-            migrate();
-            c.crossSectionSides = crossSectionSides;
-            c.configVersion = 9;
-            c.effectStrength = effectStrength;
-            c.enabled = enabled; c.additiveGlow = additiveGlow; c.pickupFlash = pickupFlash;
-            c.trailCap = trailCap; c.startColor = startColor; c.endColor = endColor;
-            c.renderRange = renderRange; c.lifetimeSeconds = lifetimeSeconds; c.width = width; c.opacity = opacity;
-            c.motionShift = motionShift; c.cameraPush = cameraPush; c.smoothFlow = smoothFlow;
-            c.pickupFadeSeconds = pickupFadeSeconds; c.rainbowSpeed = rainbowSpeed; c.glowStrength = glowStrength;
-            c.tailWidthScale = tailWidthScale; c.middleWidthScale = middleWidthScale; c.headWidthScale = headWidthScale;
-            c.pickupFlashStrength = pickupFlashStrength; c.pickupFlashSeconds = pickupFlashSeconds; c.pickupFlashSize = pickupFlashSize;
-            c.colorMode = colorMode; c.pickupFlashStyle = pickupFlashStyle;
-            c.sanitized();
-        }
+    boolean usesCustomCrossSection() {
+        return customCrossSectionEnabled && crossSectionRadii.length != 0;
+    }
 
-        private void sanitize() {
-            TrailConfig clean = new TrailConfig();
-            applyTo(clean);
-            capture(clean);
-        }
+    void resolveCrossSection(boolean hasSides, boolean hasRadii, boolean hasSwitch) {
+        if (hasSwitch) return;
+        if (hasRadii) customCrossSectionEnabled = true;
+        else if (hasSides && crossSectionRadii.length != 0) customCrossSectionEnabled = false;
+    }
 
-        private void migrate() {
-            if (settingsVersion >= 9) return;
-            effectStrength = Math.max(0.05, Math.min(1.0, opacity))
-                    * Math.max(0.1, Math.min(2.0, glowStrength));
-            pickupFlashSize = Math.max(0.25, Math.min(2.0, pickupFlashSize))
-                    * Math.max(0.02, Math.min(1.0, width)) / 0.24;
-            settingsVersion = 9;
-        }
+    static boolean isExternalEffect(String id, AssetRole role) {
+        return (EffectLibrary.isFileId(id) || SpriteLibrary.isSpriteId(id)) && role.accepts(id);
+    }
+
+    static boolean validTrailArtwork(String id) {
+        return "none".equals(id) || "body".equals(id) || (SpriteLibrary.isSpriteId(id) && AssetRole.TRAIL.accepts(id));
+    }
+
+    static int[] validStops(int[] colors) {
+        if (colors == null) return new int[0];
+        return colors.length <= MAX_GRADIENT_STOPS ? colors : Arrays.copyOf(colors, MAX_GRADIENT_STOPS);
+    }
+
+    int gradientColor(double progress) {
+        double position = Math.clamp(progress, 0.0, 1.0) * (gradientStops.length + 1);
+        int segment = Math.min((int) position, gradientStops.length);
+        int a = segment == 0 ? startColor : gradientStops[segment - 1];
+        int b = segment == gradientStops.length ? endColor : gradientStops[segment];
+        float t = (float) (position - segment);
+        return lerpChannel(a >> 16, b >> 16, t) << 16
+                | lerpChannel(a >> 8, b >> 8, t) << 8 | lerpChannel(a, b, t);
+    }
+
+    private static int lerpChannel(int a, int b, float t) {
+        a &= 255;
+        return (int) (a + ((b & 255) - a) * t);
     }
 }

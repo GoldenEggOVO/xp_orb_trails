@@ -8,6 +8,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.entity.ExperienceOrb;
 import java.util.ArrayList;
@@ -19,10 +20,6 @@ public final class TrailClientTest implements FabricClientGameTest {
 
     @Override
     public void runTest(ClientGameTestContext context) {
-        if (Boolean.getBoolean("xporb.shaderProbe")) {
-            ShaderTrailClientTest.run(context);
-            return;
-        }
         String expectedJar = System.getProperty("xporb.expectedModJar");
         if (expectedJar != null) {
             try {
@@ -31,9 +28,25 @@ public final class TrailClientTest implements FabricClientGameTest {
                     throw new AssertionError("Client must load the packaged mod: " + actual);
             } catch (java.io.IOException | java.net.URISyntaxException exception) { throw new AssertionError(exception); }
         }
+        if (Boolean.getBoolean("xporb.shaderProbe")) {
+            ShaderTrailClientTest.run(context);
+            return;
+        }
         if (Boolean.getBoolean("xporb.probeRestart")) {
             context.runOnClient(client -> {
+                check(XpOrbTrailsClient.CONFIG.fixedStamps && XpOrbTrailsClient.CONFIG.trailSprite.equals("body")
+                                && XpOrbTrailsClient.CONFIG.ribbonMapping.equals("tile") && XpOrbTrailsClient.CONFIG.ribbonRepeatLength == 0.65,
+                        "Stamp and ribbon layouts must survive a restart");
                 check(XpOrbTrailsClient.CONFIG.width == 0.37, "Trail width must survive a client restart");
+                check(!XpOrbTrailsClient.CONFIG.showVanillaOrb && XpOrbTrailsClient.CONFIG.orbScale == 1.6
+                                && "ribbon".equals(XpOrbTrailsClient.CONFIG.trailSpriteMode)
+                                && XpOrbTrailsClient.CONFIG.stampScale == 1.2 && XpOrbTrailsClient.CONFIG.stampSpacing == 2.5,
+                        "Body and sprite-trail settings must survive a client restart");
+                check(XpOrbTrailsClient.CONFIG.flightPulse && XpOrbTrailsClient.CONFIG.pulseSpeed == 1.5
+                                && "file:orb/twin-orbit".equals(XpOrbTrailsClient.CONFIG.flightEffect)
+                                && XpOrbTrailsClient.CONFIG.shardCount == 7 && XpOrbTrailsClient.CONFIG.spiralTurns == 1.5
+                                && "file:pickup/shards".equals(XpOrbTrailsClient.CONFIG.pickupFlashStyle),
+                        "Pickup and flight settings must survive a client restart");
                 check(XpOrbTrailsClient.CONFIG.savedPresets.stream().anyMatch(p -> p.name.equals("Probe Color")),
                         "Saved colors must survive a client restart");
                 check(XpOrbTrailsClient.CONFIG.savedProfiles.stream().anyMatch(p -> p.name.equals("Probe Profile")),
@@ -43,34 +56,52 @@ public final class TrailClientTest implements FabricClientGameTest {
             return;
         }
         context.runOnClient(client -> {
+            verifyCometStripName();
+            client.options.guiScale().set(2);
+            client.resizeGui();
             XpOrbTrailsClient.CONFIG = new TrailConfig();
-            XpOrbTrailsClient.CONFIG.pickupFlashStyle = "ring";
+            XpOrbTrailsClient.CONFIG.pickupFlashStyle = "file:pickup/ring";
             client.setScreen(ModMenu.getConfigScreen("xporbtrails", client.screen));
         });
         context.waitForScreen(TrailConfigScreen.class);
         context.runOnClient(client -> {
-            boolean commonPage = client.screen.children().stream().anyMatch(child ->
-                    child instanceof AbstractWidget widget && widget.getMessage().getString().equals(
-                            net.minecraft.network.chat.Component.translatable("screen.xporbtrails.common").getString()));
-            if (!commonPage) throw new AssertionError("Settings must open with a Common tab");
+            var screen = client.screen;
+            for (String tab : List.of("general", "trail", "pickup", "orb_body", "profiles")) {
+                check(screen.children().stream().anyMatch(child -> child instanceof AbstractWidget w &&
+                        w.getMessage().getString().equals(net.minecraft.network.chat.Component.translatable("screen.xporbtrails." + tab).getString())),
+                        "Missing settings page " + tab);
+            }
+            findControl(screen, "screen.xporbtrails.enabled");
+            check(client.font.width("■") == 13, "The test font must replace the square glyph with blank space");
         });
+        verifySwatches(context, "menu-swatches-en",
+                new SwatchRow("screen.xporbtrails.start_color", 0xE6FF2A),
+                new SwatchRow("screen.xporbtrails.end_color", 0x66FF00));
+        context.clickScreenButton("screen.xporbtrails.trail");
         context.waitTicks(3);
-        context.takeScreenshot("menu-common-small");
         context.runOnClient(client -> {
-            long sliders = widgets(client.screen).stream().filter(w -> w instanceof AbstractSliderButton).count();
-            check(sliders == 4, "Common page must have width, retention, disappearance fade, and effect strength sliders");
+            AbstractWidget width = findControl(client.screen, "screen.xporbtrails.width");
+            var readout = new net.minecraft.client.input.MouseButtonEvent(width.getRight() - 5, width.getY() + 10,
+                    new net.minecraft.client.input.MouseButtonInfo(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT, 0));
+            client.screen.mouseClicked(readout, false);
+            client.screen.mouseReleased(readout);
+            check(XpOrbTrailsClient.CONFIG.width == 0.1, "Clicking the numeric readout must preserve trail width");
             XpOrbTrailsClient.CONFIG.enabled = false;
             XpOrbTrailsClient.CONFIG.renderRange = 71;
             XpOrbTrailsClient.CONFIG.trailCap = 24;
             XpOrbTrailsClient.CONFIG.width = 0.44;
         });
-        click(context, "screen.xporbtrails.preset.custom");
+        context.clickScreenButton("screen.xporbtrails.profiles");
+        checkFolderButton(context);
+        if (Boolean.getBoolean("xporb.openFolderProbe")) {
+            context.clickScreenButton("screen.xporbtrails.open_config_folder");
+        }
         click(context, "screen.xporbtrails.profile.standard");
         context.runOnClient(client -> {
             check(!XpOrbTrailsClient.CONFIG.enabled && XpOrbTrailsClient.CONFIG.renderRange == 71
                     && XpOrbTrailsClient.CONFIG.trailCap == 24,
-                    "Built-in looks must preserve enabled state and performance settings");
-            check(XpOrbTrailsClient.CONFIG.width == 0.1, "Built-in looks must still apply their appearance");
+                    "File profiles must preserve enabled state and performance settings");
+            check(XpOrbTrailsClient.CONFIG.width == 0.1, "File profiles must still apply their appearance");
             XpOrbTrailsClient.CONFIG.enabled = true;
         });
         context.clickScreenButton("screen.xporbtrails.open_preview");
@@ -90,12 +121,22 @@ public final class TrailClientTest implements FabricClientGameTest {
         context.clickScreenButton("screen.xporbtrails.replay_pickup");
         context.runOnClient(client -> {
             double elapsed = (System.nanoTime() - (long) field(client.screen, "demoStartNanos")) / 1_000_000_000.0;
-            check(elapsed >= 4.0 && elapsed < 4.5, "Replay pickup must jump immediately to the flash phase");
+            check(elapsed >= 0 && elapsed < 0.5, "Replay must start at the beginning of orb travel");
+            TrailConfig longFade = new TrailConfig();
+            longFade.pickupFadeSeconds = 3.0;
+            check(TrailPreviewScreen.cycleDuration(longFade) > 7.0, "The demo must finish a three-second fade before looping");
             verifyPreviewAccuracy();
         });
+        context.takeScreenshot("preview-replay-start");
+        context.waitFor(client -> System.nanoTime() - (long) field(client.screen, "demoStartNanos") >= 2_000_000_000L);
+        context.takeScreenshot("preview-replay-travel");
+        context.waitFor(client -> System.nanoTime() - (long) field(client.screen, "demoStartNanos") >= 4_040_000_000L);
         context.takeScreenshot("preview-replay-pickup");
+        context.clickScreenButton("screen.xporbtrails.replay_pickup");
+        context.runOnClient(client -> check(System.nanoTime() - (long) field(client.screen, "demoStartNanos") < 500_000_000L,
+                "Replaying again during pickup must return to the start"));
         context.runOnClient(client -> client.screen.onClose());
-        context.clickScreenButton("screen.xporbtrails.appearance");
+        context.clickScreenButton("screen.xporbtrails.pickup");
         context.runOnClient(client -> {
             XpOrbTrailsClient.CONFIG.pickupFadeSeconds = 1.1;
             XpOrbTrailsClient.CONFIG.pickupFlash = false;
@@ -104,14 +145,15 @@ public final class TrailClientTest implements FabricClientGameTest {
         });
         context.clickScreenButton("screen.xporbtrails.reset");
         context.runOnClient(client -> {
-            check("soft".equals(XpOrbTrailsClient.CONFIG.pickupFlashStyle), "Reset pickup page must restore the flash style");
-            check(XpOrbTrailsClient.CONFIG.pickupFadeSeconds == 1.1, "Appearance reset must preserve Common trail fading");
-            check(XpOrbTrailsClient.CONFIG.pickupFlash, "Appearance reset must restore the pickup flash toggle");
+            check("file:pickup/soft".equals(XpOrbTrailsClient.CONFIG.pickupFlashStyle), "Reset pickup page must restore the flash style");
+            check(XpOrbTrailsClient.CONFIG.pickupFadeSeconds == 1.1, "Pickup reset must preserve trail fading");
+            check(XpOrbTrailsClient.CONFIG.pickupFlash, "Pickup reset must restore the flash toggle");
             check(!XpOrbTrailsClient.CONFIG.additiveGlow && XpOrbTrailsClient.CONFIG.effectStrength == 0.91,
-                    "Appearance reset must preserve Common overall effects");
+                    "Pickup reset must preserve overall effects");
         });
         context.waitTicks(3);
-        context.takeScreenshot("menu-appearance-small");
+        context.takeScreenshot("menu-pickup-small");
+        context.clickScreenButton("screen.xporbtrails.trail");
         slideCrossSection(context, 1.0);
         context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.crossSectionSides == 32,
                 "Round selection must use 32 sides"));
@@ -121,30 +163,32 @@ public final class TrailClientTest implements FabricClientGameTest {
         slideCrossSection(context, 0.0);
         context.runOnClient(client -> {
             check(XpOrbTrailsClient.CONFIG.crossSectionSides == 2, "Flat selection must use a billboard");
+            var slider = widgets(client.screen).stream().filter(w -> w instanceof AbstractSliderButton
+                    && w.getMessage().getString().equals("2")).findFirst().orElseThrow();
+            client.setLastInputType(net.minecraft.client.InputType.KEYBOARD_TAB);
+            slider.setFocused(true);
+            slider.keyPressed(new net.minecraft.client.input.KeyEvent(com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT, 0, 0));
+            check(XpOrbTrailsClient.CONFIG.crossSectionSides == 3, "One arrow press must increase cross-section sides by one");
+            client.setLastInputType(net.minecraft.client.InputType.MOUSE);
             verifyCrossSectionGeometry();
+            TrailEffectsClientTest.verifyMeshes();
         });
         context.clickScreenButton("screen.xporbtrails.reset");
         context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.crossSectionSides == 2,
-                "Reset appearance must restore the camera-facing cross-section"));
+                "Trail reset must restore the camera-facing cross-section"));
         context.takeScreenshot("cross-section-slider");
         context.runOnClient(client -> {
-            for (AbstractWidget widget : widgets(client.screen)) {
-                String label = widget.getMessage().getString();
-                if (label.contains("#")) check(label.chars().filter(c -> c == '■').count() == 1,
-                        "Individual color controls must show exactly one swatch");
-            }
             for (int i = 0; i < 12; i++) XpOrbTrailsClient.CONFIG.savedPresets.add(
                     new TrailConfig.SavedPreset(net.minecraft.network.chat.Component.translatable(
                             "screen.xporbtrails.saved_preset_name", i + 1).getString(), i, i + 1));
         });
-        context.clickScreenButton("screen.xporbtrails.common");
-        context.clickScreenButton("screen.xporbtrails.appearance");
+        click(context, "screen.xporbtrails.edit_shared_colors");
+        var beforeFold = configModifiedTime();
+        click(context, "screen.xporbtrails.saved_colors");
+        check(configModifiedTime().equals(beforeFold), "Expanding a settings section must not write the config");
         context.runOnClient(client -> check(widgets(client.screen).stream().anyMatch(w ->
                 w.getMessage().getString().equals(net.minecraft.network.chat.Component.translatable(
                         "screen.xporbtrails.save_preset").getString()) && !w.active), "Saving must stop at twelve colors"));
-        var beforeFold = configModifiedTime();
-        click(context, "screen.xporbtrails.expand");
-        check(configModifiedTime().equals(beforeFold), "Expanding a settings section must not write the config");
         var managesColors = new java.util.concurrent.atomic.AtomicBoolean();
         context.runOnClient(client -> {
             managesColors.set(widgets(client.screen).stream().anyMatch(w -> w.getMessage().getString().equals(
@@ -154,9 +198,16 @@ public final class TrailClientTest implements FabricClientGameTest {
         if (managesColors.get()) {
             click(context, "screen.xporbtrails.manage_color");
             check(configModifiedTime().equals(beforeFold), "Selecting a saved color must not write the config");
+            String first = net.minecraft.network.chat.Component.translatable("screen.xporbtrails.saved_preset_name", 1).getString();
+            click(context, first);
+            context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.startColor == 0 && XpOrbTrailsClient.CONFIG.endColor == 1,
+                    "A saved pair must apply from its own row"));
             context.runOnClient(client -> {
                 var name = widgets(client.screen).stream().filter(w -> w instanceof net.minecraft.client.gui.components.EditBox)
                         .map(w -> (net.minecraft.client.gui.components.EditBox) w).findFirst().orElseThrow();
+                check(widgets(client.screen).stream().noneMatch(w -> w.active && w.getMessage().equals(
+                        net.minecraft.network.chat.Component.translatable("screen.xporbtrails.rename_color"))),
+                        "An unchanged color name must disable Rename");
                 name.setValue(" ");
                 check(widgets(client.screen).stream().anyMatch(w -> !w.active && w.getMessage().getString().equals(
                         net.minecraft.network.chat.Component.translatable("screen.xporbtrails.rename_color").getString())),
@@ -178,13 +229,14 @@ public final class TrailClientTest implements FabricClientGameTest {
                         "Overwriting a full color list must replace only the selected pair and retain its name");
                 try {
                     var persisted = new com.google.gson.Gson().fromJson(java.nio.file.Files.readString(
-                            net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("xp-orb-trails.json")), TrailConfig.class);
+                            net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("xp_orb_trails.json")), TrailConfig.class);
                     check(persisted.savedPresets.getFirst().startColor == 0x123456
                                     && "Renamed Color".equals(persisted.savedPresets.getFirst().name),
                             "Saved color management must persist to disk");
                 } catch (java.io.IOException exception) { throw new AssertionError(exception); }
             });
             context.takeScreenshot("saved-color-edit");
+            verifySwatches(context, "menu-swatches-saved", new SwatchRow("Renamed Color", 0x123456, 0xABCDEF));
         }
         var beforeDelete = configModifiedTime();
         click(context, "screen.xporbtrails.delete_color");
@@ -214,33 +266,48 @@ public final class TrailClientTest implements FabricClientGameTest {
             check(widgets(client.screen).stream().noneMatch(w -> w.getMessage().getString().contains("#")),
                     "Rainbow mode must hide fixed color controls");
         });
-        click(context, "screen.xporbtrails.mode.rainbow");
+        click(context, net.minecraft.network.chat.Component.translatable("screen.xporbtrails.saved_preset_name", 2).getString());
+        context.runOnClient(client -> check("gradient".equals(XpOrbTrailsClient.CONFIG.colorMode)
+                        && XpOrbTrailsClient.CONFIG.startColor == 1 && XpOrbTrailsClient.CONFIG.endColor == 2,
+                "Applying a saved pair in rainbow mode must display its gradient"));
+        click(context, "screen.xporbtrails.mode.gradient");
         click(context, "screen.xporbtrails.mode.solid");
         context.runOnClient(client -> check(widgets(client.screen).stream()
                 .filter(w -> w.getMessage().getString().contains("#")).count() == 1,
                 "Solid mode must show only one color control"));
-        context.clickScreenButton("screen.xporbtrails.advanced");
-        context.runOnClient(client -> check(widgets(client.screen).stream()
-                .filter(w -> w instanceof AbstractSliderButton).count() == 3,
-                "Position detail sliders must be collapsed initially"));
-        click(context, "screen.xporbtrails.expand");
-        context.runOnClient(client -> check(widgets(client.screen).stream()
-                .filter(w -> w instanceof AbstractSliderButton).count() == 5,
-                "Expanding position details must expose both offsets"));
-        context.clickScreenButton("screen.xporbtrails.reset");
-        context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.pickupFadeSeconds == 1.1,
-                "Advanced reset must preserve Common trail fading"));
-        context.clickScreenButton("screen.xporbtrails.common");
-        context.runOnClient(client -> XpOrbTrailsClient.CONFIG.pickupFlash = false);
+        context.clickScreenButton("screen.xporbtrails.trail");
+        int collapsedCount = context.computeOnClient(client -> (int) widgets(client.screen).stream()
+                .filter(AbstractSliderButton.class::isInstance).count());
+        click(context, "screen.xporbtrails.animation");
+        context.runOnClient(client -> {
+            var screen = client.screen;
+            var path = screen.getCurrentFocusPath();
+            while (path instanceof net.minecraft.client.gui.ComponentPath.Path parent) path = parent.childPath();
+            check(path != null && screen.children().contains(screen.getFocused())
+                            && path.component() instanceof AbstractWidget widget && widget.getMessage().getString().equals(
+                                    net.minecraft.network.chat.Component.translatable("screen.xporbtrails.animation").getString()),
+                    "Expanding motion must retain keyboard focus on the header");
+            check(widgets(screen).stream().filter(AbstractSliderButton.class::isInstance).count() == collapsedCount + 3,
+                    "Motion exposes its three controls in the trail page");
+        });
+        click(context, "screen.xporbtrails.animation");
+        context.runOnClient(client -> {
+            XpOrbTrailsClient.CONFIG.pickupFadeSeconds = 1.1;
+            XpOrbTrailsClient.CONFIG.pickupFlash = false;
+            XpOrbTrailsClient.CONFIG.additiveGlow = false;
+        });
         context.clickScreenButton("screen.xporbtrails.reset");
         context.runOnClient(client -> {
-            check(XpOrbTrailsClient.CONFIG.pickupFadeSeconds == new TrailConfig().pickupFadeSeconds,
-                    "Common reset must restore trail disappearance fading");
-            check(XpOrbTrailsClient.CONFIG.additiveGlow && XpOrbTrailsClient.CONFIG.effectStrength == new TrailConfig().effectStrength,
-                    "Common reset must restore overall effects");
-            check(!XpOrbTrailsClient.CONFIG.pickupFlash, "Common reset must preserve Appearance pickup flash settings");
+            check(XpOrbTrailsClient.CONFIG.pickupFadeSeconds == new TrailConfig().pickupFadeSeconds, "Trail reset restores its fade");
+            check(!XpOrbTrailsClient.CONFIG.additiveGlow && !XpOrbTrailsClient.CONFIG.pickupFlash,
+                    "Trail reset preserves global and pickup preferences");
+            XpOrbTrailsClient.CONFIG.renderRange = 83;
         });
-        context.takeScreenshot("menu-common-fade");
+        context.clickScreenButton("screen.xporbtrails.general");
+        context.clickScreenButton("screen.xporbtrails.reset");
+        context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.additiveGlow
+                && XpOrbTrailsClient.CONFIG.renderRange == new TrailConfig().renderRange
+                && !XpOrbTrailsClient.CONFIG.pickupFlash, "General reset covers performance and preserves pickup"));
         context.runOnClient(client -> {
             XpOrbTrailsClient.CONFIG.savedProfiles.add(new TrailConfig.SavedProfile("Regression", new TrailConfig()));
             XpOrbTrailsClient.CONFIG.width = 0.33;
@@ -262,16 +329,23 @@ public final class TrailClientTest implements FabricClientGameTest {
                 "Renaming a saved profile must persist its new name"));
         click(context, "screen.xporbtrails.delete_profile");
         context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.savedProfiles.size() == 1, "Delete must require confirmation"));
+        context.clickScreenButton("screen.xporbtrails.trail");
+        context.clickScreenButton("screen.xporbtrails.profiles");
+        context.runOnClient(client -> check(widgets(client.screen).stream().noneMatch(w -> w.getMessage().equals(
+                net.minecraft.network.chat.Component.translatable("screen.xporbtrails.confirm_delete_profile"))),
+                "Leaving Profiles must disarm its delete button"));
+        click(context, "screen.xporbtrails.manage_profile");
+        click(context, "screen.xporbtrails.delete_profile");
         click(context, "screen.xporbtrails.confirm_delete_profile");
         context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.savedProfiles.isEmpty(), "Confirmed deletion must remove the profile"));
         context.runOnClient(client -> XpOrbTrailsClient.CONFIG.savedProfiles.add(new TrailConfig.SavedProfile(
                 net.minecraft.network.chat.Component.translatable("screen.xporbtrails.saved_profile_name", 2).getString(), new TrailConfig())));
-        context.clickScreenButton("screen.xporbtrails.common");
+        context.clickScreenButton("screen.xporbtrails.trail");
         context.clickScreenButton("screen.xporbtrails.profiles");
         click(context, "screen.xporbtrails.save_profile");
         context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.savedProfiles.stream().map(p -> p.name).distinct().count() == 2,
                 "Saving a profile must choose an unused name"));
-        context.clickScreenButton("screen.xporbtrails.common");
+        context.clickScreenButton("screen.xporbtrails.trail");
         context.runOnClient(client -> {
             var list = (TrailSettingsList) client.screen.children().stream().filter(w -> w instanceof TrailSettingsList).findFirst().orElseThrow();
             list.setScrollAmount(0);
@@ -287,7 +361,7 @@ public final class TrailClientTest implements FabricClientGameTest {
             client.setLastInputType(net.minecraft.client.InputType.MOUSE);
         });
         context.waitTicks(3);
-        context.takeScreenshot("menu-common-wide");
+        context.takeScreenshot("menu-trail-wide");
         context.runOnClient(client -> { client.options.guiScale().set(2); client.resizeGui(); });
         var languageReload = new java.util.concurrent.atomic.AtomicReference<java.util.concurrent.CompletableFuture<Void>>();
         context.runOnClient(client -> {
@@ -296,10 +370,177 @@ public final class TrailClientTest implements FabricClientGameTest {
             languageReload.set(client.reloadResourcePacks());
         });
         context.waitFor(client -> languageReload.get().isDone() && client.getOverlay() == null);
-        context.waitTicks(5);
-        context.takeScreenshot("menu-common-chinese");
+        var originalConfig = new java.util.concurrent.atomic.AtomicReference<TrailConfig>();
         context.runOnClient(client -> {
-            check("常用".equals(net.minecraft.network.chat.Component.translatable("screen.xporbtrails.common").getString()),
+            originalConfig.set(XpOrbTrailsClient.CONFIG);
+            XpOrbTrailsClient.CONFIG = new TrailConfig();
+            client.setScreen(ModMenu.getConfigScreen("xporbtrails", client.screen));
+        });
+        context.waitTicks(5);
+        context.runOnClient(client -> {
+            var screen = client.screen;
+            int right = 0;
+            for (String page : List.of("general", "trail", "pickup", "orb_body", "profiles")) {
+                var tab = findControl(screen, "screen.xporbtrails." + page);
+                check(tab.getX() >= right && tab.getRight() <= screen.width &&
+                                tab.getWidth() >= client.font.width(tab.getMessage()),
+                        "Chinese tabs must fit without overlap in a small window: " + page);
+                right = tab.getRight();
+            }
+        });
+        context.getInput().setCursorPos(2, 2);
+        context.waitTicks(2);
+        context.takeScreenshot("menu-default-general-chinese-small");
+        context.runOnClient(client -> client.getWindow().setWindowed(1500, 850));
+        context.waitFor(client -> client.screen.width >= 680);
+        context.getInput().setCursorPos(2, 2);
+        context.waitTicks(56);
+        context.runOnClient(client -> findControl(client.screen, "screen.xporbtrails.enabled"));
+        context.takeScreenshot("menu-default-general-chinese-wide");
+        verifySwatches(context, "menu-swatches-zh",
+                new SwatchRow("screen.xporbtrails.start_color", 0xE6FF2A),
+                new SwatchRow("screen.xporbtrails.end_color", 0x66FF00));
+        for (String page : List.of("trail", "pickup", "orb_body", "profiles")) {
+            context.clickScreenButton("screen.xporbtrails." + page);
+            context.getInput().setCursorPos(2, 2);
+            context.waitTicks(3);
+            if (page.equals("profiles")) checkFolderButton(context);
+            context.takeScreenshot("menu-zh-wide-" + page);
+        }
+        context.clickScreenButton("screen.xporbtrails.trail");
+        click(context, "screen.xporbtrails.custom_shape");
+        context.runOnClient(client -> {
+            var child = findControl(client.screen, "screen.xporbtrails.head_width");
+            var list = (TrailSettingsList) client.screen.children().stream().filter(TrailSettingsList.class::isInstance).findFirst().orElseThrow();
+            check(child.getX() > list.getX(), "Custom shape controls must be inset under their parent");
+        });
+        click(context, "screen.xporbtrails.custom_shape");
+        slideCrossSection(context, 0.2);
+        context.takeScreenshot("menu-shape-chinese-wide");
+        context.clickScreenButton("screen.xporbtrails.pickup");
+        click(context, "screen.xporbtrails.pickup_flash");
+        context.runOnClient(client -> {
+            check(!XpOrbTrailsClient.CONFIG.pickupFlash, "Pickup flash must switch off");
+            check(widgets(client.screen).stream().noneMatch(w -> w.getMessage().getString().equals(
+                    net.minecraft.network.chat.Component.translatable("screen.xporbtrails.flash_style.soft").getString())),
+                    "Disabled pickup flash details must be hidden");
+        });
+        click(context, "screen.xporbtrails.pickup_flash");
+        context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.pickupFlash, "Pickup flash must switch back on"));
+        click(context, "screen.xporbtrails.preview_pickup");
+        context.waitForScreen(TrailPreviewScreen.class);
+        context.clickScreenButton("screen.xporbtrails.preview_pickup");
+        context.runOnClient(client -> {
+            double elapsed = (System.nanoTime() - (long) field(client.screen, "demoStartNanos")) / 1_000_000_000.0;
+            check(elapsed >= 3.65 && elapsed < 4.25, "Pickup replay must begin just before collection");
+            client.screen.onClose();
+        });
+        context.clickScreenButton("screen.xporbtrails.trail");
+        click(context, "screen.xporbtrails.flight_pulse");
+        context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.flightPulse, "Appearance must enable the flight pulse"));
+        click(context, "screen.xporbtrails.flight_pulse");
+        context.runOnClient(client -> check(!XpOrbTrailsClient.CONFIG.flightPulse, "Appearance must disable the flight pulse"));
+        context.clickScreenButton("screen.xporbtrails.orb_body");
+        click(context, "screen.xporbtrails.flight_effect");
+        click(context, "Twin Orbit");
+        context.clickScreenButton("screen.xporbtrails.pickup");
+        click(context, "screen.xporbtrails.flash_style");
+        click(context, "Twin Orbit");
+        context.runOnClient(client -> check("file:orb/twin-orbit".equals(XpOrbTrailsClient.CONFIG.flightEffect)
+                        && "file:pickup/twin-orbit".equals(XpOrbTrailsClient.CONFIG.pickupFlashStyle),
+                "Both choosers must select the effect by its file name and store its stable id"));
+        for (String style : List.of("soft", "star", "ring", "reflow", "shards", "spiral")) {
+            click(context, "screen.xporbtrails.flash_style");
+            click(context, "screen.xporbtrails.flash_style." + style);
+            context.runOnClient(client -> check(("file:pickup/" + style).equals(XpOrbTrailsClient.CONFIG.pickupFlashStyle),
+                    "Pickup style selection must apply " + style));
+        }
+        context.clickScreenButton("screen.xporbtrails.general");
+        click(context, "screen.xporbtrails.mode.gradient");
+        context.takeScreenshot("menu-choice-chinese");
+        context.clickScreenButton("gui.back");
+        click(context, "screen.xporbtrails.start_color");
+        context.waitForScreen(ColorPickerScreen.class);
+        context.runOnClient(client -> {
+            var screen = client.screen;
+            var input = widgets(screen).stream().filter(w -> w instanceof net.minecraft.client.gui.components.EditBox)
+                    .map(w -> (net.minecraft.client.gui.components.EditBox) w).findFirst().orElseThrow();
+            var done = widgets(screen).stream().filter(w -> w.getMessage().equals(
+                    net.minecraft.network.chat.Component.translatable("gui.done"))).findFirst().orElseThrow();
+            input.setValue("#12X");
+            check(!done.active, "Incomplete or invalid hex must disable Done");
+            int originalColor = XpOrbTrailsClient.CONFIG.startColor;
+            var secondary = new net.minecraft.client.input.MouseButtonEvent(screen.width / 2, (int) field(screen, "paletteY") + 3,
+                    new net.minecraft.client.input.MouseButtonInfo(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT, 0));
+            screen.mouseClicked(secondary, false);
+            screen.mouseReleased(secondary);
+            check(XpOrbTrailsClient.CONFIG.startColor == originalColor, "Secondary click must preserve the selected color");
+        });
+        context.waitTicks(2);
+        context.takeScreenshot("menu-invalid-hex-chinese");
+        context.runOnClient(client -> {
+            var screen = client.screen;
+            screen.resize(screen.width, screen.height);
+            var input = widgets(screen).stream().filter(w -> w instanceof net.minecraft.client.gui.components.EditBox)
+                    .map(w -> (net.minecraft.client.gui.components.EditBox) w).findFirst().orElseThrow();
+            check("#12X".equals(input.getValue()), "Resizing must preserve the unfinished color input");
+            input.setValue("#123ABC");
+        });
+        context.takeScreenshot("menu-picker-chinese");
+        verifySwatches(context, "menu-swatch-picker", new SwatchRow("screen.xporbtrails.hex", 0x123ABC));
+        context.clickScreenButton("gui.done");
+        context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.startColor == 0x123ABC,
+                "The hex input and Done button must apply the edited trail color"));
+        context.clickScreenButton("screen.xporbtrails.general");
+        context.waitTicks(3);
+        context.takeScreenshot("menu-general-chinese");
+        verifySwatches(context, "menu-swatches-edited",
+                new SwatchRow("screen.xporbtrails.start_color", 0x123ABC),
+                new SwatchRow("screen.xporbtrails.end_color", 0x66FF00));
+        context.runOnClient(client -> client.getWindow().setWindowed(854, 480));
+        context.waitFor(client -> client.screen.width < 680);
+        context.waitTicks(3);
+        context.takeScreenshot("menu-general-chinese-small");
+        context.runOnClient(client -> client.getWindow().setWindowed(1500, 850));
+        context.waitFor(client -> client.screen.width >= 680);
+        context.clickScreenButton("screen.xporbtrails.profiles");
+        click(context, "screen.xporbtrails.profile.standard");
+        context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.startColor == new TrailConfig().startColor,
+                "Clicking the Standard file profile must apply it"));
+        context.runOnClient(client -> verifyCometStripName());
+        context.takeScreenshot("menu-profiles-chinese");
+        context.runOnClient(client -> XpOrbTrailsClient.CONFIG.renderRange = 71);
+        context.runOnClient(client -> check(XpOrbTrailsClient.fileStyles().stream().anyMatch(style -> "Comet Pennant".equals(style.name())),
+                "A fresh installation must load the bundled Comet Pennant file style"));
+        click(context, "screen.xporbtrails.reload_styles");
+        click(context, "Comet Pennant");
+        context.runOnClient(client -> {
+            var config = XpOrbTrailsClient.CONFIG;
+            check(!config.showVanillaOrb && "ribbon".equals(config.trailSpriteMode)
+                            && "sprite:orb/luna-moth".equals(config.flightEffect)
+                            && "sprite:pickup/collect-burst".equals(config.pickupFlashStyle)
+                            && "sprite:trail/comet-pennant".equals(config.trailSprite),
+                    "Comet Pennant must select the moth, pickup burst and pennant ribbon");
+            for (var role : AssetRole.values()) {
+                String id = switch (role) {
+                    case ORB -> config.flightEffect;
+                    case PICKUP -> config.pickupFlashStyle;
+                    case TRAIL -> config.trailSprite;
+                };
+                check(XpOrbTrailsClient.sprite(role, id) != null, "Missing bundled artwork: " + id);
+            }
+            check(config.renderRange == 71, "File styles must preserve the user's render range");
+        });
+        context.takeScreenshot("menu-file-style-comet-pennant");
+        verifyEditableFiles(context);
+        context.runOnClient(client -> {
+            client.getWindow().setWindowed(854, 480);
+            XpOrbTrailsClient.CONFIG = originalConfig.get();
+        });
+        context.waitFor(client -> client.screen.width < 680);
+        context.runOnClient(client -> {
+            client.screen.onClose();
+            check("尾迹".equals(net.minecraft.network.chat.Component.translatable("screen.xporbtrails.trail").getString()),
                     "Menu must follow the Minecraft language");
             client.getLanguageManager().setSelected("en_us");
             client.options.languageCode = "en_us";
@@ -322,7 +563,8 @@ public final class TrailClientTest implements FabricClientGameTest {
         context.runOnClient(client -> client.screen.onClose());
         context.runOnClient(client -> client.screen.onClose());
 
-        try (TestSingleplayerContext world = context.worldBuilder().create()) {
+        TestSingleplayerContext world = context.worldBuilder().create();
+        try {
             world.getClientLevel().waitForChunksRender();
             context.runOnClient(client -> {
                 trails().clear();
@@ -368,16 +610,22 @@ public final class TrailClientTest implements FabricClientGameTest {
                 trails().clear();
             });
             var pickedTrail = new java.util.concurrent.atomic.AtomicReference<Object>();
+            context.runOnClient(client -> XpOrbTrailsClient.CONFIG.showVanillaOrb = false);
+            int xpBeforePickup = context.computeOnClient(client -> client.player.totalExperience);
             world.getServer().runCommand("execute at @p run summon minecraft:experience_orb ~10 ~1 ~ {Value:1,Count:3,NoGravity:1b,Motion:[0.0d,0.0d,0.0d],Tags:[\"xporb_pickup_test\"]}");
             context.waitFor(client -> !trails().isEmpty());
             context.runOnClient(client -> pickedTrail.set(trails().values().iterator().next()));
             world.getServer().runCommand("execute at @p run tp @e[type=minecraft:experience_orb,tag=xporb_pickup_test] ~ ~ ~");
             context.waitFor(client -> (long) field(pickedTrail.get(), "pickupAt") != 0);
+            context.waitFor(client -> client.player.totalExperience > xpBeforePickup);
             context.runOnClient(client -> check(field(pickedTrail.get(), "pickupPosition") != null,
                     "Vanilla server pickup packets must record a flash position"));
             context.takeScreenshot("pickup-flash-real");
             world.getServer().runCommand("kill @e[type=minecraft:experience_orb,tag=xporb_pickup_test]");
-            context.runOnClient(client -> trails().clear());
+            context.runOnClient(client -> {
+                XpOrbTrailsClient.CONFIG.showVanillaOrb = true;
+                trails().clear();
+            });
             context.runOnClient(client -> {
                 trails().clear();
                 XpOrbTrailsClient.CONFIG.trailCap = 8;
@@ -427,6 +675,10 @@ public final class TrailClientTest implements FabricClientGameTest {
             });
             world.getServer().runCommand("execute at @p run summon minecraft:experience_orb ~ ~2 ~3 {Value:1,Motion:[0.1d,0.1d,0.0d]}");
             context.waitFor(client -> !snapshot().isEmpty());
+            TrailEffectsClientTest.verifyWorld(context, world);
+            StarfallClientTest.run(context, world);
+        } finally {
+            closeWorld(context, world);
         }
         context.waitTicks(2);
         context.runOnClient(client -> {
@@ -434,6 +686,21 @@ public final class TrailClientTest implements FabricClientGameTest {
                     "Disconnect must release the world and all trail state");
             XpOrbTrailsClient.CONFIG = new TrailConfig();
             XpOrbTrailsClient.CONFIG.width = 0.37;
+            XpOrbTrailsClient.CONFIG.showVanillaOrb = false;
+            XpOrbTrailsClient.CONFIG.orbScale = 1.6;
+            XpOrbTrailsClient.CONFIG.trailSprite = "body";
+            XpOrbTrailsClient.CONFIG.fixedStamps = true;
+            XpOrbTrailsClient.CONFIG.ribbonMapping = "tile";
+            XpOrbTrailsClient.CONFIG.ribbonRepeatLength = 0.65;
+            XpOrbTrailsClient.CONFIG.trailSpriteMode = "ribbon";
+            XpOrbTrailsClient.CONFIG.stampScale = 1.2;
+            XpOrbTrailsClient.CONFIG.stampSpacing = 2.5;
+            XpOrbTrailsClient.CONFIG.flightPulse = true;
+            XpOrbTrailsClient.CONFIG.flightEffect = "file:orb/twin-orbit";
+            XpOrbTrailsClient.CONFIG.pulseSpeed = 1.5;
+            XpOrbTrailsClient.CONFIG.shardCount = 7;
+            XpOrbTrailsClient.CONFIG.spiralTurns = 1.5;
+            XpOrbTrailsClient.CONFIG.pickupFlashStyle = "file:pickup/shards";
             XpOrbTrailsClient.CONFIG.savedPresets.add(new TrailConfig.SavedPreset("Probe Color", 0x123456, 0xabcdef));
             XpOrbTrailsClient.CONFIG.savedProfiles.add(new TrailConfig.SavedProfile("Probe Profile", XpOrbTrailsClient.CONFIG));
             XpOrbTrailsClient.saveConfig();
@@ -441,14 +708,91 @@ public final class TrailClientTest implements FabricClientGameTest {
         if (!failures.isEmpty()) throw new AssertionError(String.join("; ", failures));
     }
 
+    static void closeWorld(ClientGameTestContext context, TestSingleplayerContext world) {
+        context.runOnClient(client -> {
+            var server = client.getSingleplayerServer();
+            // The 26.3 client queues a synchronous player-removal task before Fabric's disconnect tick hook.
+            // Let the server drain that task before it returns to the gametest tick barrier.
+            server.execute(() -> server.managedBlock(() -> !server.isRunning()));
+        });
+        world.close();
+    }
+
     private void check(boolean success, String message) {
         if (!success) failures.add(message);
+    }
+
+    private static void verifyCometStripName() {
+        for (var role : AssetRole.values()) {
+            String id = "sprite:" + role.folder + "/comet-strip";
+            String label = TrailConfigScreen.effectLabel(role, id).getString();
+            if (!label.equals("Comet Strip")) throw new AssertionError(id + " displayed as " + label);
+        }
+    }
+
+    private void verifyEditableFiles(ClientGameTestContext context) {
+        var root = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("xp_orb_trails");
+        var preset = root.resolve("profiles/standard.json");
+        try {
+            for (String folder : List.of("orb/effects", "orb/sprites", "pickup/effects", "pickup/sprites", "trail/sprites")) {
+                check(java.nio.file.Files.isDirectory(root.resolve(folder)), "Missing role folder " + folder);
+            }
+            for (String retired : List.of("styles", "sprites", "effects", "profiles/builtin")) {
+                check(!java.nio.file.Files.exists(root.resolve(retired)), "Fresh installation must not create " + retired);
+            }
+            byte[] original = java.nio.file.Files.readAllBytes(preset);
+            try {
+                var edited = com.google.gson.JsonParser.parseString(new String(original, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+                edited.addProperty("name", "Edited in JSON");
+                edited.addProperty("width", 0.41);
+                java.nio.file.Files.writeString(preset, edited.toString());
+                click(context, "screen.xporbtrails.reload_styles");
+                click(context, "Edited in JSON");
+                context.runOnClient(client -> check(XpOrbTrailsClient.CONFIG.width == 0.41,
+                        "Editing the bundled profile on disk must update its name and applied width"));
+            } finally {
+                java.nio.file.Files.write(preset, original);
+                click(context, "screen.xporbtrails.reload_styles");
+            }
+            var flash = root.resolve("pickup/effects/soft.json");
+            byte[] originalFlash = java.nio.file.Files.readAllBytes(flash);
+            try {
+                var edited = com.google.gson.JsonParser.parseString(new String(originalFlash, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+                edited.addProperty("name", "Edited pickup in JSON");
+                java.nio.file.Files.writeString(flash, edited.toString());
+                click(context, "screen.xporbtrails.reload_styles");
+                context.clickScreenButton("screen.xporbtrails.pickup");
+                click(context, "screen.xporbtrails.flash_style");
+                click(context, "Edited pickup in JSON");
+                context.runOnClient(client -> check("file:pickup/soft".equals(XpOrbTrailsClient.CONFIG.pickupFlashStyle),
+                        "Renaming a pickup file's display name must preserve its ID"));
+
+                java.nio.file.Files.delete(flash);
+                context.clickScreenButton("screen.xporbtrails.profiles");
+                click(context, "screen.xporbtrails.reload_styles");
+                context.clickScreenButton("screen.xporbtrails.pickup");
+                click(context, "screen.xporbtrails.flash_style");
+                context.runOnClient(client -> {
+                    var labels = widgets(client.screen).stream().map(w -> w.getMessage().getString()).toList();
+                    check(!labels.contains("Edited pickup in JSON") && !labels.contains(net.minecraft.network.chat.Component
+                                    .translatable("screen.xporbtrails.flash_style.soft").getString()),
+                            "Deleting the default pickup file must remove its chooser entry");
+                });
+                context.clickScreenButton("gui.back");
+            } finally {
+                java.nio.file.Files.write(flash, originalFlash);
+                context.clickScreenButton("screen.xporbtrails.profiles");
+                click(context, "screen.xporbtrails.reload_styles");
+            }
+        } catch (java.io.IOException error) {
+            throw new AssertionError(error);
+        }
     }
 
     private static java.nio.file.attribute.FileTime configModifiedTime() {
         try {
             return java.nio.file.Files.getLastModifiedTime(net.fabricmc.loader.api.FabricLoader.getInstance()
-                    .getConfigDir().resolve("xp-orb-trails.json"));
+                    .getConfigDir().resolve("xp_orb_trails.json"));
         } catch (java.io.IOException exception) { throw new AssertionError(exception); }
     }
 
@@ -494,11 +838,12 @@ public final class TrailClientTest implements FabricClientGameTest {
         }
         try {
             Class<?> sampleType = Class.forName(TrailRenderer.class.getName() + "$Sample");
-            var constructor = sampleType.getDeclaredConstructors()[0]; constructor.setAccessible(true);
+            var constructor = sampleType.getDeclaredConstructor(net.minecraft.world.phys.Vec3.class, long.class);
+            constructor.setAccessible(true);
             var samples = new ArrayList<>();
             for (int i = 0; i < 3; i++) samples.add(constructor.newInstance(new net.minecraft.world.phys.Vec3(i, 0, 0), 0L));
             var append = java.util.Arrays.stream(TrailRenderer.class.getDeclaredMethods())
-                    .filter(m -> m.getName().equals("appendTube")).findFirst().orElseThrow();
+                    .filter(m -> m.getName().equals("appendStyledTube")).findFirst().orElseThrow();
             append.setAccessible(true);
             for (int sides : new int[]{2, 3, 8, 32}) {
                 int[] vertices = {0};
@@ -517,8 +862,14 @@ public final class TrailClientTest implements FabricClientGameTest {
                                 fingerprint[0] = fingerprint[0] * 31 + ((Number) args[0]).intValue();
                             return proxy;
                         });
+                var config = new TrailConfig();
+                config.width = 0.24;
+                config.startColor = config.endColor = 0xFFFFFF;
+                config.colorMode = "solid";
+                config.tailWidthScale = config.middleWidthScale = config.headWidthScale = 1.0;
+                config.crossSectionSides = sides;
                 append.invoke(null, out, samples, new net.minecraft.world.phys.Vec3(0, 0, 3),
-                        0L, 100L, 0.24, 0.78, 0xFFFFFF, 0xFFFFFF, "solid", 0.2, 1.0, 1.0, 1.0, sides);
+                        0L, 100L, config, 0.78, -1.0, false);
                 check(vertices[0] == 8 * (sides == 2 ? 1 : sides),
                         "Mesh must emit the selected face count without doubling the billboard");
                 long expected = switch (sides) {
@@ -534,6 +885,23 @@ public final class TrailClientTest implements FabricClientGameTest {
         } catch (ReflectiveOperationException exception) { throw new AssertionError(exception); }
     }
 
+    private void checkFolderButton(ClientGameTestContext context) {
+        context.runOnClient(client -> {
+            Screen screen = client.screen;
+            var configRoot = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("xp_orb_trails");
+            check(XpOrbTrailsClient.assetDirectory().equals(configRoot) && java.nio.file.Files.isDirectory(configRoot),
+                    "Folder button must target this instance's artwork and profiles directory");
+            String key = "screen.xporbtrails.open_config_folder";
+            var folder = findControl(screen, key);
+            var preview = findControl(screen, "screen.xporbtrails.open_preview");
+            check(folder.visible && folder.active && !folder.getMessage().getString().equals(key)
+                            && folder.getWidth() >= client.font.width(folder.getMessage()) + 10
+                            && folder.getX() >= 0 && folder.getRight() <= preview.getX()
+                            && folder.getY() == preview.getY() && folder.getBottom() <= screen.height,
+                    "The translated config folder button must fit to the left of Preview");
+        });
+    }
+
     private static Map<?, ?> trails() { return (Map<?, ?>) field(null, "TRAILS"); }
     private static List<?> snapshot() { return (List<?>) field(null, "renderTrails"); }
 
@@ -543,11 +911,51 @@ public final class TrailClientTest implements FabricClientGameTest {
         return result;
     }
 
-    private static void click(ClientGameTestContext context, String key) {
-        String label = net.minecraft.network.chat.Component.translatable(key).getString();
+    private record SwatchRow(String key, int... colors) {}
+
+    private void verifySwatches(ClientGameTestContext context, String name, SwatchRow... rows) {
+        reveal(context, rows[0].key());
+        context.getInput().setCursorPos(2, 2);
+        context.waitTicks(2);
+        var bounds = context.computeOnClient(client -> {
+            var screen = client.screen;
+            int scale = client.getWindow().getGuiScale();
+            var spans = new ArrayList<ScreenRectangle>();
+            for (var row : rows) {
+                var widget = findControl(screen, row.key());
+                int left = widget.getX(), right = widget.getRight();
+                if (screen instanceof ColorPickerScreen) {
+                    // The picker displays its preview immediately to the right of the HEX editor.
+                    left = widget.getRight();
+                    right = screen.width / 2 + 80;
+                } else if (row.colors().length == 1) {
+                    check(widget.getMessage().getString().equals("#%06X".formatted(row.colors()[0])),
+                            "The color button must include its readable HEX value");
+                }
+                spans.add(new ScreenRectangle(left * scale, widget.getY() * scale,
+                        (right - left) * scale, widget.getHeight() * scale));
+            }
+            return spans;
+        });
+        TrailEffectsClientTest.screenshot(context, name, image -> {
+            for (int i = 0; i < rows.length; i++) {
+                var span = bounds.get(i);
+                int x = span.left(), y = span.top() + span.height() / 2;
+                for (int rgb : rows[i].colors()) {
+                    int run = 0;
+                    while (x < span.right() && run < 4) {
+                        run = (image.getPixel(x++, y) & 0xFFFFFF) == rgb ? run + 1 : 0;
+                    }
+                    check(run == 4, "%s: %s must draw #%06X in order".formatted(name, rows[i].key(), rgb));
+                }
+            }
+            return true;
+        });
+    }
+
+    private static void reveal(ClientGameTestContext context, String key) {
         context.runOnClient(client -> {
-            AbstractWidget target = widgets(client.screen).stream()
-                    .filter(w -> w.getMessage().getString().equals(label)).findFirst().orElseThrow();
+            AbstractWidget target = findControl(client.screen, key);
             for (var child : client.screen.children()) {
                 if (child instanceof TrailSettingsList list) {
                     for (var row : list.children()) {
@@ -556,10 +964,14 @@ public final class TrailClientTest implements FabricClientGameTest {
                 }
             }
         });
+    }
+
+    static void click(ClientGameTestContext context, String key) {
+        reveal(context, key);
         context.waitTicks(2);
         context.runOnClient(client -> {
             Screen screen = client.screen;
-            AbstractWidget target = widgets(screen).stream().filter(w -> w.getMessage().getString().equals(label)).findFirst().orElseThrow();
+            AbstractWidget target = findControl(screen, key);
             var event = new net.minecraft.client.input.MouseButtonEvent(target.getX() + target.getWidth() / 2.0,
                     target.getY() + target.getHeight() / 2.0,
                     new net.minecraft.client.input.MouseButtonInfo(com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT, 0));
@@ -571,11 +983,23 @@ public final class TrailClientTest implements FabricClientGameTest {
         context.waitTicks(2);
     }
 
+    private static AbstractWidget findControl(Screen screen, String key) {
+        var label = net.minecraft.network.chat.Component.translatable(key);
+        for (var child : screen.children()) {
+            if (child instanceof TrailSettingsList list) {
+                for (var row : list.children()) {
+                    if (row.matches(label) && row.children().size() == 1) return (AbstractWidget) row.children().getFirst();
+                }
+            }
+        }
+        return widgets(screen).stream().filter(w -> w.getMessage().getString().equals(label.getString()))
+                .findFirst().orElseThrow(() -> new AssertionError("Missing control: " + key));
+    }
+
     private static void slideCrossSection(ClientGameTestContext context, double fraction) {
         context.runOnClient(client -> {
             var slider = widgets(client.screen).stream().filter(w -> w instanceof AbstractSliderButton
-                    && w.getMessage().getString().equals(TrailConfigScreen.crossSectionLabel(
-                            XpOrbTrailsClient.CONFIG.crossSectionSides).getString())).findFirst().orElseThrow();
+                    && w.getMessage().getString().equals(Integer.toString(XpOrbTrailsClient.CONFIG.crossSectionSides))).findFirst().orElseThrow();
             for (var child : client.screen.children()) if (child instanceof TrailSettingsList list) {
                 for (var row : list.children()) if (row.children().contains(slider))
                     list.setScrollAmount(list.scrollAmount() + row.getY() - list.getY() - 8);
@@ -584,9 +1008,8 @@ public final class TrailClientTest implements FabricClientGameTest {
         context.waitTicks(2);
         context.runOnClient(client -> {
             var slider = widgets(client.screen).stream().filter(w -> w instanceof AbstractSliderButton
-                    && w.getMessage().getString().equals(TrailConfigScreen.crossSectionLabel(
-                            XpOrbTrailsClient.CONFIG.crossSectionSides).getString())).findFirst().orElseThrow();
-            var event = new net.minecraft.client.input.MouseButtonEvent(slider.getX() + 4 + (slider.getWidth() - 8) * fraction,
+                    && w.getMessage().getString().equals(Integer.toString(XpOrbTrailsClient.CONFIG.crossSectionSides))).findFirst().orElseThrow();
+            var event = new net.minecraft.client.input.MouseButtonEvent(slider.getX() + 4 + (slider.getWidth() - 47) * fraction,
                     slider.getY() + 10, new net.minecraft.client.input.MouseButtonInfo(
                             com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT, 0));
             if (!client.screen.mouseClicked(event, false)) throw new AssertionError("Slider did not accept click");

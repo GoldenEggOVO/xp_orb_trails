@@ -77,6 +77,8 @@ public final class TrailClientProbe {
         step(() -> {
             String location = XpOrbTrailsClient.class.getProtectionDomain().getCodeSource().getLocation().toString();
             check(location.contains(".jar"), "Probe must load the packaged mod: " + location);
+            check(XpOrbTrailsClient.class.getResource("/assets/xporbtrails/profiles/comet-pennant.json") != null,
+                    "The packaged mod must include the Comet Pennant profile");
             if (Boolean.getBoolean("xporb.expectShaders")) {
                 try {
                     Class<?> api = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
@@ -100,33 +102,143 @@ public final class TrailClientProbe {
             CLIENT.resizeGui();
             CLIENT.setScreen(configScreen.apply(CLIENT.screen));
             check(CLIENT.screen instanceof TrailConfigScreen, "Loader config button must create settings");
-            check("Common".equals(Component.translatable("screen.xporbtrails.common").getString()), "English menu must load");
+            check("GENERAL".equals(field(CLIENT.screen, "page").toString()), "Settings must open on General");
+            var tabs = CLIENT.screen.children().stream().filter(Button.class::isInstance).map(Button.class::cast)
+                    .limit(5).map(b -> b.getMessage().getString()).toList();
+            check(tabs.equals(List.of("General", "Trail", "Pickup", "Orb Body", "Profiles")), "Unexpected tab order: " + tabs);
         });
-        capture("menu-common-en");
+        capture("menu-general-en");
         step(() -> {
             XpOrbTrailsClient.CONFIG.width = 0.44;
-            click("appearance");
+            click("pickup");
             XpOrbTrailsClient.CONFIG.pickupFlash = false;
             click("reset");
             check(XpOrbTrailsClient.CONFIG.pickupFlash && XpOrbTrailsClient.CONFIG.width == 0.44,
-                    "Appearance reset must preserve Common settings");
+                    "Pickup reset must preserve trail settings");
         });
-        capture("menu-appearance");
+        capture("menu-pickup");
         step(() -> {
-            click("advanced");
+            click("general");
             XpOrbTrailsClient.CONFIG.renderRange = 71;
             click("reset");
             check(XpOrbTrailsClient.CONFIG.renderRange == new TrailConfig().renderRange,
-                    "Advanced reset must restore performance settings");
+                    "General reset must restore performance settings");
             click("profiles");
-            check(widgets(CLIENT.screen).stream().anyMatch(w -> !w.active && w.getMessage().getString().equals(Component.translatable("screen.xporbtrails.reset").getString())),
+            check(Files.isDirectory(configDirectory.resolve("xp_orb_trails/profiles"))
+                            && Files.isRegularFile(configDirectory.resolve("xp_orb_trails.json")),
+                    "Settings and profiles must use the active instance's underscore paths");
+            check(widgets(CLIENT.screen).stream().anyMatch(w -> w.visible && w.active
+                            && w.getMessage().equals(Component.translatable("screen.xporbtrails.open_config_folder"))),
+                    "Profiles footer must expose the config folder");
+            check(widgets(CLIENT.screen).stream().noneMatch(w -> w.getMessage().equals(Component.translatable("screen.xporbtrails.reset"))),
                     "Profiles must not reset other pages: " + widgets(CLIENT.screen).stream().map(w -> w.getMessage().getString() + "=" + w.active).toList());
         });
         capture("menu-profiles");
         step(() -> {
-            click("common");
+            click(Component.literal("Comet Pennant"));
+            var c = XpOrbTrailsClient.CONFIG;
+            check(c.trailSprite.equals("sprite:trail/comet-pennant") && c.trailSpriteMode.equals("ribbon")
+                            && c.flightEffect.equals("sprite:orb/luna-moth") && c.pickupFlashStyle.equals("sprite:pickup/collect-burst"),
+                    "Comet Pennant must apply its bundled body, pickup and trail");
+            click("open_preview");
+        });
+        waitTicks(36);
+        capture("bundled-comet-pennant");
+        step(() -> {
+            CLIENT.screen.onClose();
+            click("profile.standard");
+        });
+        step(() -> {
+            click(Component.literal("Starfall"));
+            var c = XpOrbTrailsClient.CONFIG;
+            check(c.customCrossSectionEnabled && c.crossSectionRadii.length == 10
+                            && c.flightEffect.equals("file:orb/starfall") && c.pickupFlashStyle.equals("file:pickup/starfall"),
+                    "The bundled Starfall profile must apply its section and both emitters");
+            click("open_preview");
+        });
+        waitTicks(42);
+        capture("starfall-flight");
+        step(() -> CLIENT.screen.onClose());
+        step(() -> {
+            click("pickup");
+            click("preview_pickup");
+        });
+        waitTicks(16);
+        capture("starfall-pickup");
+        step(() -> {
+            CLIENT.screen.onClose();
+            click("profiles");
+            click("profile.standard");
+        });
+        if (System.getProperty("xporb.spriteDemo") != null || Boolean.getBoolean("xporb.layoutDemo")) {
+            step(() -> {
+                if (widgets(CLIENT.screen).stream().noneMatch(w -> w.getMessage().getString().equals(
+                        Component.translatable("screen.xporbtrails.reload_styles").getString()))) click("file_styles");
+                click("reload_styles");
+            });
+        }
+        if (System.getProperty("xporb.spriteDemo") != null) {
+            for (String mode : List.of("ribbon", "stamps")) {
+                boolean ribbon = mode.equals("ribbon");
+                step(() -> {
+                    click(Component.literal(ribbon ? "Starlight Ribbon" : "Starlight Sparks"));
+                    TrailConfig c = XpOrbTrailsClient.CONFIG;
+                    check(!c.showVanillaOrb && c.flightEffect.equals("sprite:orb/starlight-crystal")
+                                    && c.trailSpriteMode.equals(mode) && c.trailSprite.equals(ribbon ? "sprite:trail/starlight-weave" : "sprite:trail/comet-strip")
+                                    && c.pickupFlashStyle.equals("sprite:pickup/collect-burst"),
+                            "The installed demo must apply its body, trail and pickup in " + mode + " mode");
+                    click("open_preview");
+                });
+                waitTicks(36);
+                capture(ribbon ? "starlight-ribbon-preview" : "starlight-sparks-preview");
+                step(() -> CLIENT.screen.onClose());
+            }
+        }
+        if (Boolean.getBoolean("xporb.layoutDemo")) {
+            step(TrailClientProbe::verifyEditablePickup);
+            step(() -> check(widgets(CLIENT.screen).stream()
+                    .noneMatch(w -> w.getMessage().getString().equals("Retired layout probe")),
+                    "Profiles from the retired styles directory must stay out of the menu"));
+            step(() -> reload = language("zh_cn"));
+            await(() -> reload.isDone() && CLIENT.getOverlay() == null);
+            for (String sample : List.of("Rune Chain", "Star Prints", "Moth Echo", "Comet Pennant")) {
+                step(() -> {
+                    click(Component.literal(sample));
+                    var c = XpOrbTrailsClient.CONFIG;
+                    boolean selected = switch (sample) {
+                        case "Rune Chain" -> c.trailSprite.equals("sprite:trail/rune-link") && c.ribbonMapping.equals("tile")
+                                && c.ribbonRepeatLength == 0.38;
+                        case "Star Prints" -> c.trailSprite.equals("sprite:trail/comet-strip") && c.fixedStamps;
+                        case "Moth Echo" -> c.trailSprite.equals("body") && !c.showVanillaOrb;
+                        default -> c.trailSprite.equals("sprite:trail/comet-pennant") && c.trailSpriteMode.equals("ribbon");
+                    };
+                    check(selected && c.flightEffect.equals("sprite:orb/luna-moth"), "File style must apply " + sample);
+                    click("open_preview");
+                });
+                waitTicks(36);
+                capture(sample.toLowerCase(java.util.Locale.ROOT).replace(' ', '-'));
+                step(() -> CLIENT.screen.onClose());
+            }
+            if (Boolean.getBoolean("xporb.lineDemo")) {
+                for (var option : Map.of("Stretch", "stretch", "Tile", "tile", "DistributePerSegment", "distribute_per_segment",
+                        "RepeatPerSegment", "repeat_per_segment", "Static", "static").entrySet()) {
+                    step(() -> {
+                        click(Component.literal(option.getKey()));
+                        check(XpOrbTrailsClient.CONFIG.ribbonMapping.equals(option.getValue()), "File mode must apply " + option.getKey());
+                        click("open_preview");
+                    });
+                    waitTicks(36);
+                    capture("uv-" + option.getValue());
+                    step(() -> CLIENT.screen.onClose());
+                }
+            }
+            step(() -> reload = language("en_us"));
+            await(() -> reload.isDone() && CLIENT.getOverlay() == null);
+        }
+        step(() -> {
+            click("trail");
             click("reset");
-            check(XpOrbTrailsClient.CONFIG.width == 0.1, "Common reset must restore default width");
+            check(XpOrbTrailsClient.CONFIG.width == 0.1, "Trail reset must restore default width");
             click("open_preview");
             check(CLIENT.screen instanceof TrailPreviewScreen, "Preview must open");
         });
@@ -136,8 +248,8 @@ public final class TrailClientProbe {
             reload = language("zh_cn");
         });
         await(() -> reload.isDone() && CLIENT.getOverlay() == null);
-        step(() -> check("常用".equals(Component.translatable("screen.xporbtrails.common").getString()), "Chinese menu must load"));
-        capture("menu-common-zh");
+        step(() -> check("尾迹".equals(Component.translatable("screen.xporbtrails.trail").getString()), "Chinese menu must load"));
+        capture("menu-trail-zh");
         step(() -> reload = language("en_us"));
         await(() -> reload.isDone() && CLIENT.getOverlay() == null);
         step(() -> {
@@ -286,10 +398,41 @@ public final class TrailClientProbe {
         return result;
     }
 
+    private static void verifyEditablePickup() {
+        Path root = configDirectory.resolve("xp_orb_trails");
+        Path ring = root.resolve("pickup/effects/ring.json");
+        try {
+            check(Files.isRegularFile(root.resolve("profiles/standard.json")), "Standard must be an ordinary file profile");
+            for (String style : List.of("soft", "star", "ring", "reflow", "shards", "spiral")) {
+                check(Files.isRegularFile(root.resolve("pickup/effects/" + style + ".json")), "Missing pickup file " + style);
+            }
+            String original = Files.readString(ring);
+            try {
+                var edited = com.google.gson.JsonParser.parseString(original).getAsJsonObject();
+                edited.addProperty("name", "Probe Edited Ring");
+                Files.writeString(ring, edited.toString());
+                click("reload_styles");
+                click("pickup");
+                click(Component.translatable("screen.xporbtrails.flash_style.soft"));
+                click(Component.literal("Probe Edited Ring"));
+                check(XpOrbTrailsClient.CONFIG.pickupFlashStyle.equals("file:pickup/ring"), "Edited flash must apply by its file id");
+                click("profiles");
+            } finally {
+                Files.writeString(ring, original);
+                if (CLIENT.screen instanceof TrailConfigScreen && field(CLIENT.screen, "page").toString().equals("PROFILES")) click("reload_styles");
+            }
+        } catch (java.io.IOException error) {
+            throw new AssertionError(error);
+        }
+    }
+
     private static void click(String key) {
-        Component label = Component.translatable("screen.xporbtrails." + key);
-        Button button = widgets(CLIENT.screen).stream().filter(w -> w instanceof Button && w.active && w.getMessage().equals(label))
-                .map(w -> (Button) w).findFirst().orElseThrow(() -> new AssertionError("Missing button: " + key));
+        click(Component.translatable("screen.xporbtrails." + key));
+    }
+
+    private static void click(Component label) {
+        Button button = widgets(CLIENT.screen).stream().filter(w -> w instanceof Button && w.active && w.getMessage().getString().equals(label.getString()))
+                .map(w -> (Button) w).findFirst().orElseThrow(() -> new AssertionError("Missing button: " + label.getString()));
         button.onPress(new net.minecraft.client.input.InputWithModifiers() {
             public int input() { return InputConstants.MOUSE_BUTTON_LEFT; }
             public int modifiers() { return 0; }

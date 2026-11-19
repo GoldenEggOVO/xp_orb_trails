@@ -2,47 +2,117 @@ package dev.goldeneggovo.xporbtrails;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.client.gui.screens.Screen;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.AtomicMoveNotSupportedException;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class XpOrbTrailsClient {
     private static final Logger LOGGER = LoggerFactory.getLogger("XP Orb Trails");
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(TrailConfig.class, (InstanceCreator<TrailConfig>) type -> defaults())
+            .setPrettyPrinting().create();
     public static TrailConfig CONFIG = new TrailConfig();
     private static Path configPath;
+    private static Path assetDirectory;
+    private static ConfigDefaults configDefaults;
+    private static FileTrailStyles styleLibrary;
+    private static EffectLibrary effectLibrary;
+    private static SpriteLibrary spriteLibrary;
 
     private XpOrbTrailsClient() { }
 
     public static void initialize(Path configDirectory) {
-        configPath = configDirectory.resolve("xp-orb-trails.json");
-        CONFIG = new TrailConfig();
+        configPath = configDirectory.resolve("xp_orb_trails.json");
+        assetDirectory = configDirectory.resolve("xp_orb_trails");
+        configDefaults = new ConfigDefaults(assetDirectory);
+        styleLibrary = new FileTrailStyles(assetDirectory, configDefaults::create);
+        effectLibrary = new EffectLibrary(assetDirectory);
+        spriteLibrary = new SpriteLibrary(assetDirectory);
+        configDefaults.reload();
+        CONFIG = defaults();
         if (Files.exists(configPath)) {
             try {
                 try (Reader reader = Files.newBufferedReader(configPath)) {
-                    TrailConfig loaded = GSON.fromJson(reader, TrailConfig.class);
-                    CONFIG = loaded == null ? new TrailConfig() : loaded.sanitized();
+                    JsonObject settings = GSON.fromJson(reader, JsonObject.class);
+                    if (settings == null) throw new JsonParseException("Expected a JSON object");
+                    CONFIG = GSON.fromJson(settings, TrailConfig.class).sanitized();
+                    CONFIG.resolveCrossSection(settings.has("crossSectionSides"), settings.has("crossSectionRadii"),
+                            settings.has("customCrossSectionEnabled"));
                 }
                 saveConfig();
-            } catch (IOException | JsonParseException exception) {
+            } catch (IOException | JsonParseException | IllegalArgumentException exception) {
                 LOGGER.warn("Could not read XP Orb Trails config; backing it up and restoring defaults", exception);
-                backupBrokenConfig();
-                CONFIG = new TrailConfig();
-                saveConfig();
+                CONFIG = defaults();
+                if (backupBrokenConfig()) saveConfig();
             }
         } else {
             saveConfig();
         }
+        reloadLibraries();
+    }
 
+    static Path assetDirectory() {
+        return assetDirectory;
+    }
+
+    static TrailConfig defaults() {
+        return configDefaults == null ? new TrailConfig() : configDefaults.create();
+    }
+
+    static List<FileTrailStyles.Style> fileStyles() {
+        return styleLibrary == null ? List.of() : styleLibrary.styles();
+    }
+
+    static Map<String, CustomEffect> effects() {
+        return effectLibrary == null ? Map.of() : effectLibrary.effects();
+    }
+
+    static Map<String, CustomEffect> effects(AssetRole role) {
+        return effectLibrary == null ? Map.of() : effectLibrary.effects(role);
+    }
+
+    static CustomEffect effect(AssetRole role, String id) {
+        return effects(role).get(id);
+    }
+
+    static int reloadFileStyles() {
+        if (styleLibrary == null) {
+            LOGGER.warn("Could not reload trail styles before client initialization");
+            return 1;
+        }
+        return configDefaults.reload() + reloadLibraries();
+    }
+
+    private static int reloadLibraries() {
+        int errors = styleLibrary.reload() + effectLibrary.reload() + spriteLibrary.reload();
+        SpriteRenderer.reload();
+        return errors;
+    }
+
+    static Map<String, SpriteSheet> sprites() {
+        return spriteLibrary == null ? Map.of() : spriteLibrary.sheets();
+    }
+
+    static Map<String, SpriteSheet> sprites(AssetRole role) {
+        return spriteLibrary == null ? Map.of() : spriteLibrary.sheets(role);
+    }
+
+    static SpriteSheet sprite(AssetRole role, String id) {
+        return sprites(role).get(id);
     }
 
     public static Screen createConfigScreen(Screen parent) {
@@ -73,19 +143,21 @@ public final class XpOrbTrailsClient {
         }
     }
 
-    private static void backupBrokenConfig() {
-        for (int suffix = 0; suffix < 100; suffix++) {
-            String name = "xp-orb-trails.json.broken" + (suffix == 0 ? "" : "-" + suffix);
+    private static boolean backupBrokenConfig() {
+        if (!Files.isRegularFile(configPath)) return false;
+        for (int suffix = 0; ; suffix++) {
+            String name = configPath.getFileName() + ".broken" + (suffix == 0 ? "" : "-" + suffix);
             Path backupPath = configPath.resolveSibling(name);
-            if (Files.exists(backupPath)) continue;
             try {
                 Files.move(configPath, backupPath);
                 LOGGER.warn("Saved the unreadable config as {}", backupPath);
+                return true;
+            } catch (FileAlreadyExistsException ignored) {
+                // Preserve every previous backup.
             } catch (IOException exception) {
                 LOGGER.warn("Could not back up unreadable config {}", configPath, exception);
+                return false;
             }
-            return;
         }
-        LOGGER.warn("Could not back up unreadable config because all backup names are in use");
     }
 }
