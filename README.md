@@ -4,7 +4,7 @@
 [![Loaders](https://img.shields.io/badge/Loaders-Fabric%20%7C%20Forge%20%7C%20NeoForge-DBD0B4)](#requirements)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[Downloads](https://github.com/GoldenEggOVO/xp_orb_trails/releases) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/GoldenEggOVO/xp_orb_trails/issues) · [Contributing](CONTRIBUTING.md)
+[Downloads](https://github.com/GoldenEggOVO/xp_orb_trails/releases) · [Customization guide](docs/advanced_customization.md) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/GoldenEggOVO/xp_orb_trails/issues) · [Contributing](CONTRIBUTING.md)
 
 XP Orb Trails is a client-side mod for Minecraft. Customize the moving orb, the trail it leaves behind and the flash when you collect it.
 
