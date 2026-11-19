@@ -9,6 +9,7 @@
   <a href="https://modrinth.com/mod/xporbtrails"><img src="docs/images/modrinth.png" alt="Download on Modrinth"></a>
   <a href="https://github.com/GoldenEggOVO/xp_orb_trails"><img src="docs/images/github.png" alt="XP Orb Trails on GitHub"></a>
   <a href="https://github.com/GoldenEggOVO/xp_orb_trails/releases"><img src="docs/images/releases.png" alt="Browse GitHub releases"></a>
+  <a href="CHANGELOG.md"><img src="docs/images/changelog.png" alt="Read the changelog"></a>
   <a href="docs/advanced_customization.md"><img src="docs/images/player_guide.png" alt="Read the player guide"></a>
   <a href="examples/"><img src="docs/images/examples.png" alt="Browse example profiles and sprite sheets"></a>
   <a href="https://ko-fi.com/goldeneggovo"><img src="docs/images/ko_fi.png" alt="Support GoldenEggOVO on Ko-fi"></a>
