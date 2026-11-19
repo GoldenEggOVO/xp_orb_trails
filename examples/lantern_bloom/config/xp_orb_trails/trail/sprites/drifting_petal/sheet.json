@@ -1,0 +1,9 @@
+{
+  "image": "sheet.png",
+  "name": "Drifting Petal",
+  "frameWidth": 16,
+  "frameHeight": 16,
+  "frames": 8,
+  "fps": 8,
+  "loop": true
+}

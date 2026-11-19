@@ -97,6 +97,7 @@ Open **Config** in Mod Menu on Fabric, or the mod’s config button on the **Mod
 
 Choose **Profiles → Open Config Folder** to work with your own PNGs and JSON files. The player guide takes you from a first profile to a shareable look.
 
+- [Preview and download four animated sprite profiles](examples/README.md)
 - [Make your first profile](docs/advanced_customization.md#make-your-first-file-profile)
 - [Import a PNG or sprite sheet](docs/advanced_customization.md#bring-your-own-sprite)
 - [Design a trail or map a ribbon texture](docs/advanced_customization.md#choose-how-a-trail-is-drawn)

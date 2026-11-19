@@ -48,6 +48,8 @@ A partial file profile gets its omitted visual settings from `defaults.json`. Ap
 
 ## Bring your own sprite
 
+The [sprite sheet examples](../examples/README.md) include a plain PNG strip, a timed pickup atlas and a ribbon with separate head and tail caps. Each comes with a profile you can load in-game.
+
 For a still image, place a single transparent square PNG in `orb/sprites/moon_moth/`. A horizontal or vertical strip of square frames also works on its own and plays at 12 FPS. To set a different frame rate, use rectangular frames or read a grid, put a descriptor next to the PNG.
 
 For example, draw six 16 × 16 frames in a 48 × 32 PNG, three across and two down. Save the image as `sheet.png` and the following as `orb/sprites/moon_moth/sheet.json`.

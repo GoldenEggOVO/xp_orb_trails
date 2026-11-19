@@ -1,0 +1,9 @@
+{
+  "image": "sheet.png",
+  "name": "Winding Gear",
+  "frameWidth": 24,
+  "frameHeight": 24,
+  "frames": 8,
+  "fps": 10,
+  "loop": true
+}
