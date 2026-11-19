@@ -1,6 +1,11 @@
 ![XP Orb Trails](https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/orb_trails_banner.png)
 
-[![XP Orb Trails on GitHub](https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/github.png)](https://github.com/GoldenEggOVO/xp_orb_trails) [![Player guide](https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/player_guide.png)](https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/docs/advanced_customization.md) [![Support GoldenEggOVO on Ko-fi](https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/ko_fi.png)](https://ko-fi.com/goldeneggovo)
+<p align="center">
+  <a href="https://modrinth.com/mod/xporbtrails"><img src="https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/modrinth.png" alt="XP Orb Trails on Modrinth"></a>
+  <a href="https://github.com/GoldenEggOVO/xp_orb_trails"><img src="https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/github.png" alt="XP Orb Trails on GitHub"></a>
+  <a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/docs/advanced_customization.md"><img src="https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/player_guide.png" alt="Read the player guide"></a>
+  <a href="https://ko-fi.com/goldeneggovo"><img src="https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/ko_fi.png" alt="Support GoldenEggOVO on Ko-fi"></a>
+</p>
 
 <p align="center"><img src="https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/orb_divider.png" alt=""></p>
 
@@ -26,6 +31,20 @@ Choose a profile and replay it in the in-game preview. You can also create and s
 
 <p align="center"><img src="https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/orb_divider.png" alt=""></p>
 
+![Q&A](https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/e39501c673940a6446b2dfd3a680e47b199fa070/docs/images/heading_qa.png)
+
+**Does XP Orb Trails work with shaders?**
+
+Yes, it supports shader packs.
+
+**Can I use a resource pack that changes the XP orb texture?**
+
+Yes. Leave **Show Vanilla Orb** enabled under **Orb Body** to see your resource pack’s texture.
+
+<p align="center"><img src="https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/orb_divider.png" alt=""></p>
+
 ![Gallery](https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/heading_gallery.png)
 
 ![Golden XP trails following orbs toward the player](https://cdn.modrinth.com/data/cached_images/007599090538a98fda3fd67c1417d9876045502a.gif)
+
+![Comet Pennant in the effect preview, with a moth-shaped orb and a purple ribbon](https://raw.githubusercontent.com/GoldenEggOVO/xp_orb_trails/b2689250a4826cc563e7d69a6daa38a49b2d71fc/docs/images/comet_pennant_preview.png)
