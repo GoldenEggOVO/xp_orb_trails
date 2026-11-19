@@ -1,4 +1,4 @@
-<h1 align="center"><img src="docs/images/orb_trails_banner.png" alt="XP Orb Trails" width="960"></h1>
+<p align="center"><img src="docs/images/orb_trails_banner.png" alt="XP Orb Trails" width="960"></p>
 
 <p align="center">
   <a href="https://modrinth.com/mod/xporbtrails"><img src="docs/images/modrinth.png" alt="Download on Modrinth"></a>
@@ -12,13 +12,15 @@
 
 <a name="about"></a>
 
-## <img src="docs/images/heading_about.png" alt="About">
+<img src="docs/images/heading_about.png" alt="About">
 
 **XP Orb Trails gives Minecraft’s experience orbs glowing trails in flight and a flash when you collect them.** The mod runs on your client, so you can use your chosen look in singleplayer and on multiplayer servers.
 
+<p align="center"><img src="docs/images/orb_divider.png" alt=""></p>
+
 <a name="features"></a>
 
-## <img src="docs/images/heading_features.png" alt="Features">
+<img src="docs/images/heading_features.png" alt="Features">
 
 ### Orb body
 
@@ -32,9 +34,11 @@ Choose a solid color, a gradient, or an animated rainbow. Draw a flat ribbon, gi
 
 Finish with a soft glow, an expanding ring, or a particle burst. Select **Effect Preview → Replay Animation** to watch the orb fly in, the flash play, and the trail fade.
 
+<p align="center"><img src="docs/images/orb_divider.png" alt=""></p>
+
 <a name="installation"></a><a name="compatibility"></a>
 
-## <img src="docs/images/heading_compatibility.png" alt="Compatibility">
+<img src="docs/images/heading_compatibility.png" alt="Compatibility">
 
 Install on your **Minecraft client** using Java 25 or newer. Choose one **2.0.0** JAR below and place it in your instance’s `mods/` folder. Fabric also requires [Fabric API](https://modrinth.com/mod/fabric-api).
 
@@ -59,7 +63,7 @@ Install on your **Minecraft client** using Java 25 or newer. Choose one **2.0.0*
 
 <a name="in-game"></a><a name="gallery"></a>
 
-## <img src="docs/images/heading_gallery.png" alt="Gallery">
+<img src="docs/images/heading_gallery.png" alt="Gallery">
 
 <p align="center">
   <a href="https://cdn.modrinth.com/data/cached_images/007599090538a98fda3fd67c1417d9876045502a.gif"><img src="https://cdn.modrinth.com/data/cached_images/007599090538a98fda3fd67c1417d9876045502a.gif" alt="Golden trails curving around a player as experience orbs fly toward them" width="400"></a>
@@ -68,9 +72,11 @@ Install on your **Minecraft client** using Java 25 or newer. Choose one **2.0.0*
 
 The animation shows orbs in flight. To try the moth and its purple ribbon, open **Profiles → File Profiles** and select **Comet Pennant**.
 
+<p align="center"><img src="docs/images/orb_divider.png" alt=""></p>
+
 <a name="configuration"></a>
 
-## <img src="docs/images/heading_configuration.png" alt="Configuration">
+<img src="docs/images/heading_configuration.png" alt="Configuration">
 
 Open **Config** in Mod Menu on Fabric, or the mod’s config button on the **Mods** screen on Forge and NeoForge. On any loader, you can also assign **Open Trail Settings** in Minecraft’s controls. Changes appear in the preview as you edit and are saved when you close the settings.
 
@@ -125,9 +131,11 @@ Save either example in `config/xp_orb_trails/pickup/effects/` as `prism-star.jso
 
 </details>
 
+<p align="center"><img src="docs/images/orb_divider.png" alt=""></p>
+
 <a name="project-links"></a>
 
-## <img src="docs/images/heading_project_links.png" alt="Project links">
+<img src="docs/images/heading_project_links.png" alt="Project links">
 
 [Changelog](CHANGELOG.md) · [Build from source and contribute](CONTRIBUTING.md) · [Report an issue](https://github.com/GoldenEggOVO/xp_orb_trails/issues) · [MIT License](LICENSE)
 
