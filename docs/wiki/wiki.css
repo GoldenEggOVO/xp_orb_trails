@@ -48,7 +48,7 @@ a:focus-visible, summary:focus-visible, button:focus-visible, input:focus-visibl
 .nav-group a:hover, .nav-group a[aria-current] { border-color: var(--mint); color: var(--mint); background: #1c2b29; }
 main { min-width: 0; padding: 32px 0 48px; }
 .hero { position: relative; isolation: isolate; overflow: hidden; border-radius: 10px; background: #162534; border: 1px solid #354847; }
-.hero-art { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg,#12212a 2%,#12212a 42%,transparent 72%), url("images/orb_trails_banner.png") no-repeat right center / auto 100%; image-rendering: pixelated; }
+.hero-art { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg,#12212a 2%,#12212a 42%,transparent 72%), url("../images/orb_trails_banner.png") no-repeat right center / auto 100%; image-rendering: pixelated; }
 .hero-copy { padding: clamp(23px, 3.5vw, 48px); max-width: 68%; }
 .version { color: var(--mint); margin: 0 0 10px; }
 .version span { padding: 0 4px; color: #769995; }
@@ -100,7 +100,7 @@ footer { display: flex; flex-wrap: wrap; gap: 18px; justify-content: space-betwe
   .nav-group { margin: 0; }
   main { padding-top: 18px; }
   .hero-copy { max-width: 80%; }
-  .hero-art { background-image: linear-gradient(90deg,#12212a 0%,#12212af5 44%,#12212a33), url("images/orb_trails_banner.png"); }
+  .hero-art { background-image: linear-gradient(90deg,#12212a 0%,#12212af5 44%,#12212a33), url("../images/orb_trails_banner.png"); }
 }
 @media (max-width: 540px) {
   .top-inner { gap: 10px; min-height: 53px; }
