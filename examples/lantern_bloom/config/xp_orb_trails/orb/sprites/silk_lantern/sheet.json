@@ -1,0 +1,9 @@
+{
+  "image": "sheet.png",
+  "name": "Silk Lantern",
+  "frameWidth": 24,
+  "frameHeight": 24,
+  "frames": 8,
+  "fps": 8,
+  "loop": true
+}
