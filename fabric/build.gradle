@@ -20,8 +20,8 @@ if (project.hasProperty('clientTests')) {
     dependencies { gametestImplementation "com.terraformersmc:modmenu:${modmenu_version}" }
     tasks.named('runClientGameTest') {
         dependsOn ':effectCollectionZip', ':spriteExamplesZip'
-        systemProperty 'xporb.effectCollection', rootProject.file('examples/2.1.0example/effect_collection.zip').absolutePath
-        systemProperty 'xporb.spriteExamples', rootProject.file('examples/2.0.0example/sprite_sheet_examples.zip').absolutePath
+        systemProperty 'xporb.effectCollection', rootProject.file('examples/2.1.0example/2.1.0example.zip').absolutePath
+        systemProperty 'xporb.spriteExamples', rootProject.file('examples/2.0.0example/2.0.0example.zip').absolutePath
         if (project.hasProperty('effectCollectionProbe')) {
             def part = project.property('effectCollectionProbe')
             if (part == 'gallery') systemProperty 'xporb.collectionGallery', 'true'

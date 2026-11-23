@@ -15,7 +15,7 @@ import java.util.zip.ZipFile;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class EffectCollectionFixture {
-    static final Path ARCHIVE = Path.of(System.getProperty("xporb.effectCollection", "../examples/2.1.0example/effect_collection.zip"));
+    static final Path ARCHIVE = Path.of(System.getProperty("xporb.effectCollection", "../examples/2.1.0example/2.1.0example.zip"));
 
     static List<FileTrailStyles.Style> install(Path config) throws IOException {
         Path packs = Files.createDirectories(config.resolve("xp_orb_trails/packs"));
