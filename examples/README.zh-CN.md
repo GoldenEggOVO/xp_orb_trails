@@ -5,7 +5,7 @@
 | 下载 | 包含内容 |
 | --- | --- |
 | [2.1.0 效果收藏 ZIP](2.1.0example/2.1.0example.zip?raw=1) | 24 套可选方案，涵盖经验球本体、尾迹和拾取效果。[查看每套方案的触发条件](2.1.0example/README.zh-CN.md)。 |
-| [2.0.0 图集示例 ZIP](2.0.0example/2.0.0example.zip?raw=1) | 锦鲤、灯笼、黄铜齿轮和飞船四套图集。[查看动图、素材与 Starfall 的源文件](2.0.0example/)。 |
+| [2.0.0 图集示例 ZIP](2.0.0example/2.0.0example.zip?raw=1) | 锦鲤、灯笼、黄铜齿轮和飞船四套图集。[查看素材和预览动图](2.0.0example/)。 |
 
 每个版本目录都有一个同名 ZIP。要编辑方案或素材，可以直接浏览 [2.0.0 的 pack 目录](2.0.0example/pack/) 或 [2.1.0 的 pack 目录](2.1.0example/pack/)。
 
