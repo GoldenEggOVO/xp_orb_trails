@@ -100,7 +100,7 @@ Shader mods are only loaded into this optional test run.
    is explicitly requested.
 5. Download published JARs and compare SHA-256 with local builds.
 
-Metadata uses the semantic version `2.0.0+mc26.1.2`; the loader prefix belongs
+Metadata uses the semantic version `2.1.0+mc26.1.2`; the loader prefix belongs
 in JAR filenames. Release names and tags contain only the mod version. Minecraft
 branches may share a mod version. On Modrinth, select the correct game version and loader as well.
 Use Git and GitHub CLI for publishing. This repository has no Actions workflows.

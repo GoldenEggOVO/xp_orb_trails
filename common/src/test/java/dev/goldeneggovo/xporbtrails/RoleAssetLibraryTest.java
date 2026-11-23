@@ -17,25 +17,51 @@ class RoleAssetLibraryTest {
     private static final Set<String> PICKUP_FILES = Set.of("file:pickup/soft", "file:pickup/star", "file:pickup/ring",
             "file:pickup/reflow", "file:pickup/shards", "file:pickup/spiral", "file:pickup/starfall");
 
-    private static String pennantSprite(AssetRole role) {
+    private static Set<String> expectedSprites(AssetRole role, String additionalId) {
         return switch (role) {
-            case ORB -> "sprite:orb/luna-moth";
-            case PICKUP -> "sprite:pickup/collect-burst";
-            case TRAIL -> "sprite:trail/comet-pennant";
+            case ORB -> Set.of(additionalId, "sprite:orb/luna-moth");
+            case PICKUP -> Set.of(additionalId, "sprite:pickup/collect-burst");
+            case TRAIL -> Set.of(additionalId, "sprite:trail/comet-pennant");
         };
     }
 
     @TempDir Path config;
 
+    @Test void loadingOlderProfilesDropsOnlyTheRetiredEffects() throws Exception {
+        String advanced = """
+                {"scene":[{"type":"merge"},{"type":"capture"},{"type":"tether"}],
+                 "workshop":[{"type":"vein"},{"type":"relief","depth":0.42},{"type":"seal"}]}
+                """;
+        String userProfile = "{\"version\":1,\"name\":\"Edited\",\"advanced\":" + advanced + "}";
+        Path profiles = Files.createDirectories(config.resolve("xp_orb_trails/profiles"));
+        Path edited = profiles.resolve("lab-seal.json");
+        Files.writeString(edited, userProfile);
+        Files.writeString(profiles.resolve(".installed"), "lab-vein.json\nlab-seal.json\n");
+        Files.writeString(config.resolve("xp_orb_trails.json"),
+                "{\"advanced\":" + advanced + ",\"savedProfiles\":[" + userProfile + "]}");
+
+        XpOrbTrailsClient.initialize(config);
+        var loaded = XpOrbTrailsClient.fileStyles().stream().filter(s -> s.name().equals("Edited")).findFirst().orElseThrow();
+        for (var settings : java.util.List.of(loaded.settings().advanced, XpOrbTrailsClient.CONFIG.advanced,
+                XpOrbTrailsClient.CONFIG.savedProfiles.getFirst().advanced)) {
+            assertEquals(1, settings.getAsJsonArray("scene").size());
+            assertEquals("capture", settings.getAsJsonArray("scene").get(0).getAsJsonObject().get("type").getAsString());
+            assertEquals(1, settings.getAsJsonArray("workshop").size());
+            assertEquals(0.42, settings.getAsJsonArray("workshop").get(0).getAsJsonObject().get("depth").getAsDouble());
+        }
+        assertEquals(userProfile, Files.readString(edited));
+        assertFalse(Files.exists(profiles.resolve("lab-vein.json")));
+    }
+
     @Test
-    void freshInstallCreatesOnlyRoleAndProfileFoldersAndLoadsExamples() throws Exception {
+    void freshInstallCreatesAssetAndPackFoldersAndLoadsExamples() throws Exception {
         XpOrbTrailsClient.initialize(config);
         try (var children = Files.list(config.resolve("xp_orb_trails"))) {
-            assertEquals(Set.of("orb", "pickup", "trail", "profiles"),
+            assertEquals(Set.of("orb", "pickup", "trail", "profiles", "packs"),
                     children.filter(Files::isDirectory).map(path -> path.getFileName().toString()).collect(Collectors.toSet()));
         }
         for (var role : AssetRole.values()) {
-            assertEquals(Set.of("sprite:" + role.folder + "/comet-strip", pennantSprite(role)), XpOrbTrailsClient.sprites(role).keySet());
+            assertEquals(expectedSprites(role, "sprite:" + role.folder + "/comet-strip"), XpOrbTrailsClient.sprites(role).keySet());
             Set<String> expected = switch (role) {
                 case ORB -> Set.of("file:orb/starfall", "file:orb/twin-orbit");
                 case TRAIL -> Set.of();
@@ -167,7 +193,7 @@ class RoleAssetLibraryTest {
         color = 0xFF000001;
         for (var role : AssetRole.values()) {
             String id = "sprite:" + role.folder + "/same";
-            assertEquals(Set.of(id, pennantSprite(role)), XpOrbTrailsClient.sprites(role).keySet());
+            assertEquals(expectedSprites(role, id), XpOrbTrailsClient.sprites(role).keySet());
             assertEquals(color++, XpOrbTrailsClient.sprite(role, id).image().getRGB(0, 0));
             if (role != AssetRole.TRAIL) {
                 String effectId = "file:" + role.folder + "/same";

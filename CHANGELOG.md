@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.0 — Minecraft 26.1.x
+
+- Install a creator’s ZIP from **Profiles → Open Packs Folder** and reload files. Each pack can share its profiles and artwork together.
+- Try the optional **Effect Collection** with 24 profiles, including Butterfly Homecoming, River Procession and Surface Prints. Create animated bodies, variable trail geometry, terrain-aware pickup particles and light or heat effects.
+- Built-in profiles and artwork now have English and Simplified Chinese names. Find the ZIP installation guide, versioned examples and bilingual player wiki from the README.
+- Keep active effects continuous during server clock corrections. Fix stale pickup flashes after switching styles, missing default artwork in custom packs, menu scrollbar dragging and cleanup of scene textures.
+
 ## 2.0.0 — Minecraft 26.1.x
 
 - Customize orb bodies, trails and pickup effects independently. Load editable JSON animations, PNG sprites and file profiles from the in-game menu.

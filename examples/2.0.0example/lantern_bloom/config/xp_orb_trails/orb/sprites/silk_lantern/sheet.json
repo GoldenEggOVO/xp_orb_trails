@@ -1,0 +1,10 @@
+{
+  "image": "sheet.png",
+  "name": "Silk Lantern",
+  "nameKey": "sprite.xporbtrails.silk_lantern",
+  "frameWidth": 24,
+  "frameHeight": 24,
+  "frames": 8,
+  "fps": 8,
+  "loop": true
+}

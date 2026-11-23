@@ -5,6 +5,29 @@ plugins {
     id 'net.neoforged.moddev' version "${moddevgradle_version}" apply false
 }
 
+tasks.register('effectCollectionZip', Zip) {
+    from layout.projectDirectory.dir('examples/2.1.0example/effect_collection')
+    from layout.projectDirectory.file('examples/2.1.0example/README.md')
+    from layout.projectDirectory.file('examples/2.1.0example/README.zh-CN.md')
+    destinationDirectory = layout.projectDirectory.dir('examples/2.1.0example')
+    archiveFileName = 'effect_collection.zip'
+    includeEmptyDirs = false
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
+tasks.register('spriteExamplesZip', Zip) {
+    def samples = layout.projectDirectory.dir('examples/2.0.0example')
+    ['brass_clockwork', 'ion_drive', 'koi_stream', 'lantern_bloom'].each { name ->
+        from samples.dir("${name}/config/xp_orb_trails")
+    }
+    destinationDirectory = samples
+    archiveFileName = 'sprite_sheet_examples.zip'
+    includeEmptyDirs = false
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
 subprojects {
     apply plugin: 'java'
     version = rootProject.version
@@ -23,7 +46,7 @@ subprojects {
     repositories { mavenCentral() }
     tasks.withType(Test).configureEach { useJUnitPlatform() }
     tasks.named('processResources') {
-        def example = rootProject.file('examples/starfall/config/xp_orb_trails')
+        def example = rootProject.file('examples/2.0.0example/starfall/config/xp_orb_trails')
         from(new File(example, 'profiles')) { into 'assets/xporbtrails/profiles' }
         ['orb', 'pickup'].each { role ->
             from(new File(example, role + '/effects')) { into "assets/xporbtrails/effects/${role}" }

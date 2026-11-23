@@ -1,9 +1,0 @@
-{
-  "image": "sheet.png",
-  "name": "Water Crown",
-  "frameWidth": 32,
-  "frameHeight": 32,
-  "frames": 8,
-  "fps": 14,
-  "loop": false
-}

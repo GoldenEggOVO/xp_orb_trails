@@ -1,9 +1,0 @@
-{
-  "image": "sheet.png",
-  "name": "Ion Skiff",
-  "frameWidth": 24,
-  "frameHeight": 24,
-  "frames": 8,
-  "fps": 12,
-  "loop": true
-}

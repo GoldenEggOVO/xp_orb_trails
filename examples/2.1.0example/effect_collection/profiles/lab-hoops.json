@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_hoops",
+  "startColor": "#C7FCF2",
+  "endColor": "#405675",
+  "colorMode": "gradient",
+  "additiveGlow": false,
+  "width": 0.021,
+  "lifetimeSeconds": 2.65,
+  "pickupFlashStyle": "none",
+  "advanced": {
+    "workshop": [
+      {
+        "type": "hoops",
+        "spacing": 0.55,
+        "order": "reverse",
+        "sprite": "none",
+        "maxRings": 12,
+        "radius": 0.235,
+        "width": 0.018,
+        "replayTicks": 17,
+        "expandTicks": 13,
+        "expansion": 1.18,
+        "color": "#74A8B9",
+        "litColor": "#FFE3A4"
+      }
+    ]
+  },
+  "gradientStops": [
+    "#7795BE"
+  ]
+}

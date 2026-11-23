@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_hand",
+  "startColor": "#FFF3CE",
+  "endColor": "#86596E",
+  "colorMode": "gradient",
+  "additiveGlow": false,
+  "width": 0.029,
+  "pickupFlashStyle": "none",
+  "advanced": {
+    "workshop": [
+      {
+        "type": "hand",
+        "targetHand": "auto",
+        "mainPoint": [
+          0.94,
+          0.94,
+          0.5
+        ],
+        "offPoint": [
+          0.5,
+          0.38,
+          0.5
+        ],
+        "durationTicks": 14,
+        "arcHeight": 0.71,
+        "width": 0.039,
+        "color": "#FFF3B8"
+      }
+    ]
+  },
+  "gradientStops": [
+    "#E8AC78"
+  ],
+  "lifetimeSeconds": 0.6
+}

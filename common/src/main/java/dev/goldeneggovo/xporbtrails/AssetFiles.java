@@ -121,7 +121,7 @@ final class AssetFiles {
         }
     }
 
-    private static void collect(Path directory, String prefix, boolean sprites, Map<String, Path> entries) throws IOException {
+    static void collect(Path directory, String prefix, boolean sprites, Map<String, Path> entries) throws IOException {
         if (!Files.isDirectory(directory, NOFOLLOW_LINKS)) throw new IOException("Expected asset directory: " + directory);
         try (var paths = Files.list(directory)) {
             paths.forEach(path -> {

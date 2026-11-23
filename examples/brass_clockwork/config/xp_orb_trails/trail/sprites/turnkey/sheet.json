@@ -1,9 +1,0 @@
-{
-  "image": "sheet.png",
-  "name": "Turnkey",
-  "frameWidth": 16,
-  "frameHeight": 16,
-  "frames": 8,
-  "fps": 10,
-  "loop": true
-}

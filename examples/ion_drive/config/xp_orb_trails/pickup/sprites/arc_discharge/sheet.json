@@ -1,9 +1,0 @@
-{
-  "image": "sheet.png",
-  "name": "Arc Discharge",
-  "frameWidth": 32,
-  "frameHeight": 32,
-  "frames": 8,
-  "fps": 16,
-  "loop": false
-}

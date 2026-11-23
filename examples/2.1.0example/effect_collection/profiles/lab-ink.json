@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_ink",
+  "pickupFlashStyle": "none",
+  "advanced": {
+    "workshop": [
+      {
+        "type": "ink",
+        "trigger": "pickup",
+        "root": "drops",
+        "emitters": {
+          "drops": {
+            "count": 9,
+            "size": 0.072,
+            "lifetime": 48,
+            "velocity": [
+              0,
+              0.105,
+              0
+            ],
+            "spread": 0.145,
+            "gravity": 0.019,
+            "drag": 0.99,
+            "color": "#7976B1",
+            "collide": true,
+            "collideFluids": true,
+            "maxHits": 1,
+            "on": {
+              "collision": [
+                {
+                  "emit": "print",
+                  "surface": "solid"
+                },
+                {
+                  "emit": "ripple",
+                  "surface": "water"
+                }
+              ]
+            }
+          },
+          "print": {
+            "kind": "decal",
+            "sprite": "sprite:pickup/ink-drop",
+            "color": "#FFFFFF",
+            "size": 0.37,
+            "lifetime": 65,
+            "face": "any",
+            "fadeTicks": 24,
+            "count": 1
+          },
+          "ripple": {
+            "kind": "ring",
+            "color": "#AFBDE7",
+            "size": 0.62,
+            "lifetime": 21,
+            "fadeTicks": 12
+          }
+        }
+      }
+    ]
+  },
+  "startColor": "#E1DAF5",
+  "gradientStops": [
+    "#807CA3"
+  ],
+  "endColor": "#484A7B",
+  "width": 0.034,
+  "lifetimeSeconds": 0.72
+}

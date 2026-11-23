@@ -119,6 +119,9 @@ public final class TrailClientProbe {
         capture("menu-pickup");
         step(() -> {
             click("general");
+            check(widgets(CLIENT.screen).stream().anyMatch(w -> w.visible && w.active
+                            && w.getMessage().equals(Component.translatable("screen.xporbtrails.open_config_folder"))),
+                    "General footer must expose the config folder");
             XpOrbTrailsClient.CONFIG.renderRange = 71;
             click("reset");
             check(XpOrbTrailsClient.CONFIG.renderRange == new TrailConfig().renderRange,
@@ -128,14 +131,14 @@ public final class TrailClientProbe {
                             && Files.isRegularFile(configDirectory.resolve("xp_orb_trails.json")),
                     "Settings and profiles must use the active instance's underscore paths");
             check(widgets(CLIENT.screen).stream().anyMatch(w -> w.visible && w.active
-                            && w.getMessage().equals(Component.translatable("screen.xporbtrails.open_config_folder"))),
-                    "Profiles footer must expose the config folder");
+                            && w.getMessage().equals(Component.translatable("screen.xporbtrails.open_packs"))),
+                    "Profiles footer must expose the packs folder");
             check(widgets(CLIENT.screen).stream().noneMatch(w -> w.getMessage().equals(Component.translatable("screen.xporbtrails.reset"))),
                     "Profiles must not reset other pages: " + widgets(CLIENT.screen).stream().map(w -> w.getMessage().getString() + "=" + w.active).toList());
         });
         capture("menu-profiles");
         step(() -> {
-            click(Component.literal("Comet Pennant"));
+            click("profile.comet-pennant");
             var c = XpOrbTrailsClient.CONFIG;
             check(c.trailSprite.equals("sprite:trail/comet-pennant") && c.trailSpriteMode.equals("ribbon")
                             && c.flightEffect.equals("sprite:orb/luna-moth") && c.pickupFlashStyle.equals("sprite:pickup/collect-burst"),
@@ -149,7 +152,7 @@ public final class TrailClientProbe {
             click("profile.standard");
         });
         step(() -> {
-            click(Component.literal("Starfall"));
+            click("profile.starfall");
             var c = XpOrbTrailsClient.CONFIG;
             check(c.customCrossSectionEnabled && c.crossSectionRadii.length == 10
                             && c.flightEffect.equals("file:orb/starfall") && c.pickupFlashStyle.equals("file:pickup/starfall"),
@@ -203,7 +206,8 @@ public final class TrailClientProbe {
             await(() -> reload.isDone() && CLIENT.getOverlay() == null);
             for (String sample : List.of("Rune Chain", "Star Prints", "Moth Echo", "Comet Pennant")) {
                 step(() -> {
-                    click(Component.literal(sample));
+                    if (sample.equals("Comet Pennant")) click("profile.comet-pennant");
+                    else click(Component.literal(sample));
                     var c = XpOrbTrailsClient.CONFIG;
                     boolean selected = switch (sample) {
                         case "Rune Chain" -> c.trailSprite.equals("sprite:trail/rune-link") && c.ribbonMapping.equals("tile")

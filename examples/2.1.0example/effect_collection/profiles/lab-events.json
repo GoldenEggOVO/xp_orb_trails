@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_events",
+  "pickupFlashStyle": "none",
+  "advanced": {
+    "workshop": [
+      {
+        "type": "events",
+        "trigger": "pickup",
+        "root": "ice",
+        "emitters": {
+          "ice": {
+            "count": 7,
+            "lifetime": 70,
+            "size": 0.095,
+            "color": "#A6BDFF",
+            "velocity": [
+              0,
+              0.185,
+              0
+            ],
+            "spread": 0.074,
+            "gravity": 0.016,
+            "drag": 0.995,
+            "collide": true,
+            "bounce": 0.67,
+            "maxHits": 2,
+            "on": {
+              "birth": [
+                {
+                  "emit": "glint",
+                  "inherit": [
+                    "color"
+                  ]
+                }
+              ],
+              "collision": [
+                {
+                  "emit": "snow",
+                  "hit": 2
+                }
+              ],
+              "death": [
+                {
+                  "emit": "afterglow",
+                  "inherit": [
+                    "size"
+                  ]
+                }
+              ]
+            }
+          },
+          "glint": {
+            "count": 1,
+            "lifetime": 6,
+            "spread": 0.012,
+            "gravity": 0,
+            "size": 0.045
+          },
+          "snow": {
+            "count": 7,
+            "lifetime": 18,
+            "gravity": 0.002,
+            "velocity": [
+              0,
+              0.055,
+              0
+            ],
+            "spread": 0.087,
+            "size": 0.045,
+            "fadeTicks": 12,
+            "color": "#F6F7FF"
+          },
+          "afterglow": {
+            "count": 1,
+            "lifetime": 7,
+            "color": "#E3D9FF",
+            "gravity": 0,
+            "spread": 0
+          }
+        }
+      }
+    ]
+  },
+  "startColor": "#FBFBFF",
+  "gradientStops": [
+    "#AABAF0"
+  ],
+  "endColor": "#74659E",
+  "width": 0.038,
+  "lifetimeSeconds": 0.75
+}

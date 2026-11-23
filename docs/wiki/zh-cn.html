@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="为经验球制作本体、尾迹与拾取效果。查阅 XP Orb Trails 2.1.0 的方案、图集、粒子发射器和 ZIP 安装说明。">
+  <title>玩家 Wiki · XP Orb Trails</title>
+  <link rel="icon" href="art/orb-icon.png" type="image/png">
+  <link rel="stylesheet" href="wiki.css">
+  <script defer src="wiki.js"></script>
+</head>
+<body>
+<a class="skip" href="#guide">跳到指南正文</a>
+<header class="top">
+  <div class="top-inner">
+    <a class="brand" href="#guide"><img src="art/orb-icon.png" width="36" height="36" alt="">XP Orb Trails</a>
+    <div class="search" hidden>
+      <label class="sr-only" for="find">搜索 Wiki</label>
+      <div class="search-box"><span class="lens" aria-hidden="true"></span><input id="find" type="search" placeholder="搜索 Wiki" autocomplete="off" aria-keyshortcuts="/"><kbd aria-hidden="true">/</kbd></div>
+    </div>
+    <a class="language-link" href="index.html" hreflang="en" lang="en">English</a>
+    <div class="out-links"><a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/README.zh-CN.md">示例 ↗</a><a href="https://github.com/GoldenEggOVO/xp_orb_trails">GitHub ↗</a></div>
+  </div>
+</header>
+<div class="layout">
+  <aside aria-label="Wiki 导航">
+    <div class="rail">
+      <details id="contents" open>
+        <summary>目录 <span id="mobile-chapter"></span></summary>
+        <nav aria-label="目录">
+          <div class="nav-group">
+        <p>入门</p>
+            <a href="#make-your-first-file-profile">制作第一个方案</a>
+            <a href="#where-your-files-go">文件与方案</a>
+          </div>
+          <div class="nav-group">
+        <p>自定义</p>
+            <a href="#general">通用设置与配色</a>
+            <a href="#orb-body">经验球本体</a>
+            <a href="#choose-how-a-trail-is-drawn">尾迹与贴图光带</a>
+            <a href="#write-a-pickup-effect">拾取效果</a>
+          </div>
+          <div class="nav-group">
+        <p>素材参考</p>
+            <a href="#bring-your-own-sprite">PNG 与精灵图集</a>
+            <a href="#animate-a-shape">形状与关键帧</a>
+            <a href="#tune-the-emitter">粒子发射器</a>
+          </div>
+          <div class="nav-group">
+        <p>更多资源</p>
+            <a href="#effect-packs">方案包与高级效果</a>
+            <a href="#test-and-share-your-look">测试与分享</a>
+          </div>
+          <div class="mobile-links"><a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/README.zh-CN.md">示例 ↗</a><a href="https://github.com/GoldenEggOVO/xp_orb_trails">GitHub ↗</a></div>
+        </nav>
+      </details>
+    </div>
+  </aside>
+  <main id="guide" tabindex="-1">
+    <div id="reading">
+      <div class="hero">
+        <div class="hero-copy">
+        <p class="version">XP ORB TRAILS <span>/</span> 2.1.0</p>
+          <h1>玩家 Wiki</h1>
+          <p>设计经验球的外观、绘制飞行尾迹，再决定拾取时发生什么。你可以从一个可用的方案开始，也可以直接查找需要的 JSON 字段。</p>
+          <div class="hero-actions">
+            <a class="primary" href="#make-your-first-file-profile">制作第一个方案 <span aria-hidden="true">→</span></a>
+            <a href="#general">浏览设置 <span aria-hidden="true">↓</span></a>
+          </div>
+        </div>
+        <div class="hero-art" aria-hidden="true"></div>
+      </div>
+      <nav class="specimens" aria-label="浏览效果">
+        <a href="#orb-body"><span class="swatch moth" aria-hidden="true"><i></i></span><span class="specimen-name"><strong>经验球本体</strong><small>月蛾</small></span><span class="arrow" aria-hidden="true">→</span></a>
+        <a href="#choose-how-a-trail-is-drawn"><span class="swatch pennant" aria-hidden="true"><i></i></span><span class="specimen-name"><strong>尾迹与贴图光带</strong><small>彗尾飘带</small></span><span class="arrow" aria-hidden="true">→</span></a>
+        <a href="#write-a-pickup-effect"><span class="swatch peony" aria-hidden="true"><i></i></span><span class="specimen-name"><strong>拾取效果</strong><small>纸牡丹</small></span><span class="arrow" aria-hidden="true">→</span></a>
+      </nav>
+      <section class="chapter" id="make-your-first-file-profile" aria-labelledby="title-make-your-first-file-profile">
+        <h2 id="title-make-your-first-file-profile">制作第一个方案</h2>
+        <p class="intro">给月蛾加一条由蓝色过渡到薄荷绿的尾迹，再让拾取时出现一个扩散的圆环。这个示例用到的素材均随模组提供。</p>
+        <div class="recipe">
+        <ol class="steps"><li>按下绑定到 <strong>打开尾迹设置</strong>的按键，或在 Fabric 上使用 Mod Menu，在 Forge、NeoForge 上从模组列表进入设置。</li><li>选择 <strong>通用 → 打开配置文件夹</strong>。在这个目录下新建 <code>profiles/moonwake.json</code>，粘贴下方示例。</li><li>选择 <strong>方案 → 文件方案 → 重新加载文件</strong>，然后点选 <strong>Moonwake</strong> 应用这个方案。</li><li>打开 <strong>效果预览 → 重播动画</strong>。也可以在世界里拾取经验球，换个角度观察星形尾迹。</li></ol>
+        <figure class="sample"><figcaption>profiles/moonwake.json</figcaption>
+<pre><code>{
+  "version": 1,
+  "name": "Moonwake",
+  "showVanillaOrb": false,
+  "flightEffect": "sprite:orb/luna-moth",
+  "trailSprite": "none",
+  "width": 0.22,
+  "crossSectionRadii": [1, 0.32, 1, 0.32, 1, 0.32, 1, 0.32, 1, 0.32],
+  "colorMode": "gradient",
+  "startColor": "#3650A9",
+  "gradientStops": ["#42B7DB"],
+  "endColor": "#B0FFDE",
+  "pickupFlash": true,
+  "pickupFlashStyle": "file:pickup/ring"
+}</code></pre></figure>
+        </div>
+        <p>每个较短的半径都会在两个尖角之间形成凹槽。把五处 <code>0.32</code> 都改为 <code>0.7</code>，重新加载文件并再次选择 Moonwake，观察轮廓如何变得圆润。</p>
+      </section>
+      <section class="chapter" id="where-your-files-go" aria-labelledby="title-where-your-files-go">
+        <h2 id="title-where-your-files-go">文件与方案</h2>
+        <p class="intro">在「通用」页底部打开配置文件夹。下列目录都位于当前游戏实例的 config/xp_orb_trails/ 中。</p>
+        <pre class="tree"><code>xp_orb_trails/
+├── defaults.json
+├── packs/                    下载的 ZIP (2.1.0+)
+├── profiles/                 可分享的外观方案
+├── orb/
+│   ├── effects/              JSON 动画
+│   └── sprites/              每套图集使用独立目录
+├── pickup/
+│   ├── effects/              JSON 动画
+│   └── sprites/              每套图集使用独立目录
+└── trail/
+    └── sprites/              尾迹图案与光带纹理</code></pre>
+        <p>效果 ID 取自 JSON 文件名，省略扩展名。图集 ID 取自目录名。素材 ID 支持 1～64 个小写英文字母、数字、下划线或连字符。例如， <code>orb/sprites/moon_moth/sheet.png</code> 对应 <code>sprite:orb/moon_moth</code>。</p>
+        <h3 id="profile-fields">文件方案格式</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="profile-version"><th scope="row"><code>version</code></th><td>1</td><td>必填。使用数字表示 JSON 格式版本。</td></tr>
+<tr id="profile-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>文本／翻译键</td><td>可以设置固定名称或翻译键。缺少显示名称时采用文件名。</td></tr>
+</tbody></table></div>
+        <p>文件方案先读取 <code>defaults.json</code> 里的初始值，再应用方案中指定的外观字段。个人设置存放在上一级的 <code>config/xp_orb_trails.json</code>。切换文件方案会保留当前总开关、渲染距离和尾迹数量上限，游戏内保存的个人方案则会记录这三项。主配置和默认设置以整数保存 RGB 颜色，文件方案使用带引号的 <code>#RRGGBB</code> 颜色值。</p>
+        <h3 id="editable-templates">从已有模板开始</h3>
+        <p>已安装的 JSON 和 PNG 可以直接作为参考。连续贴图光带可参看 <code>profiles/comet-pennant.json</code>，轨道运动可参看 <code>orb/effects/twin-orbit.json</code>。拾取闪光的示例包括 <code>pickup/effects/soft.json</code>、 <code>ring.json</code> 和 <code>star.json</code>。星落方案将五角星尾迹和两个粒子发射器组合在一起。想比较改动前后的效果，可以复制模板，换一个文件名和显示名称，然后回到游戏里切换。</p>
+      </section>
+      <section class="chapter" id="general" aria-labelledby="title-general">
+        <h2 id="title-general">通用设置与配色</h2>
+        <p class="intro">设置渲染上限，以及几何尾迹与效果使用的配色。PNG 图案保留图片自身的颜色。</p>
+        <h3 id="general-global">当前游戏实例的设置</h3>
+        <p>总开关和渲染上限位于「通用」页。要调整采点间距或垂直偏移，请关闭游戏后编辑主配置。这五个字段由当前游戏实例保存。</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值与默认值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="global-enabled"><th scope="row"><code>enabled</code></th><td>布尔值<small>默认 <code>true</code></small></td><td>模组总开关。</td></tr>
+<tr id="global-renderRange"><th scope="row"><code>renderRange</code></th><td>4～128 格<small>默认 <code>36</code></small></td><td>经验球尾迹的最大可见距离。</td></tr>
+<tr id="global-trailCap"><th scope="row"><code>trailCap</code></th><td>8～256 的整数<small>默认 <code>96</code></small></td><td>同时跟踪的尾迹数量上限。</td></tr>
+<tr id="global-pointSpacing"><th scope="row"><code>pointSpacing</code></th><td>0.03～1 格<small>默认 <code>0.18</code></small></td><td>沿路径的采点距离。数值越小，相邻点越密。</td></tr>
+<tr id="global-orbYOffset"><th scope="row"><code>orbYOffset</code></th><td>有限数值，单位为格<small>默认 <code>0.175</code></small></td><td>效果相对于经验球中心的垂直偏移。</td></tr>
+</tbody></table></div>
+        <p>主配置还保存 <code>savedPresets</code> （最多 12 组命名配色）和 <code>savedProfiles</code> （最多 8 个个人方案）。两者都可以在游戏里管理。</p>
+        <h3 id="shared-colors">颜色与亮度</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值与默认值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="general-colorMode"><th scope="row"><code>colorMode</code></th><td>solid · gradient · rainbow<small>默认 <code>gradient</code></small></td><td>使用单色、沿尾迹过渡的渐变色，或持续变色的彩虹。</td></tr>
+<tr id="general-startColor"><th scope="row"><code>startColor</code><br><code>endColor</code></th><td>#RRGGBB<small>默认 <code>#E6FF2A / #66FF00</code></small></td><td>渐变的起始色与末端色。</td></tr>
+<tr id="general-gradientStops"><th scope="row"><code>gradientStops</code></th><td>0～8 个十六进制颜色值<small>默认 <code>[]</code></small></td><td>在起始色和末端色之间依次插入中间色。</td></tr>
+<tr id="general-rainbowSpeed"><th scope="row"><code>rainbowSpeed</code></th><td>0.02–2<small>默认 <code>0.2</code></small></td><td>彩虹模式的变色速度。</td></tr>
+<tr id="general-effectStrength"><th scope="row"><code>effectStrength</code></th><td>0.005–2<small>默认 <code>0.78</code></small></td><td>经验球图案、尾迹和拾取效果的整体强度。</td></tr>
+<tr id="general-additiveGlow"><th scope="row"><code>additiveGlow</code></th><td>布尔值<small>默认 <code>true</code></small></td><td>开启后采用加法混合增亮，关闭时按透明度混合。</td></tr>
+</tbody></table></div>
+      </section>
+      <section class="chapter" id="orb-body" aria-labelledby="title-orb-body">
+        <h2 id="title-orb-body">经验球本体</h2>
+        <p class="intro">可以保留原版经验球、叠加一层动画，也可以用循环图集或程序绘制的效果替换本体。</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值与默认值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="orb-showVanillaOrb"><th scope="row"><code>showVanillaOrb</code></th><td>布尔值<small>默认 <code>true</code></small></td><td>显示原版经验球，包括资源包提供的材质。关闭后可单独显示替换图案。</td></tr>
+<tr id="orb-flightEffect"><th scope="row"><code>flightEffect</code></th><td>none · file:orb/&lt;id&gt; · sprite:orb/&lt;id&gt;<small>默认 <code>none</code></small></td><td>选择经验球的动画或 PNG，例如 file:orb/twin-orbit 或 sprite:orb/luna-moth。</td></tr>
+<tr id="orb-orbScale"><th scope="row"><code>orbScale</code></th><td>0.25–4×<small>默认 <code>1</code></small></td><td>自定义经验球图案的尺寸。</td></tr>
+</tbody></table></div>
+        <p>要制作自己的轨道动画，将 <code>orb/effects/twin-orbit.json</code> 复制到 <code>orb/effects/moon_orbit.json</code>。把它的 <code>name</code> 改成 <strong>Moon Orbit</strong>，再将第二层中间关键帧的轨道半径从 <code>1.05</code> 调到 <code>2</code>。重新加载，然后选择 <strong>经验球本体 → 本体图案 → Moon Orbit</strong>。现在使用起始色的五个部件，会比使用末端色的六个部件摆得更远。</p>
+        <h3 id="pixel-relief">像素浮雕的细节</h3>
+        <p>可选效果收藏中带有 <code>profiles/lab-relief.json</code>。在这个文件中找到 <code>relief</code> 对象，它位于 <code>advanced.workshop</code>。 <code>minResolution</code> 和 <code>maxResolution</code> 分别设置精灵单帧长边的最低和最高采样分辨率。两项均取 2 到 64 的整数，默认分别为 2 和 32。 <code>pixelBudget</code> 设置所有已追踪经验球共用的目标采样格数（4–16,384，默认 1,200）。同时出现的经验球越多，提高这个值越有助于保留细节。</p>
+        <p>若要保留月蛾原有的 24 像素轮廓，请将两个分辨率限值都设为 <code>24</code>。同时显示许多经验球时，固定分辨率可能增加渲染开销。重新加载文件，再次选择编辑过的预设，即可查看变化。</p>
+      </section>
+      <section class="chapter" id="choose-how-a-trail-is-drawn" aria-labelledby="title-choose-how-a-trail-is-drawn">
+        <h2 id="title-choose-how-a-trail-is-drawn">尾迹与贴图光带</h2>
+        <p class="intro">可选择几何拖尾、连续的纹理飘带、逐个排列的印记，或由经验球本体留下的残影。</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值与默认值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="trail-trailSprite"><th scope="row"><code>trailSprite</code></th><td>none · body · sprite:trail/&lt;id&gt;<small>默认 <code>none</code></small></td><td>选 none 绘制几何拖尾，选 body 留下经验球残影。选择拖尾精灵后，可将其绘制成印记或带纹理的飘带。</td></tr>
+<tr id="trail-trailSpriteMode"><th scope="row"><code>trailSpriteMode</code></th><td>stamps · ribbon<small>默认 <code>stamps</code></small></td><td>选择这张 PNG 在拖尾上的排列方式。</td></tr>
+<tr id="trail-width"><th scope="row"><code>width</code></th><td>0.02–1<small>默认 <code>0.1</code></small></td><td>几何拖尾或连续飘带的整体宽度。</td></tr>
+<tr id="trail-tailWidthScale"><th scope="row"><code>tailWidthScale</code><br><code>middleWidthScale</code><br><code>headWidthScale</code></th><td>尾部 0–1.5 · 中段 0–2 · 头部 0.05–2<small>默认 <code>0.18 / 0.7 / 1</code></small></td><td>从最早的轨迹点到经验球，各段宽度的倍率。尾部倍率设为 0 可形成尖端。</td></tr>
+<tr id="trail-crossSectionSides"><th scope="row"><code>crossSectionSides</code></th><td>2–32，整数<small>默认 <code>2</code></small></td><td>边数为 2 时，拖尾始终朝向镜头。边数为 3 到 32 时，拖尾呈管状。</td></tr>
+<tr id="trail-crossSectionRadii"><th scope="row"><code>crossSectionRadii</code></th><td>[] 或 3–32 个取值在 (0, 1] 内的数<small>默认 <code>[]</code></small></td><td>按相等的角度间隔依次设置几何拖尾的截面半径。例如，交替排列十个长短半径可得到五角星。</td></tr>
+<tr id="trail-customCrossSectionEnabled"><th scope="row"><code>customCrossSectionEnabled</code></th><td>布尔值<small>默认 <code>true</code></small></td><td>启用自定义半径。关闭后按设定的边数绘制规则截面。</td></tr>
+<tr id="trail-stampSpacing"><th scope="row"><code>stampSpacing</code><br><code>stampScale</code></th><td>间距 0.25–10 · 缩放 0.2–10<small>默认 <code>1 / 1</code></small></td><td>可分别调整印记和残影的疏密与大小。间距设为 1 时，平均每 0.2 格留下一个印记。</td></tr>
+<tr id="trail-fixedStamps"><th scope="row"><code>fixedStamps</code></th><td>布尔值<small>默认 <code>false</code></small></td><td>将 PNG 印记固定在经验球经过的位置。每个印记都在原处独立播放动画。</td></tr>
+<tr id="trail-lifetimeSeconds"><th scope="row"><code>lifetimeSeconds</code></th><td>0.25–10 秒<small>默认 <code>2.6</code></small></td><td>旧轨迹点的保留时间。时间越长，拖尾通常越长。</td></tr>
+<tr id="trail-pickupFadeSeconds"><th scope="row"><code>pickupFadeSeconds</code></th><td>0.05–3 秒<small>默认 <code>0.35</code></small></td><td>经验球被拾取或以其他方式消失后，剩余拖尾淡出所需的时间。</td></tr>
+<tr id="trail-flightPulse"><th scope="row"><code>flightPulse</code></th><td>布尔值<small>默认 <code>false</code></small></td><td>让一道亮带沿拖尾移动。</td></tr>
+<tr id="trail-pulseSpeed"><th scope="row"><code>pulseSpeed</code></th><td>0.1–4×<small>默认 <code>1</code></small></td><td>调整流动亮带和关键帧飞行动画的播放速度。</td></tr>
+<tr id="trail-smoothFlow"><th scope="row"><code>smoothFlow</code></th><td>0–1<small>默认 <code>0.48</code></small></td><td>让较早的轨迹点平滑地向经验球移动。</td></tr>
+<tr id="trail-motionShift"><th scope="row"><code>motionShift</code><br><code>cameraPush</code></th><td>各为 0–1<small>默认 <code>0.1 / 0.1</code></small></td><td>经验球快速移动时将锚点向后移，或将锚点推离镜头，以减少遮挡重叠。</td></tr>
+<tr id="trail-ribbonMapping"><th scope="row"><code>ribbonMapping</code></th><td>见下方五种模式<small>默认 <code>stretch</code></small></td><td>沿轨迹映射 PNG 的横轴。若精灵单独定义了头尾，中段使用描述文件指定的映射方式。</td></tr>
+<tr id="trail-ribbonRepeatLength"><th scope="row"><code>ribbonRepeatLength</code></th><td>0.1–4 格<small>默认 <code>0.5</code></small></td><td>按距离平铺时，纹理每重复一次所占的长度。</td></tr>
+</tbody></table></div>
+        <h3 id="map-a-texture-along-the-ribbon">飘带纹理映射</h3>
+        <dl class="modes">
+        <dt id="topic-stretch"><code>stretch</code></dt><dd>轨迹延长时，将一整张图从尾部拉伸到头部。</dd>
+        <dt id="topic-tile"><code>tile</code></dt><dd>沿当前轨迹按指定长度重复纹理。</dd>
+        <dt id="topic-distribute-per-segment"><code>distribute_per_segment</code></dt><dd>将一张图均分给各个轨迹段。</dd>
+        <dt id="topic-repeat-per-segment"><code>repeat_per_segment</code></dt><dd>在每个轨迹段上铺满一整张图，与该段长度无关。</dd>
+        <dt id="topic-static"><code>static</code></dt><dd>依据已移动的总距离确定纹理坐标。尾部逐渐消失时，其余轨迹点的纹理位置保持稳定。</dd></dl>
+        <p>将尾部画在 PNG 左侧，头部画在右侧。通过 <a href="#sprite-ribbon">飘带描述文件</a> 可分别为两端预留像素。</p>
+      </section>
+      <section class="chapter" id="write-a-pickup-effect" aria-labelledby="title-write-a-pickup-effect">
+        <h2 id="title-write-a-pickup-effect">拾取效果</h2>
+        <p class="intro">选择经验球被拾取瞬间的效果，例如柔光、圆环、星形碎片、精灵动画或迸发的粒子。</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值与默认值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="pickup-pickupFlash"><th scope="row"><code>pickupFlash</code></th><td>布尔值<small>默认 <code>true</code></small></td><td>启用拾取效果。</td></tr>
+<tr id="pickup-pickupFlashStyle"><th scope="row"><code>pickupFlashStyle</code></th><td>file:pickup/&lt;id&gt; · sprite:pickup/&lt;id&gt;<small>默认 <code>file:pickup/soft</code></small></td><td>选择效果文件或图集。例如 file:pickup/ring 或 sprite:pickup/collect-burst。</td></tr>
+<tr id="pickup-pickupFlashSize"><th scope="row"><code>pickupFlashSize</code><br><code>pickupFlashStrength</code></th><td>大小 0.02–8.34 · 强度 0.1–2<small>默认 <code>0.65 / 0.55</code></small></td><td>调整拾取效果的大小和强度，两项均独立于拖尾宽度。</td></tr>
+<tr id="pickup-pickupFlashSeconds"><th scope="row"><code>pickupFlashSeconds</code></th><td>0.08–1 秒<small>默认 <code>0.22</code></small></td><td>关键帧拾取动画的持续时间。拾取精灵按自身帧时长播放一次，发射出的粒子各有自己的寿命。</td></tr>
+<tr id="pickup-shardCount"><th scope="row"><code>shardCount</code></th><td>3–16，整数<small>默认 <code>6</code></small></td><td>图层的副本数绑定到 shardCount 时，使用这里设置的数量。</td></tr>
+<tr id="pickup-spiralTurns"><th scope="row"><code>spiralTurns</code></th><td>0.15–2<small>默认 <code>0.65</code></small></td><td>图层的 turns 字段绑定到 spiralTurns 时，使用这里设置的旋转圈数。</td></tr>
+</tbody></table></div>
+        <h3 id="moon-burst">示例：两波拾取粒子</h3>
+        <p>将此效果保存在 <code>pickup/effects/</code>。在 Moonwake 预设中，将 <code>pickupFlashStyle</code> 设为 <code>file:pickup/moon_burst</code>，并将 <code>pickupFlashSeconds</code> 设为 <code>0.45</code>。重新加载并再次选择此预设，即可看到两波菱形粒子依次升起、散开并淡出。</p>
+        <figure class="sample"><figcaption>pickup/effects/moon_burst.json</figcaption>
+<pre><code>{
+  "version": 1,
+  "name": "Moon Burst",
+  "emitter": {
+    "space": "world",
+    "bursts": [{"time": 0, "count": 10}, {"time": 0.18, "count": 5}],
+    "direction": [0, 1, 0],
+    "spread": 45,
+    "lifetime": [0.35, 0.7],
+    "speed": [0.8, 1.8],
+    "size": [0.7, 1.2],
+    "spin": [-120, 120],
+    "gravity": 2.5,
+    "drag": 0.6,
+    "colors": ["#8CEFFF", "#C1A2FF"]
+  },
+  "layers": [{
+    "shape": "diamond_xy",
+    "easing": "smooth",
+    "frames": [
+      {"t": 0, "width": 0.6, "height": 0.6, "color": "head", "opacity": 1},
+      {"t": 1, "width": 0.15, "height": 0.15, "opacity": 0}
+    ]
+  }]
+}</code></pre></figure>
+      </section>
+      <section class="chapter" id="bring-your-own-sprite" aria-labelledby="title-bring-your-own-sprite">
+        <h2 id="title-bring-your-own-sprite">PNG 与精灵图集</h2>
+        <p class="intro">单张正方形 PNG 可作为静态精灵。若多个正方形帧横向或纵向排成一条，省略描述文件时，精灵将以 12 FPS 播放。</p>
+        <p>每种素材使用一个独立文件夹，放在 <code>orb/sprites/</code>, <code>pickup/sprites/</code> 或 <code>trail/sprites/</code>下。若使用网格排帧或矩形帧，请在 PNG 旁添加 JSON 描述文件。本例的 48 × 32 图像含六个 16 × 16 帧，按从左到右、从上到下的顺序播放。</p>
+        <figure class="sample"><figcaption>orb/sprites/moon_moth/sheet.json</figcaption>
+<pre><code>{
+  "image": "sheet.png",
+  "name": "Moon Moth",
+  "frameWidth": 16,
+  "frameHeight": 16,
+  "frames": 6,
+  "fps": 10,
+  "loop": true,
+  "pivot": [8, 8]
+}</code></pre></figure>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="sprite-image"><th scope="row"><code>image</code></th><td>PNG 文件名</td><td>选择同一文件夹中的图像。若只有一个 PNG，可自动识别文件名。导出的图集使用 meta.image 指定图像。</td></tr>
+<tr id="sprite-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>文本</td><td>设置固定名称或 Minecraft 翻译键，显示在素材选择器中。导出的图集请在图集设置中填写这些字段。</td></tr>
+<tr id="sprite-frameWidth"><th scope="row"><code>frameWidth</code><br><code>frameHeight</code></th><td>正整数，单位为像素</td><td>宽度和高度都要填写。PNG 的宽和高必须分别是帧宽和帧高的整数倍。</td></tr>
+<tr id="sprite-frames"><th scope="row"><code>frames</code></th><td>1–1,024 帧</td><td>使用网格时，指定要逐行播放的格数。使用图集时，按播放顺序用数组或对象列出帧。</td></tr>
+<tr id="sprite-fps"><th scope="row"><code>fps</code></th><td>大于 0，最大 1,000</td><td>帧率。未指定每帧时长时，默认以 12 FPS 播放。</td></tr>
+<tr id="sprite-loop"><th scope="row"><code>loop</code></th><td>布尔值，默认 true</td><td>控制序列图是否循环。替换经验球本体的精灵在显示期间始终循环，拾取精灵始终只播放一次。</td></tr>
+<tr id="sprite-pivot"><th scope="row"><code>pivot</code></th><td>[x, y]，以原帧像素为单位</td><td>锚点相对于原始帧的位置，默认为帧中心。</td></tr>
+</tbody></table></div>
+        <h3 id="sprite-atlas">PixelFX Studio 与打包图集</h3>
+        <p>一起导出 PNG 和图集 JSON，并关闭帧旋转。模组读取图集的元数据和图像，可编辑的工程文件保留在精灵编辑器中。</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="atlas-meta.image"><th scope="row"><code>meta.image</code><br><code>meta.size</code></th><td>文件名 · {w,h}</td><td>指定图集 PNG。若填写 size，它必须与图像的实际尺寸一致。</td></tr>
+<tr id="atlas-meta.pixelfx"><th scope="row"><code>meta.pixelfx</code></th><td>对象</td><td>打包帧使用的 name、fps、loop 和 pivot 填在此处。</td></tr>
+<tr id="atlas-frame"><th scope="row"><code>frame</code></th><td>{x,y,w,h}，单位为像素</td><td>frames 中每一帧在图集内所占的矩形区域。</td></tr>
+<tr id="atlas-duration"><th scope="row"><code>duration</code></th><td>正整数，单位为毫秒</td><td>该帧的显示时长，优先于 fps。</td></tr>
+<tr id="atlas-trimmed"><th scope="row"><code>trimmed</code><br><code>rotated</code></th><td>布尔值</td><td>裁切过的帧必须提供下列两项尺寸信息。导出时将 rotated 设为 false。</td></tr>
+<tr id="atlas-sourceSize"><th scope="row"><code>sourceSize</code><br><code>spriteSourceSize</code></th><td>{w,h} · {x,y,w,h}</td><td>原始帧的尺寸，以及裁切矩形在原始帧中的位置。</td></tr>
+</tbody></table></div>
+        <h3 id="sprite-ribbon">飘带的头尾</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="ribbon-ribbon"><th scope="row"><code>ribbon</code></th><td>对象</td><td>此项对拖尾序列图可选，可写在描述文件顶层或图集设置中。使用时请填写以下全部三个字段。</td></tr>
+<tr id="ribbon-tailPixels"><th scope="row"><code>tailPixels</code><br><code>headPixels</code></th><td>非负整数</td><td>分别在原始帧的左右两端预留指定数量的像素。每一帧都应至少保留 1 个中段像素。</td></tr>
+<tr id="ribbon-middle"><th scope="row"><code>middle</code></th><td>飘带纹理映射名称</td><td>指定头尾之间区域的映射方式。例如，可平铺中段，同时保持两端的原有形状。</td></tr>
+</tbody></table></div>
+        <p>例如， <a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/common/src/main/resources/assets/xporbtrails/sprites/trail/comet-pennant/sheet.json">Comet Pennant 的描述文件</a> 为尾部预留了 10 像素，为头部预留了 14 像素。 <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/common/src/main/resources/assets/xporbtrails/sprites/pickup/collect-burst">Collect Burst 图集</a> 展示了裁切后的拾取动画帧。</p>
+      </section>
+      <section class="chapter" id="animate-a-shape" aria-labelledby="title-animate-a-shape">
+        <h2 id="title-animate-a-shape">形状与关键帧</h2>
+        <p class="intro">要让效果变形、环绕、旋转或淡出，可以用 JSON 按图层制作。经验球本体和拾取效果使用相同的文件格式。</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="effect-version"><th scope="row"><code>version</code></th><td>1</td><td>必填，效果文件的格式版本。</td></tr>
+<tr id="effect-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>文本／翻译键</td><td>显示名称或本地化键名。显式填写的名称优先；未指定时，用文件名作为备用名称。</td></tr>
+<tr id="effect-layers"><th scope="row"><code>layers</code></th><td>1–8 层</td><td>分层绘制。每一层均需提供一组动画帧。</td></tr>
+<tr id="effect-emitter"><th scope="row"><code>emitter</code></th><td>可选对象</td><td>生成能独立运动的图层副本。详见粒子发射器说明。</td></tr>
+<tr id="effect-reflow"><th scope="row"><code>reflow</code></th><td>布尔值，默认 false</td><td>若用于拾取效果，该效果会沿已记录的轨迹向拾取点移动。</td></tr>
+<tr id="effect-rainbowSaturation"><th scope="row"><code>rainbowSaturation</code></th><td>0–1，默认 0.88</td><td>效果采用彩虹配色时使用的饱和度。</td></tr>
+</tbody></table></div>
+        <h3 id="layer-fields">图层字段</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="layer-shape"><th scope="row"><code>shape</code></th><td>rectangle · diamond_xy · diamond_yz · diamond_zx · ring · arc · radial</td><td>可选择菱形所在的平面，也可绘制分段圆环、圆弧或填充的径向轮廓。默认形状为 rectangle。</td></tr>
+<tr id="layer-radii"><th scope="row"><code>radii</code></th><td>3–32 项，每项取值在 [0, 1] 内</td><td>仅 radial 必填。至少有两个相邻半径必须大于 0，才能围出面积。</td></tr>
+<tr id="layer-count"><th scope="row"><code>count</code></th><td>1–32 或 "shardCount"</td><td>围绕中心排列的副本数量。填写字符串 "shardCount" 后，副本数取自预设中的同名字段。</td></tr>
+<tr id="layer-rotateCopies"><th scope="row"><code>rotateCopies</code></th><td>布尔值，默认 true</td><td>每个副本按自身的角度偏移量旋转。</td></tr>
+<tr id="layer-color"><th scope="row"><code>color</code><br><code>alternateColor</code></th><td>head · tail · #RRGGBB</td><td>设置副本交替使用的两种颜色。关键帧可覆盖其中任意一种。</td></tr>
+<tr id="layer-contrast"><th scope="row"><code>contrast</code><br><code>light</code></th><td>布尔值 · 0–1</td><td>对比度可区分颜色相同的交替副本，亮度可使图层颜色趋向白色。</td></tr>
+<tr id="layer-turns"><th scope="row"><code>turns</code></th><td>−10 到 10 或 "spiralTurns"</td><td>整段动画的旋转圈数，取负值可反向旋转。</td></tr>
+<tr id="layer-segments"><th scope="row"><code>segments</code></th><td>1–64，圆环至少 3 段</td><td>绘制圆环或圆弧所用的段数。</td></tr>
+<tr id="layer-sweep"><th scope="row"><code>sweep</code></th><td>−720° 到 720°</td><td>圆弧跨越的角度，正负号决定方向。</td></tr>
+<tr id="layer-startRadiusScale"><th scope="row"><code>startRadiusScale</code><br><code>startOpacity</code></th><td>0–4 · 0–1</td><td>圆弧起点的半径倍率和可见度。</td></tr>
+<tr id="layer-radiusVariation"><th scope="row"><code>radiusVariation</code><br><code>sizeVariation</code></th><td>各为 0–0.5</td><td>让不同副本的环绕半径或大小产生变化。</td></tr>
+<tr id="layer-radiusFrequency"><th scope="row"><code>radiusFrequency</code><br><code>sizeFrequency</code></th><td>每项 −32 至 32</td><td>调整变化频率，控制轨道半径或大小随副本序号变化的快慢。</td></tr>
+<tr id="layer-easing"><th scope="row"><code>easing</code><br><code>radiusEasing</code><br><code>opacityEasing</code></th><td>linear · smooth · out</td><td>分别表示匀速、先慢后快再慢、逐渐减速。半径和不透明度默认沿用此插值方式，也可以单独设置。</td></tr>
+<tr id="layer-frames"><th scope="row"><code>frames</code></th><td>2–16 个关键帧</td><td>首帧为 t = 0，末帧为 t = 1，中间各帧的时间须严格递增。</td></tr>
+</tbody></table></div>
+        <h3 id="effect-frames">关键帧字段</h3>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="frame-t"><th scope="row"><code>t</code></th><td>0–1，必填</td><td>归一化时间。对于粒子发射器，0 到 1 对应单个粒子从生成到消失的全过程。</td></tr>
+<tr id="frame-x"><th scope="row"><code>x</code><br><code>y</code></th><td>−8 至 8</td><td>在特效所在的平面内移动中心点。</td></tr>
+<tr id="frame-radius"><th scope="row"><code>radius</code><br><code>angle</code></th><td>0–8 · −3,600° 至 3,600°</td><td>设置相对于图层中心的轨道半径和角度。</td></tr>
+<tr id="frame-width"><th scope="row"><code>width</code><br><code>height</code></th><td>0–8</td><td>设置各轴方向的尺寸。对于圆环，这两个数值分别决定两个方向的直径。</td></tr>
+<tr id="frame-rotation"><th scope="row"><code>rotation</code></th><td>−3,600° 至 3,600°</td><td>让形状绕自身中心旋转。</td></tr>
+<tr id="frame-opacity"><th scope="row"><code>opacity</code></th><td>0–1</td><td>设置不透明度，范围从完全透明到完全可见。</td></tr>
+<tr id="frame-color"><th scope="row"><code>color</code><br><code>alternateColor</code></th><td>head · tail · #RRGGBB</td><td>随时间改变主色与交替色，并在关键帧之间平滑过渡。</td></tr>
+</tbody></table></div>
+        <p>从第二个关键帧起，省略的值沿用上一帧。首帧的位置、轨道半径、轨道角度和旋转角度默认为 0，宽和高默认为 0.25，不透明度默认为 1，颜色继承自图层。</p>
+      </section>
+      <section class="chapter" id="tune-the-emitter" aria-labelledby="title-tune-the-emitter">
+        <h2 id="title-tune-the-emitter">粒子发射器</h2>
+        <p class="intro">设置粒子的生成时机、不同粒子之间的差异，以及发射后的运动方式。</p>
+        <p>至少启用一种发射方式。可以设置大于零的发射速率、按移动距离发射，或在指定时刻集中发射。将几种方式组合起来，可以先闪现一簇粒子，再持续发射。距离以方块为单位，Y 轴正方向朝上。</p>
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">字段</th><th scope="col">可用值</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+<tr id="emitter-rate"><th scope="row"><code>rate</code></th><td>0–128 粒子/秒</td><td>按时间持续发射。设为 0 可关闭这种发射方式。</td></tr>
+<tr id="emitter-distance"><th scope="row"><code>distance</code></th><td>0.01–64 方块</td><td>每移动指定距离就发射一次，适合沿经验球的飞行路线等距排列粒子。</td></tr>
+<tr id="emitter-bursts"><th scope="row"><code>bursts</code></th><td>最多 16 波，每波为 {time,count}</td><td>time 表示从开始到发射该波的秒数，范围为 0–30。count 表示该波的粒子数量，范围为 1–64。</td></tr>
+<tr id="emitter-direction"><th scope="row"><code>direction</code></th><td>非零向量 [x,y,z]</td><td>发射方向会归一化，默认为 [0,1,0]。每个分量的范围为 −1,000,000 至 1,000,000。</td></tr>
+<tr id="emitter-spread"><th scope="row"><code>spread</code></th><td>0–180°</td><td>发射锥的半角。可试用 10 形成定向射流，或用 80 形成大范围喷射。</td></tr>
+<tr id="emitter-lifetime"><th scope="row"><code>lifetime</code></th><td>0.01–10 秒</td><td>每个粒子的存活时间，单位为秒。可填单个数值或 [min,max]。</td></tr>
+<tr id="emitter-speed"><th scope="row"><code>speed</code></th><td>0–32 方块/秒</td><td>初始发射速度。可填单个数值或 [min,max]。</td></tr>
+<tr id="emitter-size"><th scope="row"><code>size</code></th><td>0.01–8×</td><td>粒子尺寸的缩放倍数。可填单个数值或 [min,max]。</td></tr>
+<tr id="emitter-rotation"><th scope="row"><code>rotation</code><br><code>spin</code></th><td>−3,600 至 3,600</td><td>初始角度以度为单位，自转速度以度/秒为单位。两者均可填单个数值或 [min,max]。</td></tr>
+<tr id="emitter-colors"><th scope="row"><code>colors</code></th><td>1–16 个十六进制颜色值</td><td>每个粒子在生成时独立选色。将图层颜色设为 head 即可使用该颜色。</td></tr>
+<tr id="emitter-gravity"><th scope="row"><code>gravity</code></th><td>−64 至 64 方块/秒²</td><td>正值使粒子向下加速，负值使粒子向上加速。</td></tr>
+<tr id="emitter-drag"><th scope="row"><code>drag</code></th><td>0–32</td><td>使粒子逐渐减速。设为 0 时，只有重力会改变速度。</td></tr>
+<tr id="emitter-space"><th scope="row"><code>space</code></th><td>world · local</td><td>world 将粒子的运动原点固定在发射位置，local 让运动原点随经验球移动。默认为 world。</td></tr>
+</tbody></table></div>
+        <p>在 <a href="#moon-burst">Moon Burst</a>中，试着只把 <code>spread</code> 从 <code>45</code> 调到 <code>10</code>，然后重播特效。要在经验球飞行时发射粒子，请将文件复制到 <code>orb/effects/</code>，加入 <code>"distance": 0.25</code>，再将它选为经验球外观。 <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples/2.0.0example/starfall/config/xp_orb_trails">Starfall 示例</a> 提供了可直接使用的飞行和拾取发射器。</p>
+      </section>
+      <section class="chapter" id="effect-packs" aria-labelledby="title-effect-packs">
+        <h2 id="title-effect-packs">方案包与高级效果</h2>
+        <p class="intro">一个方案包可以包含一个或多个方案及其使用的外观素材。2.1.0 的可选特效合集包含 24 个方案，例如「蝶群归形」「溪流鱼群」和「墨迹落印」。</p>
+        <h3 id="install-a-pack">安装或更新 ZIP 方案包</h3>
+        <ol class="steps"><li>从这里下载 ZIP 文件： <a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/README.zh-CN.md">示例页面</a>。</li><li>选择 <strong>方案 → 打开方案包文件夹</strong>，将 ZIP 文件放入 <code>config/xp_orb_trails/packs/</code>。请保留 ZIP 压缩格式。</li><li>选择 <strong>文件方案 → 重新加载文件</strong>，然后选择带有该 ZIP 文件名的方案。更新时，用同名 ZIP 替换原文件，重新加载并再次应用方案。</li></ol>
+        <h3 id="advanced-effects">从现有特效开始修改</h3>
+        <p>先选一个触发条件符合预期的方案，复制其 JSON 和外观素材。每次只改一个值，再进入世界查看效果。 <a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/README.zh-CN.md">特效合集指南</a> 列出了全部 24 个方案的触发条件。</p>
+        <dl><dt id="topic-orb-body-and-pickup">经验球本体与拾取</dt><dd>使用 <code>advanced.body</code> 设置移动中的经验球本体，使用 <code>advanced.pickup</code> 设置拾取时的反应。例如「春日飞羽」让小鸟悬停或滑翔，拾取时撒出一阵花瓣。</dd>
+        <dt id="topic-trails-and-scene-conditions">尾迹与场景条件</dt><dd>使用 <code>advanced.trail</code> 设置尾迹形状，使用 <code>advanced.scene</code> 设置对附近经验球、方块、水或声音的反应。「潮汐水镜」方案演示了如何产生水面涟漪。</dd>
+        <dt id="topic-workshop-and-optics">工坊与光学效果</dt><dd>使用 <code>advanced.workshop</code> 制作贴花、精灵碎片或轨迹交叉等效果。例如「墨迹落印」会在地面留下墨迹，在水面留下圆环。要了解光照或热折射，可查看以下字段： <code>advanced.optics</code>。「萤石信标」和「流火蜃景」均有示例。</dd></dl>
+        <h3 id="localize-names">给方案添加译名</h3>
+        <p>使用同一个 <code>nameKey</code> 将方案与 Minecraft 资源包中的译名关联起来。例如，在方案中填入 <code>my_pack.profile.moonwake</code>，然后在 <code>assets/my_pack/lang/en_us.json</code> 中填写英文译名，在 <code>assets/my_pack/lang/zh_cn.json</code>中填写中文译名。把资源包放入 Minecraft 的资源包文件夹并启用，玩家就能通过游戏语言切换显示名称。使用固定的 <code>name</code> 则可以让各语言显示同一个名称。</p>
+        <p>经验球、尾迹和拾取图集也支持译名。规则图集在描述文件的根节点写 <code>nameKey</code>，打包图集则写在 <code>meta.pixelfx</code> 中。只有 PNG 的素材会按 <code>sprite.xporbtrails.&lt;目录名&gt;</code> 查找翻译。升级到 2.1 后，旧内置文件和官方示例保留的原版英文名会随游戏语言切换。你自己改过的名称会按原样显示。</p>
+      </section>
+      <section class="chapter" id="test-and-share-your-look" aria-labelledby="title-test-and-share-your-look">
+        <h2 id="title-test-and-share-your-look">测试与分享</h2>
+        <p class="intro">重新加载修改过的文件并再次应用方案，然后重播预览，再进入世界拾取一颗经验球。</p>
+        <dl class="help">
+        <dt id="topic-my-file-is-missing-from-the-menu">菜单里找不到我的文件</dt><dd>检查重新加载的结果和 <code>logs/latest.log</code>。文件方案和绘制特效都必须使用严格的 JSON 格式，并包含 <code>"version": 1</code>。检查素材用途、重复或未知的键，以及十六进制颜色值的拼写。如果修改后的特效或精灵文件无效，菜单可能仍显示上次成功加载的版本。</dd>
+        <dt id="topic-the-original-orb-is-still-visible">原版经验球仍然可见</dt><dd>检查 <strong>显示原版经验球</strong> 选项和外观素材 ID。超出追踪距离或数量上限的经验球可能显示原版本体。关闭原版本体并将外观设为「无」，即可隐藏经验球本体。</dd>
+        <dt id="topic-the-sheet-is-rejected">精灵图集加载失败</dt><dd>检查帧尺寸、文件名和图集裁剪信息。单张图集最多 1,024 帧，每边不超过 4,096 像素，总计不超过 4,194,304 像素。每个文件夹最多放一个描述文件。素材库最多支持 64 张图集，合计不超过 16,777,216 像素。</dd>
+        <dt id="topic-some-particles-disappear-in-a-large-burst">大量粒子同时发射时，有些粒子消失了</dt><dd>每个特效最多八个图层，合计可绘制 96 个几何片段。每个圆环、圆弧或辐射形状的副本都会占用多个片段。每个发射器最多保留 64 个存活粒子，绘制上限为 384 个四边形。减少副本或分段数可以让更多粒子保持可见。</dd>
+        <dt id="topic-how-do-i-send-my-look-to-another-player">如何把自己的外观分享给其他玩家？</dt><dd>将方案 JSON 文件放入 <code>profiles/</code>，将自定义外观素材放入相应用途的目录： <code>orb/</code>, <code>pickup/</code> 或 <code>trail/</code>。将这些目录放在 ZIP 根目录。一个 ZIP 可以包含多个方案。分享更新时请沿用原文件名。</dd>
+        <dt id="topic-how-do-i-use-a-zip-pack">如何使用 ZIP 方案包？</dt><dd>选择 <strong>方案 → 打开方案包文件夹</strong>，将 ZIP 文件放入打开的目录。点击 <strong>重新加载文件</strong>，选择带有方案包文件名的方案。更新时替换 ZIP，卸载时移除 ZIP，随后重新加载并选择方案。</dd></dl>
+        <p><a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/README.zh-CN.md">浏览示例方案包</a> · <a href="https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/2.0.0example/sprite_sheet_examples.zip">下载四个精灵图方案（.zip）</a></p>
+      </section>
+    </div>
+    <section id="results" hidden aria-labelledby="results-title">
+      <h1 id="results-title">搜索结果</h1>
+        <p id="count" role="status"></p><ul id="hits"></ul>
+      <button id="clear" type="button">清除搜索</button>
+    </section>
+    <footer><a href="#guide">返回顶部 ↑</a><a href="https://github.com/GoldenEggOVO/xp_orb_trails/issues">反馈文档问题 ↗</a></footer>
+  </main>
+</div>
+</body>
+</html>

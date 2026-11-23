@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_redstone",
+  "colorMode": "gradient",
+  "startColor": "#FFBD7B",
+  "endColor": "#72394A",
+  "width": 0.035,
+  "additiveGlow": false,
+  "showVanillaOrb": true,
+  "advanced": {
+    "workshop": [
+      {
+        "type": "redstone",
+        "color": "#8F4453",
+        "secondary": "#FFF0A0",
+        "radius": 0.36,
+        "response": "both",
+        "count": 6
+      }
+    ]
+  },
+  "gradientStops": [
+    "#DE5143"
+  ],
+  "lifetimeSeconds": 0.72,
+  "pickupFlashStyle": "none"
+}

@@ -1,0 +1,10 @@
+{
+  "image": "sheet.png",
+  "name": "Winding Gear",
+  "nameKey": "sprite.xporbtrails.winding_gear",
+  "frameWidth": 24,
+  "frameHeight": 24,
+  "frames": 8,
+  "fps": 10,
+  "loop": true
+}

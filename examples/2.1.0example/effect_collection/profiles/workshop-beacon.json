@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.atlas_beacon",
+  "showVanillaOrb": false,
+  "colorMode": "gradient",
+  "startColor": "#95503B",
+  "gradientStops": ["#E29136", "#FFE38A"],
+  "endColor": "#FFF7D5",
+  "width": 0.15,
+  "crossSectionRadii": [1, 0.45, 1, 0.45, 1, 0.45, 1, 0.45],
+  "tailWidthScale": 0.06,
+  "middleWidthScale": 0.42,
+  "headWidthScale": 1.15,
+  "lifetimeSeconds": 0.82,
+  "effectStrength": 0.93,
+  "additiveGlow": false,
+  "pickupFlashStyle": "file:pickup/star",
+  "pickupFlashSize": 0.85,
+  "pickupFlashSeconds": 0.28,
+  "pickupFlashStrength": 0.88,
+  "advanced": {
+    "workshop": [
+      {
+        "type": "rig",
+        "joints": [
+          {
+            "id": "lamp",
+            "axis": [0, 1, 0],
+            "swingDegrees": 38,
+            "periodTicks": 72,
+            "color": "#FFCE60",
+            "vertices": [
+              [0.145, 0, 0],
+              [0.073, 0, 0.126],
+              [-0.073, 0, 0.126],
+              [-0.145, 0, 0],
+              [-0.073, 0, -0.126],
+              [0.073, 0, -0.126],
+              [0, 0.23, 0]
+            ],
+            "faces": [[0, 1, 6], [1, 2, 6], [2, 3, 6], [3, 4, 6], [4, 5, 6], [5, 0, 6]]
+          },
+          {
+            "id": "amber",
+            "parent": "lamp",
+            "color": "#DB732F",
+            "vertices": [
+              [0.145, 0, 0],
+              [0.073, 0, 0.126],
+              [-0.073, 0, 0.126],
+              [-0.145, 0, 0],
+              [-0.073, 0, -0.126],
+              [0.073, 0, -0.126],
+              [0, -0.17, 0]
+            ],
+            "faces": [[0, 1, 6], [1, 2, 6], [2, 3, 6], [3, 4, 6], [4, 5, 6], [5, 0, 6]]
+          },
+          {
+            "id": "cap",
+            "parent": "lamp",
+            "color": "#FFF4AD",
+            "vertices": [
+              [0.046, 0.178, 0],
+              [0.023, 0.178, 0.04],
+              [-0.023, 0.178, 0.04],
+              [-0.046, 0.178, 0],
+              [-0.023, 0.178, -0.04],
+              [0.023, 0.178, -0.04],
+              [0, 0.285, 0]
+            ],
+            "faces": [[0, 1, 6], [1, 2, 6], [2, 3, 6], [3, 4, 6], [4, 5, 6], [5, 0, 6]]
+          },
+          {
+            "id": "foot",
+            "parent": "lamp",
+            "color": "#59AEB2",
+            "vertices": [
+              [0.048, -0.129, 0],
+              [0.024, -0.129, 0.042],
+              [-0.024, -0.129, 0.042],
+              [-0.048, -0.129, 0],
+              [-0.024, -0.129, -0.042],
+              [0.024, -0.129, -0.042],
+              [0, -0.223, 0]
+            ],
+            "faces": [[0, 1, 6], [1, 2, 6], [2, 3, 6], [3, 4, 6], [4, 5, 6], [5, 0, 6]]
+          }
+        ]
+      }
+    ],
+    "optics": {
+      "type": "light",
+      "radius": 2.8,
+      "strength": 1.92,
+      "color": "#FFBC63",
+      "maxOrbs": 4
+    },
+    "scene": [
+      {
+        "type": "values",
+        "threshold": 3,
+        "count": 3,
+        "radius": 0.36,
+        "width": 0.023,
+        "color": "#FFF3A8",
+        "secondary": "#74CFC1"
+      }
+    ]
+  }
+}

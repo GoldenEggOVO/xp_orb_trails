@@ -98,9 +98,21 @@ public final class XpOrbTrailsClient {
     }
 
     private static int reloadLibraries() {
-        int errors = styleLibrary.reload() + effectLibrary.reload() + spriteLibrary.reload();
-        SpriteRenderer.reload();
-        return errors;
+        try (var packs = new PresetPacks()) {
+            int errors = packs.scan(assetDirectory.resolve("packs"));
+            errors += styleLibrary.reload(packs.profiles);
+            if (errors == 0) {
+                try {
+                    ProfileUpgrades.retireSprites(assetDirectory, CONFIG, defaults(), styleLibrary.styles());
+                } catch (IOException | java.io.UncheckedIOException exception) {
+                    LOGGER.warn("Could not retire beta sprite templates: {}", exception.getMessage());
+                    errors++;
+                }
+            }
+            errors += effectLibrary.reload(packs.effects) + spriteLibrary.reload(packs.sprites);
+            SpriteRenderer.reload();
+            return errors;
+        }
     }
 
     static Map<String, SpriteSheet> sprites() {
