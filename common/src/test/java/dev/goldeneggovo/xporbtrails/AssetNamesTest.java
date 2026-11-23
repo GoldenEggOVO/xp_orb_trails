@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AssetNamesTest {
     private static final Path SPRITE_EXAMPLES = Path.of(System.getProperty("xporb.spriteExamples",
-            "../examples/2.0.0example/sprite_sheet_examples.zip"));
+            "../examples/2.0.0example/2.0.0example.zip"));
     @TempDir Path config;
 
     @Test void everyBundledAndPackagedMenuEntryHasEnglishAndChineseLabels() throws Exception {

@@ -1,8 +1,8 @@
 # Effect Collection for XP Orb Trails 2.1.0
 
-[简体中文](README.zh-CN.md) · [Download the ZIP](https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/2.1.0example/effect_collection.zip)
+[简体中文](README.zh-CN.md) · [Download the ZIP](https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/2.1.0example/2.1.0example.zip)
 
-Put `effect_collection.zip` in `config/xp_orb_trails/packs/`. In **Profiles → File Profiles**, select **Reload Files**, then click one of the 24 profiles labeled with the ZIP filename. Try the following in your world.
+Put `2.1.0example.zip` in `config/xp_orb_trails/packs/`. In **Profiles → File Profiles**, select **Reload Files**, then click one of the 24 profiles labeled with the ZIP filename. Try the following in your world.
 
 ## Orb bodies and pixel art
 

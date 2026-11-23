@@ -4,8 +4,10 @@
 
 | Download | What’s inside |
 | --- | --- |
-| [Effect Collection for 2.1.0 (.zip)](2.1.0example/effect_collection.zip?raw=1) | 24 profiles with artwork for orb bodies, trails and pickups. [See each effect and how to trigger it](2.1.0example/). |
-| [Sprite sheet examples from 2.0.0 (.zip)](2.0.0example/sprite_sheet_examples.zip?raw=1) | Koi Stream, Lantern Bloom, Brass Clockwork and Ion Drive. [Browse the artwork, previews and Starfall source](2.0.0example/). |
+| [Effect Collection for 2.1.0 (.zip)](2.1.0example/2.1.0example.zip?raw=1) | 24 profiles with artwork for orb bodies, trails and pickups. [See each effect and how to trigger it](2.1.0example/). |
+| [Sprite sheet examples from 2.0.0 (.zip)](2.0.0example/2.0.0example.zip?raw=1) | Koi Stream, Lantern Bloom, Brass Clockwork and Ion Drive. [Browse the artwork, previews and Starfall source](2.0.0example/). |
+
+Each version folder contains a ZIP with the same name. Browse its editable profiles and artwork in [the 2.0.0 pack](2.0.0example/pack/) or [the 2.1.0 pack](2.1.0example/pack/).
 
 ## Use a ZIP in 2.1.0
 
@@ -15,6 +17,8 @@
 4. Collect a few experience orbs to try it. Some effects need a second orb, moving water or a powered block. The Effect Collection guide lists the conditions for each one.
 
 To update a pack, replace the ZIP with the new file under the same name, reload files and reapply the profile. To uninstall it, choose another profile, remove the ZIP and reload files.
+
+If you already installed an example under its previous filename, remove the old copy when installing the renamed ZIP. Reload files and select your profile again.
 
 **Playing on 2.0.0?** Download the sprite sheet examples, extract the ZIP, then merge its `profiles/`, `orb/`, `trail/` and `pickup/` folders into `config/xp_orb_trails/`. Reload files and select a profile in the settings.
 

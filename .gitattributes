@@ -7,3 +7,7 @@
 # These are Windows script files and should use crlf
 *.bat           text eol=crlf
 
+# Keep example ZIP inputs identical across checkouts.
+examples/*/pack/**/*.json text eol=lf
+examples/2.1.0example/README*.md text eol=lf
+

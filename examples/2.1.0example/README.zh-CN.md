@@ -1,8 +1,8 @@
 # XP Orb Trails 效果收藏
 
-[English](README.md) · [下载效果收藏 ZIP](https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/2.1.0example/effect_collection.zip)
+[English](README.md) · [下载效果收藏 ZIP](https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/2.1.0example/2.1.0example.zip)
 
-这 24 套可选方案适用于 XP Orb Trails 2.1.0。打开 **方案 → 打开方案包文件夹**，放入整个 `effect_collection.zip`，点击 **文件方案 → 重新加载文件**，再选择带这个 ZIP 文件名的方案。部分效果需要水流、红石、两颗经验球或实际拾取才能看到。
+这 24 套可选方案适用于 XP Orb Trails 2.1.0。打开 **方案 → 打开方案包文件夹**，放入整个 `2.1.0example.zip`，点击 **文件方案 → 重新加载文件**，再选择带这个 ZIP 文件名的方案。部分效果需要水流、红石、两颗经验球或实际拾取才能看到。
 
 ## 先试这四个
 

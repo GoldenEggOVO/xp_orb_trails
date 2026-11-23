@@ -358,7 +358,7 @@
 <tr id="emitter-drag"><th scope="row"><code>drag</code></th><td>0–32</td><td>使粒子逐渐减速。设为 0 时，只有重力会改变速度。</td></tr>
 <tr id="emitter-space"><th scope="row"><code>space</code></th><td>world · local</td><td>world 将粒子的运动原点固定在发射位置，local 让运动原点随经验球移动。默认为 world。</td></tr>
 </tbody></table></div>
-        <p>在 <a href="#moon-burst">Moon Burst</a>中，试着只把 <code>spread</code> 从 <code>45</code> 调到 <code>10</code>，然后重播特效。要在经验球飞行时发射粒子，请将文件复制到 <code>orb/effects/</code>，加入 <code>"distance": 0.25</code>，再将它选为经验球外观。 <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples/2.0.0example/starfall/config/xp_orb_trails">Starfall 示例</a> 提供了可直接使用的飞行和拾取发射器。</p>
+        <p>在 <a href="#moon-burst">Moon Burst</a>中，试着只把 <code>spread</code> 从 <code>45</code> 调到 <code>10</code>，然后重播特效。要在经验球飞行时发射粒子，请将文件复制到 <code>orb/effects/</code>，加入 <code>"distance": 0.25</code>，再将它选为经验球外观。 <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples/2.0.0example/starfall">Starfall 示例</a> 提供了可直接使用的飞行和拾取发射器。</p>
       </section>
       <section class="chapter" id="effect-packs" aria-labelledby="title-effect-packs">
         <h2 id="title-effect-packs">方案包与高级效果</h2>
@@ -384,7 +384,7 @@
         <dt id="topic-some-particles-disappear-in-a-large-burst">大量粒子同时发射时，有些粒子消失了</dt><dd>每个特效最多八个图层，合计可绘制 96 个几何片段。每个圆环、圆弧或辐射形状的副本都会占用多个片段。每个发射器最多保留 64 个存活粒子，绘制上限为 384 个四边形。减少副本或分段数可以让更多粒子保持可见。</dd>
         <dt id="topic-how-do-i-send-my-look-to-another-player">如何把自己的外观分享给其他玩家？</dt><dd>将方案 JSON 文件放入 <code>profiles/</code>，将自定义外观素材放入相应用途的目录： <code>orb/</code>, <code>pickup/</code> 或 <code>trail/</code>。将这些目录放在 ZIP 根目录。一个 ZIP 可以包含多个方案。分享更新时请沿用原文件名。</dd>
         <dt id="topic-how-do-i-use-a-zip-pack">如何使用 ZIP 方案包？</dt><dd>选择 <strong>方案 → 打开方案包文件夹</strong>，将 ZIP 文件放入打开的目录。点击 <strong>重新加载文件</strong>，选择带有方案包文件名的方案。更新时替换 ZIP，卸载时移除 ZIP，随后重新加载并选择方案。</dd></dl>
-        <p><a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/README.zh-CN.md">浏览示例方案包</a> · <a href="https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/2.0.0example/sprite_sheet_examples.zip">下载四个精灵图方案（.zip）</a></p>
+        <p><a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/README.zh-CN.md">浏览示例方案包</a> · <a href="https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/2.0.0example/2.0.0example.zip">下载四个精灵图方案（.zip）</a></p>
       </section>
     </div>
     <section id="results" hidden aria-labelledby="results-title">

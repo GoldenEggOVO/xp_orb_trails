@@ -358,7 +358,7 @@
 <tr id="emitter-drag"><th scope="row"><code>drag</code></th><td>0–32</td><td>Slow particles over time. Zero preserves velocity apart from gravity.</td></tr>
 <tr id="emitter-space"><th scope="row"><code>space</code></th><td>world · local</td><td>World anchors a particle at its emission point. Local moves the origin with the orb. Default: world.</td></tr>
 </tbody></table></div>
-        <p>In <a href="#moon-burst">Moon Burst</a>, try changing only <code>spread</code> from <code>45</code> to <code>10</code> and replay the effect. To emit along an orb’s flight, copy the file into <code>orb/effects/</code>, add <code>"distance": 0.25</code>, then select it as your orb artwork. The <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples/2.0.0example/starfall/config/xp_orb_trails">Starfall example</a> includes working flight and pickup emitters.</p>
+        <p>In <a href="#moon-burst">Moon Burst</a>, try changing only <code>spread</code> from <code>45</code> to <code>10</code> and replay the effect. To emit along an orb’s flight, copy the file into <code>orb/effects/</code>, add <code>"distance": 0.25</code>, then select it as your orb artwork. The <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples/2.0.0example/starfall">Starfall example</a> includes working flight and pickup emitters.</p>
       </section>
       <section class="chapter" id="effect-packs" aria-labelledby="title-effect-packs">
         <h2 id="title-effect-packs">Packs &amp; advanced effects</h2>
@@ -384,7 +384,7 @@
         <dt id="topic-some-particles-disappear-in-a-large-burst">Some particles disappear in a large burst.</dt><dd>Each effect has a geometry budget of 96 pieces across up to eight layers. Rings, arcs and radial shapes spend several pieces per copy. An emitter keeps at most 64 live particles with a 384-quad budget. Reduce copies or segments to keep more particles visible.</dd>
         <dt id="topic-how-do-i-send-my-look-to-another-player">How do I send my look to another player?</dt><dd>Put your JSON files in <code>profiles/</code> and your custom artwork under <code>orb/</code>, <code>pickup/</code> or <code>trail/</code>. Zip those folders together at the top level. One ZIP can include multiple profiles. Keep the filename when sharing an update.</dd>
         <dt id="topic-how-do-i-use-a-zip-pack">How do I use a ZIP pack?</dt><dd>Choose <strong>Profiles → Open Packs Folder</strong> in the footer and put the ZIP there. Click <strong>Reload Files</strong> and select a profile labeled with the pack filename. Replace the ZIP to update it, or remove it to uninstall, then reload and select a profile.</dd></dl>
-        <p><a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples">Browse example packs</a> · <a href="https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/2.0.0example/sprite_sheet_examples.zip">Download four sprite profiles (.zip)</a></p>
+        <p><a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples">Browse example packs</a> · <a href="https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/2.0.0example/2.0.0example.zip">Download four sprite profiles (.zip)</a></p>
       </section>
     </div>
     <section id="results" hidden aria-labelledby="results-title">
