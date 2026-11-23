@@ -19,7 +19,7 @@ final class EffectLibrary {
     private static final Logger LOGGER = LoggerFactory.getLogger("XP Orb Trails");
     private static final String EXAMPLE = "twin-orbit.json";
     private static final int MAX_FILE_BYTES = 64 * 1024;
-    private static final Pattern FILE_ID = Pattern.compile("file:(orb|pickup)/[a-z0-9_-]{1,64}");
+    private static final Pattern FILE_ID = Pattern.compile("file:(orb|pickup)/[a-z0-9_-]{1,64}" + PresetPacks.ID_SUFFIX);
     private final Path directory;
     private volatile RoleAssets<CustomEffect> assets = new RoleAssets<>(Map.of());
 
@@ -40,9 +40,14 @@ final class EffectLibrary {
     }
 
     synchronized int reload() {
+        return reload(Map.of());
+    }
+
+    synchronized int reload(Map<String, Path> packed) {
         Map<String, Path> files;
         try {
             files = AssetFiles.find(directory, "effects", EXAMPLE);
+            files.putAll(packed);
         } catch (IOException | UncheckedIOException exception) {
             LOGGER.warn("Could not read effect directories in {}: {}", directory, exception.getMessage());
             return 1;
@@ -55,7 +60,7 @@ final class EffectLibrary {
             String filename = file.getFileName().toString();
             String stem = filename.substring(0, filename.length() - ".json".length());
             try {
-                if (!isFileId(id)) throw new IOException("Expected a filename matching [a-z0-9_-]{1,64}.json");
+                if (stem.contains(":") || !isFileId(id)) throw new IOException("Expected a filename matching [a-z0-9_-]{1,64}.json");
                 loaded.put(id, read(file, stem));
             } catch (IOException exception) {
                 LOGGER.warn("Could not load trail effect {}: {}", file, exception.getMessage());
@@ -73,7 +78,8 @@ final class EffectLibrary {
             byte[] bytes = stream.readNBytes(MAX_FILE_BYTES + 1);
             if (bytes.length > MAX_FILE_BYTES) throw new IOException("Effect file exceeds 64 KiB");
             var reader = new InputStreamReader(new ByteArrayInputStream(bytes), StandardCharsets.UTF_8.newDecoder());
-            return CustomEffect.read(reader, stem);
+            String role = file.getParent().getParent().getFileName().toString();
+            return CustomEffect.read(reader, stem, "effect.xporbtrails." + role + "." + stem, "effect.xporbtrails." + stem);
         }
     }
 }

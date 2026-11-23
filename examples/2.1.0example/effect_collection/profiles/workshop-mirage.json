@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.atlas_mirage",
+  "showVanillaOrb": false,
+  "colorMode": "gradient",
+  "startColor": "#A93942",
+  "endColor": "#FFE588",
+  "width": 0.12,
+  "lifetimeSeconds": 1.05,
+  "effectStrength": 0.97,
+  "additiveGlow": false,
+  "pickupFlashStyle": "file:pickup/shards",
+  "pickupFlashSize": 0.68,
+  "pickupFlashSeconds": 0.29,
+  "pickupFlashStrength": 0.82,
+  "shardCount": 5,
+  "advanced": {
+    "body": {
+      "type": "droplet",
+      "size": 0.124,
+      "stretchGain": 6,
+      "spring": 0.29,
+      "damping": 0.74,
+      "color": "#FFA13C"
+    },
+    "optics": {
+      "type": "heat",
+      "radius": 0.9,
+      "strength": 3.85,
+      "speed": 1.55,
+      "maxOrbs": 4
+    },
+    "trail": {
+      "geometry": "ribbon",
+      "period": 1.48,
+      "orientation": 58,
+      "roll": -125,
+      "widthCurve": [[0, 0.05], [0.19, 0.39], [0.46, 1.5], [0.7, 0.56], [0.87, 1.1], [1, 0.26]],
+      "colorCurve": [[0, "#9D3D57"], [0.35, "#EE5C34"], [0.74, "#FFB044"], [1, "#FFF1A4"]],
+      "particles": {
+        "birth": "distance",
+        "spacing": 0.115,
+        "burst": 1,
+        "lifetime": 0.89,
+        "size": 0.056,
+        "inheritVelocity": 0.68,
+        "gravity": 3.5,
+        "drag": 1.05,
+        "scatter": 0.41,
+        "color": "#FFE196",
+        "endColor": "#CB4845"
+      }
+    }
+  }
+}

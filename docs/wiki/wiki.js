@@ -8,6 +8,9 @@ const sections = [...document.querySelectorAll('.chapter')];
 const chapterLinks = [...contents.querySelectorAll('.nav-group a')];
 const mobileChapter = document.querySelector('#mobile-chapter');
 const entries = [];
+const chinese = document.documentElement.lang === 'zh-CN';
+const languageLink = document.querySelector('.language-link');
+const alternatePage = languageLink.getAttribute('href');
 
 function addEntry(node, label, description, section) {
   const entry = { id: node.id, label, description, section };
@@ -27,7 +30,6 @@ for (const chapter of sections) {
     addEntry(row, label, values + ' · ' + row.cells[2].textContent, title);
   }
   for (const term of chapter.querySelectorAll('dt')) {
-    term.id = 'topic-' + term.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '');
     addEntry(term, term.textContent, term.nextElementSibling.textContent, title);
   }
 }
@@ -40,7 +42,9 @@ function showResults() {
   if (results.hidden) return;
   const matches = entries.filter(entry => words.every(word => entry.key.includes(word)));
   matches.sort((a, b) => Number(b.label.toLowerCase().includes(words[0])) - Number(a.label.toLowerCase().includes(words[0])));
-  document.querySelector('#count').textContent = matches.length ? matches.length + (matches.length === 1 ? ' match' : ' matches') : 'No matches. Try a JSON field name or a shorter keyword.';
+  document.querySelector('#count').textContent = matches.length
+    ? matches.length + (chinese ? ' 个结果' : matches.length === 1 ? ' match' : ' matches')
+    : chinese ? '没有找到结果。试试 JSON 字段名或更短的关键词。' : 'No matches. Try a JSON field name or a shorter keyword.';
   for (const entry of matches) {
     const li = document.createElement('li');
     const link = document.createElement('a');
@@ -63,6 +67,9 @@ function markChapter() {
     ? contents.querySelector('summary').getBoundingClientRect().bottom + 40
     : document.querySelector('.top').getBoundingClientRect().bottom + 40;
   const chapter = reading.hidden ? null : sections.findLast(section => section.getBoundingClientRect().top <= offset);
+  const anchor = document.getElementById(location.hash.slice(1));
+  const target = chapter && anchor?.closest('.chapter') === chapter ? anchor : chapter;
+  languageLink.href = alternatePage + (target ? '#' + target.id : '');
   mobileChapter.textContent = chapter?.querySelector('h2').textContent || '';
   for (const link of chapterLinks) {
     if (chapter && link.hash === '#' + chapter.id) link.setAttribute('aria-current', 'location');
@@ -92,23 +99,23 @@ for (const sample of document.querySelectorAll('figure.sample')) {
   const copy = document.createElement('button');
   copy.type = 'button';
   copy.className = 'copy';
-  copy.textContent = 'Copy JSON';
+  copy.textContent = chinese ? '复制 JSON' : 'Copy JSON';
   copy.setAttribute('aria-live', 'polite');
   let resetLabel;
   copy.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(json);
-      copy.textContent = 'Copied ✓';
+      copy.textContent = chinese ? '已复制 ✓' : 'Copied ✓';
     } catch {
       const range = document.createRange();
       range.selectNodeContents(code);
       const selection = window.getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
-      copy.textContent = 'JSON selected';
+      copy.textContent = chinese ? '已选中 JSON' : 'JSON selected';
     }
     clearTimeout(resetLabel);
-    resetLabel = setTimeout(() => { copy.textContent = 'Copy JSON'; }, 2200);
+    resetLabel = setTimeout(() => { copy.textContent = chinese ? '复制 JSON' : 'Copy JSON'; }, 2200);
   });
   sample.querySelector('figcaption').append(copy);
 }

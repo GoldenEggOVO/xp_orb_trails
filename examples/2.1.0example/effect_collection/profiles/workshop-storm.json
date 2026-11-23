@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.atlas_storm",
+  "showVanillaOrb": false,
+  "colorMode": "gradient",
+  "startColor": "#7055BC",
+  "endColor": "#B5F8FF",
+  "width": 0.103,
+  "lifetimeSeconds": 0.93,
+  "effectStrength": 1,
+  "additiveGlow": false,
+  "pickupFlashStyle": "file:pickup/star",
+  "pickupFlashSize": 0.91,
+  "pickupFlashSeconds": 0.17,
+  "pickupFlashStrength": 0.95,
+  "advanced": {
+    "body": {
+      "type": "magnet",
+      "count": 19,
+      "radius": 0.39,
+      "size": 0.04,
+      "lifetimeTicks": 42,
+      "fieldSpeed": 0.041,
+      "color": "#A5EBFF"
+    },
+    "trail": {
+      "geometry": "arc",
+      "branches": {
+        "count": 3,
+        "length": 0.53,
+        "minTurn": 10,
+        "jitter": 0.092,
+        "flashSeconds": 0.14
+      },
+      "widthCurve": [[0, 0.09], [0.28, 0.29], [0.51, 0.73], [0.79, 0.43], [1, 0.72]],
+      "colorCurve": [[0, "#7860C8"], [0.4, "#8E7FE8"], [0.7, "#83DDF6"], [1, "#DAF7FF"]]
+    },
+    "scene": [
+      {
+        "type": "turn",
+        "threshold": 30,
+        "radius": 0.42,
+        "duration": 0.36,
+        "color": "#F4CA71"
+      },
+      {
+        "type": "speed",
+        "threshold": 0.24,
+        "width": 0.028,
+        "color": "#8572C9",
+        "secondary": "#FFE09A"
+      }
+    ]
+  }
+}

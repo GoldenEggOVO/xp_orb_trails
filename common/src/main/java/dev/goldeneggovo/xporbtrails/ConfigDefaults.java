@@ -73,6 +73,7 @@ final class ConfigDefaults {
     }
 
     private static boolean matchesType(JsonElement expected, JsonElement value) {
+        if (expected.isJsonObject()) return value.isJsonObject();
         if (expected.isJsonArray()) return value.isJsonArray();
         if (!value.isJsonPrimitive()) return false;
         JsonPrimitive type = expected.getAsJsonPrimitive();

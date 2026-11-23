@@ -20,16 +20,18 @@ final class TrailSettingsList extends ContainerObjectSelectionList<TrailSettings
     }
 
     @Override public int getRowWidth() { return getWidth() - 18; }
+    @Override protected int scrollBarX() { return getRight() - scrollbarWidth(); }
 
     @Override protected void extractListBackground(GuiGraphicsExtractor graphics) { }
     @Override protected void extractListSeparators(GuiGraphicsExtractor graphics) { }
 
     @Override protected void extractScrollbar(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (!scrollable()) return;
-        int x = scrollBarX() + 1;
+        int x = scrollBarX();
         int y = scrollBarY();
-        graphics.fill(x + 1, getY(), x + 2, getBottom(), TrailConfigScreen.RULE);
-        graphics.fill(x, y, x + 3, y + scrollerHeight(),
+        int center = x + scrollbarWidth() / 2;
+        graphics.fill(center, getY(), center + 1, getBottom(), TrailConfigScreen.RULE);
+        graphics.fill(x, y, x + scrollbarWidth(), y + scrollerHeight(),
                 isOverScrollbar(mouseX, mouseY) ? TrailConfigScreen.ACCENT : 0xFF688B7D);
     }
 

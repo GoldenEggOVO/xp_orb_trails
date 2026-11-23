@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_fracture",
+  "flightEffect": "sprite:orb/silk_lantern",
+  "showVanillaOrb": false,
+  "pickupFlashStyle": "none",
+  "additiveGlow": false,
+  "effectStrength": 1,
+  "width": 0.045,
+  "startColor": "#FFF1BB",
+  "endColor": "#A74356",
+  "advanced": {
+    "workshop": [
+      {
+        "type": "fracture",
+        "fractureMap": "sprite:orb/lab-faults",
+        "lifeTicks": 35,
+        "spread": 1.12
+      }
+    ]
+  },
+  "gradientStops": [
+    "#FFAF76"
+  ],
+  "orbScale": 1.02,
+  "lifetimeSeconds": 0.78
+}

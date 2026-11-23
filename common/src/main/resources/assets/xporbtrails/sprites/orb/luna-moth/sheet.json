@@ -1,6 +1,7 @@
 {
   "image": "sheet.png",
   "name": "Luna Moth",
+  "nameKey": "sprite.xporbtrails.luna-moth",
   "frameWidth": 24,
   "frameHeight": 20,
   "frames": 8,

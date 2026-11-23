@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +34,7 @@ import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 
 final class SpriteLibrary {
     private static final Logger LOGGER = LoggerFactory.getLogger("XP Orb Trails");
-    private static final Pattern ID = Pattern.compile("sprite:(orb|pickup|trail)/[a-z0-9_-]{1,64}");
+    private static final Pattern ID = Pattern.compile("sprite:(orb|pickup|trail)/[a-z0-9_-]{1,64}" + PresetPacks.ID_SUFFIX);
     private static final String EXAMPLE = "comet-strip/comet.png";
     private static final int MAX_SHEETS = 64;
     private static final int MAX_TOTAL_PIXELS = 16 * 1024 * 1024;
@@ -57,12 +59,18 @@ final class SpriteLibrary {
     }
 
     synchronized int reload() {
+        return reload(Map.of());
+    }
+
+    synchronized int reload(Map<String, Path> packed) {
         List<Map.Entry<String, Path>> folders;
         Map<String, SpriteSheet> sheets = assets.all;
         int errors = 0;
         try {
             // Reserve capacity across all roles for previously loaded sheets first.
-            folders = AssetFiles.find(directory, "sprites", EXAMPLE).entrySet().stream()
+            var sources = AssetFiles.find(directory, "sprites", EXAMPLE);
+            sources.putAll(packed);
+            folders = sources.entrySet().stream()
                     .sorted(Comparator.comparing(entry -> !sheets.containsKey(entry.getKey()))).toList();
         } catch (IOException | UncheckedIOException exception) {
             LOGGER.warn("Could not read sprite directory {}: {}", directory, exception.getMessage());
@@ -82,7 +90,7 @@ final class SpriteLibrary {
             if (previous != null) availablePixels += previous.width() * previous.height();
             SpriteSheet sheet;
             try {
-                if (!isSpriteId(id)) throw new IOException("Expected a folder name matching [a-z0-9_-]{1,64}");
+                if (stem.contains(":") || !isSpriteId(id)) throw new IOException("Expected a folder name matching [a-z0-9_-]{1,64}");
                 sheet = loadFolder(folder, stem, availablePixels, loaded.size());
             } catch (IOException | UncheckedIOException | InvalidPathException exception) {
                 LOGGER.warn("Could not load sprite {}: {}", folder, exception.getMessage());
@@ -139,11 +147,20 @@ final class SpriteLibrary {
         }
         if (Files.size(png) > 32 * 1024 * 1024) throw new IOException("PNG exceeds 32 MiB");
         ImageReader reader = ImageIO.getImageReadersByFormatName("PNG").next();
-        try (var stream = new FileImageInputStream(png.toFile())) {
+        try (var stream = imageStream(png)) {
             reader.setInput(stream, true, true);
             return SpriteSheet.read(reader, descriptor, stem, availablePixels);
         } finally {
             reader.dispose();
+        }
+    }
+
+    private static ImageInputStream imageStream(Path png) throws IOException {
+        if (png.getFileSystem() == java.nio.file.FileSystems.getDefault()) return new FileImageInputStream(png.toFile());
+        try (var input = Files.newInputStream(png)) {
+            byte[] bytes = input.readNBytes(32 * 1024 * 1024 + 1);
+            if (bytes.length > 32 * 1024 * 1024) throw new IOException("PNG exceeds 32 MiB");
+            return new MemoryCacheImageInputStream(new ByteArrayInputStream(bytes));
         }
     }
 

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_butterfly",
+  "flightEffect": "sprite:orb/luna-moth",
+  "showVanillaOrb": false,
+  "pickupFlashStyle": "none",
+  "additiveGlow": false,
+  "effectStrength": 1,
+  "width": 0.035,
+  "startColor": "#DDF7BE",
+  "endColor": "#6AA5A7",
+  "advanced": {
+    "workshop": [
+      {
+        "type": "assemble",
+        "sprite": "sprite:orb/luna-moth",
+        "mode": "fill",
+        "captureTrail": true,
+        "samples": 256,
+        "size": 0.95,
+        "formTicks": 17,
+        "holdTicks": 12,
+        "disperseTicks": 15
+      },
+      {
+        "type": "shed",
+        "mode": "edge",
+        "count": 5,
+        "lifeTicks": 25
+      }
+    ]
+  }
+}

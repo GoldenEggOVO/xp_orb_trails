@@ -41,6 +41,8 @@ final class SpriteSheet {
     BufferedImage image() { return image; }
     int width() { return image.getWidth(); }
     int height() { return image.getHeight(); }
+    int frameCount() { return frames.length; }
+    Frame frame(int index) { return frames[index]; }
     int durationMillis() { return endMillis[endMillis.length - 1]; }
 
     Frame frameAt(double seconds, boolean repeat) {
@@ -75,14 +77,15 @@ final class SpriteSheet {
         JsonElement entries = descriptor.get("frames");
         boolean atlas = entries != null && (entries.isJsonObject() || entries.isJsonArray());
         JsonObject settings = atlas ? optionalObject(meta, "pixelfx") : descriptor;
-        Component displayName;
-        if (settings.has("name")) {
-            String name = string(settings, "name").strip();
-            if (name.isEmpty()) throw new IOException("Sprite name must contain visible text");
-            displayName = Component.literal(name);
-        } else {
-            displayName = Component.translatableWithFallback("sprite.xporbtrails." + stem, stem);
-        }
+        String name = settings.has("name") ? string(settings, "name").strip() : null;
+        String declaredKey = settings.has("nameKey") ? string(settings, "nameKey").strip() : null;
+        if (name != null && name.isEmpty()) throw new IOException("Sprite name must contain visible text");
+        if (declaredKey != null && declaredKey.isEmpty()) throw new IOException("Sprite nameKey must contain visible text");
+        String folderKey = "sprite.xporbtrails." + stem;
+        if (name == null && declaredKey == null) declaredKey = folderKey;
+        String key = AssetNames.translationKey(name, declaredKey, folderKey);
+        String label = name == null ? stem : name;
+        Component displayName = key == null ? Component.literal(label) : Component.translatableWithFallback(key, label);
         boolean loop = bool(settings, "loop", true);
         double fps = settings.has("fps") ? number(settings.get("fps"), "fps") : DEFAULT_FPS;
         if (fps <= 0 || fps > 1000) throw new IOException("fps must be positive and at most 1000");

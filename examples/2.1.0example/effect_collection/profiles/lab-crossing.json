@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_crossing",
+  "colorMode": "gradient",
+  "startColor": "#D58147",
+  "endColor": "#414669",
+  "width": 0.035,
+  "additiveGlow": false,
+  "showVanillaOrb": true,
+  "advanced": {
+    "workshop": [
+      {
+        "type": "crossing",
+        "color": "#FFA246",
+        "secondary": "#FFFADE",
+        "tolerance": 0.11,
+        "memoryTicks": 31,
+        "lifetimeTicks": 11
+      }
+    ]
+  },
+  "gradientStops": [
+    "#965C52"
+  ],
+  "lifetimeSeconds": 1.25,
+  "pickupFlashStyle": "none"
+}

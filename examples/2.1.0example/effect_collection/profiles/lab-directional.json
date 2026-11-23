@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_directional",
+  "flightEffect": "none",
+  "showVanillaOrb": false,
+  "additiveGlow": false,
+  "effectStrength": 1,
+  "width": 0.085,
+  "startColor": "#F1F9FF",
+  "endColor": "#35306D",
+  "advanced": {
+    "workshop": [
+      {
+        "type": "directional",
+        "sprite": "sprite:orb/lab-skiff",
+        "size": 0.78,
+        "heading": 0,
+        "fps": 10
+      }
+    ]
+  },
+  "gradientStops": [
+    "#76D6FD",
+    "#3661CC"
+  ],
+  "lifetimeSeconds": 0.68,
+  "tailWidthScale": 0.03,
+  "middleWidthScale": 0.43,
+  "headWidthScale": 0.8,
+  "motionShift": 0,
+  "cameraPush": 0,
+  "pickupFlashStyle": "file:pickup/star",
+  "pickupFlashSize": 0.4,
+  "pickupFlashSeconds": 0.14
+}

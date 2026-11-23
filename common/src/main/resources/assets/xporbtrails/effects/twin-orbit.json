@@ -1,6 +1,7 @@
 {
   "version": 1,
   "name": "Twin Orbit",
+  "nameKey": "effect.xporbtrails.twin-orbit",
   "layers": [
     {
       "color": "tail",

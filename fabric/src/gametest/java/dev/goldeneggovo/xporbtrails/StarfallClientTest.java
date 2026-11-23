@@ -32,7 +32,7 @@ final class StarfallClientTest {
                 client.gui.setScreen(XpOrbTrailsClient.createConfigScreen(null));
             });
             context.clickScreenButton("screen.xporbtrails.profiles");
-            TrailClientTest.click(context, "Starfall");
+            TrailClientTest.click(context, "screen.xporbtrails.profile.starfall");
             context.runOnClient(client -> {
                 TrailConfig c = XpOrbTrailsClient.CONFIG;
                 if (!c.flightEffect.equals("file:orb/starfall") || !c.pickupFlashStyle.equals("file:pickup/starfall")
@@ -71,7 +71,7 @@ final class StarfallClientTest {
         }
     }
 
-    private static void language(ClientGameTestContext context, String code) {
+    static void language(ClientGameTestContext context, String code) {
         var reload = context.computeOnClient(client -> {
             client.getLanguageManager().setSelected(code);
             client.options.languageCode = code;

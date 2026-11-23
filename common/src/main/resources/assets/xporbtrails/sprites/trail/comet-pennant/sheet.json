@@ -1,6 +1,7 @@
 {
   "image": "sheet.png",
   "name": "Comet Pennant",
+  "nameKey": "sprite.xporbtrails.comet-pennant",
   "frameWidth": 56,
   "frameHeight": 14,
   "frames": 8,

@@ -12,6 +12,16 @@ public final class TrailConfig extends ProfileSettings {
     public List<SavedPreset> savedPresets = new ArrayList<>();
     public List<SavedProfile> savedProfiles = new ArrayList<>();
 
+    void restoreAdvanced(TrailConfig defaults, String... sections) {
+        var updated = advanced.deepCopy();
+        Workshop.restore(updated, defaults.advanced, sections);
+        for (String section : sections) {
+            if (defaults.advanced.has(section)) updated.add(section, defaults.advanced.get(section).deepCopy());
+            else updated.remove(section);
+        }
+        if (!updated.equals(advanced)) advanced = updated;
+    }
+
     boolean showsVanillaBody(boolean drawsArtwork) {
         return !enabled || showVanillaOrb || (!drawsArtwork && !"none".equals(flightEffect));
     }
@@ -69,6 +79,7 @@ abstract class ProfileSettings {
     static final List<String> RIBBON_MAPPINGS = List.of("stretch", "tile", "distribute_per_segment", "repeat_per_segment", "static");
     private static final String DEFAULT_PICKUP_STYLE = "file:pickup/soft";
     static final int MAX_GRADIENT_STOPS = 8;
+    public com.google.gson.JsonObject advanced = new com.google.gson.JsonObject();
     public boolean enabled = true;
     public int trailCap = 96;
     public double renderRange = 36.0;
@@ -113,6 +124,7 @@ abstract class ProfileSettings {
     public boolean additiveGlow = true;
 
     final void copySettings(ProfileSettings other) {
+        advanced = other.advanced == null ? new com.google.gson.JsonObject() : other.advanced.deepCopy();
         enabled = other.enabled;
         trailCap = other.trailCap;
         renderRange = other.renderRange;
@@ -157,6 +169,15 @@ abstract class ProfileSettings {
     }
 
     final void sanitizeSettings(ProfileSettings defaults) {
+        if (advanced == null) advanced = new com.google.gson.JsonObject();
+        if (!advanced.isEmpty()) {
+            ProfileUpgrades.removeRetiredEffects(advanced);
+            try { AdvancedSettings.validate(advanced); }
+            catch (IllegalArgumentException invalid) {
+                org.slf4j.LoggerFactory.getLogger("XP Orb Trails").warn("Ignoring invalid advanced settings: {}", invalid.getMessage());
+                advanced = new com.google.gson.JsonObject();
+            }
+        }
         trailCap = Math.clamp(trailCap, 8, 256);
         renderRange = Math.clamp(finite(renderRange, defaults.renderRange), 4.0, 128.0);
         lifetimeSeconds = Math.clamp(finite(lifetimeSeconds, defaults.lifetimeSeconds), 0.25, 10.0);
@@ -176,7 +197,7 @@ abstract class ProfileSettings {
         pickupFlashStrength = Math.clamp(finite(pickupFlashStrength, defaults.pickupFlashStrength), 0.1, 2.0);
         pickupFlashSeconds = Math.clamp(finite(pickupFlashSeconds, defaults.pickupFlashSeconds), 0.08, 1.0);
         pickupFlashSize = Math.clamp(finite(pickupFlashSize, defaults.pickupFlashSize), 0.02, 8.34);
-        if (!isExternalEffect(pickupFlashStyle, AssetRole.PICKUP)) pickupFlashStyle = DEFAULT_PICKUP_STYLE;
+        if (!"none".equals(pickupFlashStyle) && !isExternalEffect(pickupFlashStyle, AssetRole.PICKUP)) pickupFlashStyle = DEFAULT_PICKUP_STYLE;
         if (!isExternalEffect(flightEffect, AssetRole.ORB)) flightEffect = "none";
         if (!validTrailArtwork(trailSprite)) trailSprite = "none";
         if (!"ribbon".equals(trailSpriteMode)) trailSpriteMode = "stamps";

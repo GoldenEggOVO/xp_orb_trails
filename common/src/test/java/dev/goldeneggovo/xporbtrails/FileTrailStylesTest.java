@@ -7,6 +7,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,8 +49,98 @@ class FileTrailStylesTest {
         assertEquals(0.35, active.ribbonRepeatLength);
     }
 
+    @Test
+    void collectionLabProfilesKeepDedicatedAndCombinedEffectsAndResetOnlyTheSelectedPage() throws Exception {
+        var styles = EffectCollectionFixture.install(directory);
+        var singles = new java.util.HashSet<String>();
+        for (var profile : styles) {
+            if (!profile.name().startsWith("lab-")) continue;
+            var effects = profile.settings().advanced.getAsJsonArray("workshop");
+            if (effects.size() == 1) {
+                String type = effects.get(0).getAsJsonObject().get("type").getAsString();
+                assertEquals("lab-" + type, profile.name());
+                assertTrue(singles.add(type));
+            }
+        }
+        assertEquals(java.util.Set.of("directional", "relief", "fracture", "crossing", "redstone", "fusion",
+                "rig", "brush", "morph", "hoops", "hand", "ink", "events"), singles);
+        var current = new TrailConfig();
+        style(styles, "lab-butterfly").settings().applyTo(current);
+        assertEquals(List.of("assemble", "shed"), types(current));
+        current.restoreAdvanced(new TrailConfig(), "pickup");
+        assertEquals(List.of("shed"), types(current));
+        style(styles, "lab-river").settings().applyTo(current);
+        assertEquals(List.of("school", "current"), types(current));
+        current.restoreAdvanced(new TrailConfig(), "scene");
+        assertFalse(current.advanced.has("workshop"));
+    }
+
+    private static List<String> types(TrailConfig current) {
+        return current.advanced.getAsJsonArray("workshop").asList().stream()
+                .map(effect -> effect.getAsJsonObject().get("type").getAsString()).toList();
+    }
+
     private Path styles() {
         return directory.resolve("xp_orb_trails/profiles");
+    }
+
+    @Test
+    void willowAndStormKeepTheirOtherSceneEffectsWithoutPlayerConnections() throws Exception {
+        assertFalse(SceneRule.TYPES.contains("merge"));
+        assertFalse(SceneRule.TYPES.contains("tether"));
+        var expected = Map.of("workshop-willow", List.of("beat", "capture"),
+                "workshop-storm", List.of("turn", "speed"));
+        for (var profile : expected.entrySet()) {
+            var json = EffectCollectionFixture.profile(profile.getKey());
+            var scene = json.getAsJsonObject("advanced").getAsJsonArray("scene");
+            assertEquals(profile.getValue(), scene.asList().stream()
+                    .map(rule -> rule.getAsJsonObject().get("type").getAsString()).toList());
+        }
+    }
+
+    @Test
+    void collectionWorkshopProfilesCoverAllProgramsAndKeepIndependentCopies() throws Exception {
+        var styles = EffectCollectionFixture.install(directory);
+        var workshops = styles.stream().filter(s -> s.name().startsWith("workshop-")).toList();
+        assertEquals(9, workshops.size());
+        var bodies = new java.util.HashSet<String>();
+        var pickups = new java.util.HashSet<String>();
+        var trails = new java.util.HashSet<com.google.gson.JsonObject>();
+        var optics = new java.util.HashSet<String>();
+        var rules = new java.util.HashSet<String>();
+        for (var style : workshops) {
+            var config = new TrailConfig();
+            style.settings().applyTo(config);
+            var advanced = config.advanced;
+            assertNotNull(style.nameKey());
+            assertNotSame(style.settings().advanced, advanced);
+            if (advanced.has("body")) bodies.add(advanced.getAsJsonObject("body").get("type").getAsString());
+            if (advanced.has("pickup")) pickups.add(advanced.getAsJsonObject("pickup").get("type").getAsString());
+            if (advanced.has("trail")) trails.add(advanced.getAsJsonObject("trail"));
+            if (advanced.has("optics")) optics.add(advanced.getAsJsonObject("optics").get("type").getAsString());
+            SceneRule.parse(advanced.get("scene")).forEach(rule -> rules.add(rule.type()));
+            var saved = new TrailConfig.SavedProfile("copy", config);
+            var reloaded = new Gson().fromJson(new Gson().toJson(saved), TrailConfig.SavedProfile.class);
+            reloaded.applyTo(config);
+            assertEquals(advanced, config.advanced);
+            assertNotSame(reloaded.advanced, config.advanced);
+            style(styles, "standard").settings().applyTo(config);
+            assertTrue(config.advanced.isEmpty());
+        }
+        assertEquals(java.util.Set.of("planet","firefly","magnet","tentacles","droplet","bird"), bodies);
+        assertEquals(java.util.Set.of("petals","fireworks","ripple","rebound","vortex"), pickups);
+        assertEquals(8, trails.size());
+        assertEquals(java.util.Set.of("heat", "light"), optics);
+        assertEquals(SceneRule.TYPES, rules);
+    }
+
+    @Test
+    void malformedAdvancedJsonDoesNotBlockOtherFiles() throws Exception {
+        Files.createDirectories(styles());
+        Files.writeString(styles().resolve("broken.json"), "{\"version\":1,\"advanced\":{\"scene\":[}");
+        var library = new FileTrailStyles(directory.resolve("xp_orb_trails"), TrailConfig::new);
+        assertEquals(1, library.reload());
+        assertNotNull(style(library.styles(), "standard"));
     }
 
     private static FileTrailStyles.Style style(List<FileTrailStyles.Style> styles, String name) {

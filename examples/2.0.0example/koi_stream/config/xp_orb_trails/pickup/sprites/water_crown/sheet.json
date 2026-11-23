@@ -1,0 +1,10 @@
+{
+  "image": "sheet.png",
+  "name": "Water Crown",
+  "nameKey": "sprite.xporbtrails.water_crown",
+  "frameWidth": 32,
+  "frameHeight": 32,
+  "frames": 8,
+  "fps": 14,
+  "loop": false
+}

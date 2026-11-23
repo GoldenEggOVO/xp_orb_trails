@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_morph",
+  "startColor": "#FFDD99",
+  "endColor": "#597AAE",
+  "colorMode": "gradient",
+  "additiveGlow": false,
+  "crossSectionSides": 24,
+  "lifetimeSeconds": 1.88,
+  "effectStrength": 0.86,
+  "advanced": {
+    "workshop": [
+      {
+        "type": "morph",
+        "radius": 0.205,
+        "starPoints": 6,
+        "innerRadius": 0.34,
+        "starPosition": 0.62,
+        "flatness": 0.065
+      }
+    ]
+  },
+  "gradientStops": [
+    "#F7A7B8",
+    "#A386E0"
+  ],
+  "pickupFlashStyle": "file:pickup/star",
+  "pickupFlashSize": 0.44
+}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Build custom XP orb bodies, trails and pickup effects. Look up profile, sprite sheet and particle emitter parameters for XP Orb Trails 2.0.0.">
+  <meta name="description" content="Build custom XP orb bodies, trails and pickup effects. Look up profile, sprite sheet and particle emitter parameters for XP Orb Trails 2.1.0.">
   <title>Player Wiki · XP Orb Trails</title>
   <link rel="icon" href="art/orb-icon.png" type="image/png">
   <link rel="stylesheet" href="wiki.css">
@@ -18,6 +18,7 @@
       <label class="sr-only" for="find">Search the wiki</label>
       <div class="search-box"><span class="lens" aria-hidden="true"></span><input id="find" type="search" placeholder="Search the wiki" autocomplete="off" aria-keyshortcuts="/"><kbd aria-hidden="true">/</kbd></div>
     </div>
+    <a class="language-link" href="zh-cn.html" hreflang="zh-CN" lang="zh-CN">简体中文</a>
     <div class="out-links"><a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples">Examples ↗</a><a href="https://github.com/GoldenEggOVO/xp_orb_trails">GitHub ↗</a></div>
   </div>
 </header>
@@ -47,6 +48,7 @@
           </div>
           <div class="nav-group">
         <p>Resources</p>
+            <a href="#effect-packs">Packs &amp; advanced effects</a>
             <a href="#test-and-share-your-look">Test & share</a>
           </div>
           <div class="mobile-links"><a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples">Examples ↗</a><a href="https://github.com/GoldenEggOVO/xp_orb_trails">GitHub ↗</a></div>
@@ -58,7 +60,7 @@
     <div id="reading">
       <div class="hero">
         <div class="hero-copy">
-        <p class="version">XP ORB TRAILS <span>/</span> 2.0.0</p>
+        <p class="version">XP ORB TRAILS <span>/</span> 2.1.0</p>
           <h1>Player wiki</h1>
           <p>Design an orb, trace its flight and choose what happens at pickup. Start with a working profile or look up a JSON field.</p>
           <div class="hero-actions">
@@ -77,7 +79,7 @@
         <h2 id="title-make-your-first-file-profile">Your first profile</h2>
         <p class="intro">Make a moth leave a blue-to-mint trail and an expanding ring at pickup. Everything this recipe needs ships with the mod.</p>
         <div class="recipe">
-        <ol class="steps"><li>Press the key assigned to <strong>Open Trail Settings</strong>, or use Mod Menu on Fabric or the Mods screen on Forge and NeoForge.</li><li>Choose <strong>Profiles → Open Config Folder</strong>. Create <code>profiles/moonwake.json</code> inside that folder and paste the example below.</li><li>Choose <strong>Profiles → File Profiles → Reload Files</strong>, then select <strong>Moonwake</strong> to apply it.</li><li>Open <strong>Effect Preview → Replay Animation</strong>. Collect an orb in your world to see the star-shaped trail from another angle.</li></ol>
+        <ol class="steps"><li>Press the key assigned to <strong>Open Trail Settings</strong>, or use Mod Menu on Fabric or the Mods screen on Forge and NeoForge.</li><li>Choose <strong>General → Open Config Folder</strong>. Create <code>profiles/moonwake.json</code> inside that folder and paste the example below.</li><li>Choose <strong>Profiles → File Profiles → Reload Files</strong>, then select <strong>Moonwake</strong> to apply it.</li><li>Open <strong>Effect Preview → Replay Animation</strong>. Collect an orb in your world to see the star-shaped trail from another angle.</li></ol>
         <figure class="sample"><figcaption>profiles/moonwake.json</figcaption>
 <pre><code>{
   "version": 1,
@@ -99,9 +101,10 @@
       </section>
       <section class="chapter" id="where-your-files-go" aria-labelledby="title-where-your-files-go">
         <h2 id="title-where-your-files-go">Files &amp; profiles</h2>
-        <p class="intro">Open the config folder from the Profiles page. The folders below are inside config/xp_orb_trails/ in your Minecraft instance.</p>
+        <p class="intro">Open the config folder from the footer on the General page. The folders below are inside config/xp_orb_trails/ in your Minecraft instance.</p>
         <pre class="tree"><code>xp_orb_trails/
 ├── defaults.json
+├── packs/                    Downloaded ZIPs (2.1.0+)
 ├── profiles/                 Shareable looks
 ├── orb/
 │   ├── effects/              JSON animations
@@ -117,7 +120,7 @@
         <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
         <tbody>
 <tr id="profile-version"><th scope="row"><code>version</code></th><td>1</td><td>Required JSON format version. Use a number.</td></tr>
-<tr id="profile-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>Text / translation key</td><td>The filename supplies a fallback label. An explicit name takes priority over nameKey.</td></tr>
+<tr id="profile-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>Text / translation key</td><td>Use name for a fixed label, or nameKey for a translated label. The filename supplies a fallback.</td></tr>
 </tbody></table></div>
         <p>A file profile starts with your <code>defaults.json</code> values, then applies the visual fields it supplies. Personal settings live one level up in <code>config/xp_orb_trails.json</code>. File profiles preserve the active master switch, render range and trail limit. An in-game saved profile captures all three. The raw settings and defaults use integer RGB colors. File profiles use quoted <code>#RRGGBB</code> values.</p>
         <h3 id="editable-templates">Editable starting points</h3>
@@ -161,6 +164,9 @@
 <tr id="orb-orbScale"><th scope="row"><code>orbScale</code></th><td>0.25–4×<small>Default: <code>1</code></small></td><td>Size of custom orb artwork.</td></tr>
 </tbody></table></div>
         <p>To make your own orbit, copy <code>orb/effects/twin-orbit.json</code> to <code>orb/effects/moon_orbit.json</code>. Set its <code>name</code> to <strong>Moon Orbit</strong> and change the second layer’s middle keyframe radius from <code>1.05</code> to <code>2</code>. Reload, then choose <strong>Orb Body → Orb Artwork → Moon Orbit</strong>. The five head-colored pieces now swing wider than the six tail-colored pieces.</p>
+        <h3 id="pixel-relief">Pixel relief detail</h3>
+        <p>The optional Effect Collection includes <code>profiles/lab-relief.json</code>. Edit its <code>relief</code> object under <code>advanced.workshop</code>. <code>minResolution</code> and <code>maxResolution</code> set the lower and upper sampling limits on the longest side of a sprite frame. Each accepts a whole number from 2 to 64. The engine defaults are 2 and 32. <code>pixelBudget</code> sets the target number of sample cells shared across tracked orbs (4–16,384, default 1,200). A larger budget preserves more detail as more orbs appear.</p>
+        <p>For a Luna Moth that keeps its 24-pixel silhouette, set both resolution limits to <code>24</code>. Fixed detail can cost more when many orbs are visible. Reload files and select the edited profile again to see the change.</p>
       </section>
       <section class="chapter" id="choose-how-a-trail-is-drawn" aria-labelledby="title-choose-how-a-trail-is-drawn">
         <h2 id="title-choose-how-a-trail-is-drawn">Trails &amp; ribbons</h2>
@@ -188,11 +194,11 @@
 </tbody></table></div>
         <h3 id="map-a-texture-along-the-ribbon">Ribbon mapping</h3>
         <dl class="modes">
-        <dt><code>stretch</code></dt><dd>Fit one image from tail to head as the path grows.</dd>
-        <dt><code>tile</code></dt><dd>Repeat at a chosen length along the current path.</dd>
-        <dt><code>distribute_per_segment</code></dt><dd>Give each path segment an equal share of one image.</dd>
-        <dt><code>repeat_per_segment</code></dt><dd>Place a whole copy on every segment, whatever its length.</dd>
-        <dt><code>static</code></dt><dd>Anchor texture coordinates to accumulated travel. Existing points keep their phase as the tail expires.</dd></dl>
+        <dt id="topic-stretch"><code>stretch</code></dt><dd>Fit one image from tail to head as the path grows.</dd>
+        <dt id="topic-tile"><code>tile</code></dt><dd>Repeat at a chosen length along the current path.</dd>
+        <dt id="topic-distribute-per-segment"><code>distribute_per_segment</code></dt><dd>Give each path segment an equal share of one image.</dd>
+        <dt id="topic-repeat-per-segment"><code>repeat_per_segment</code></dt><dd>Place a whole copy on every segment, whatever its length.</dd>
+        <dt id="topic-static"><code>static</code></dt><dd>Anchor texture coordinates to accumulated travel. Existing points keep their phase as the tail expires.</dd></dl>
         <p>Draw the tail on the left of the PNG and the head on the right. The <a href="#sprite-ribbon">ribbon descriptor</a> can reserve pixels for each end.</p>
       </section>
       <section class="chapter" id="write-a-pickup-effect" aria-labelledby="title-write-a-pickup-effect">
@@ -256,7 +262,7 @@
         <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
         <tbody>
 <tr id="sprite-image"><th scope="row"><code>image</code></th><td>PNG filename</td><td>Select an image in the same folder. With a single PNG, the filename can be inferred. For an exported atlas use meta.image.</td></tr>
-<tr id="sprite-name"><th scope="row"><code>name</code></th><td>Text</td><td>Label in the artwork picker.</td></tr>
+<tr id="sprite-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>Text</td><td>A fixed label or a Minecraft translation key for the artwork picker. In an exported atlas, put these fields in the atlas settings.</td></tr>
 <tr id="sprite-frameWidth"><th scope="row"><code>frameWidth</code><br><code>frameHeight</code></th><td>Positive integer pixels</td><td>Supply both dimensions. Each must divide the corresponding PNG dimension exactly.</td></tr>
 <tr id="sprite-frames"><th scope="row"><code>frames</code></th><td>1–1,024 frames</td><td>For a grid, set the number of cells to play, row by row. For an atlas, supply ordered frame entries as an array or object.</td></tr>
 <tr id="sprite-fps"><th scope="row"><code>fps</code></th><td>Greater than 0, up to 1,000</td><td>Frame rate. Defaults to 12 when per-frame timing is absent.</td></tr>
@@ -292,7 +298,7 @@
         <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
         <tbody>
 <tr id="effect-version"><th scope="row"><code>version</code></th><td>1</td><td>Required effect format version.</td></tr>
-<tr id="effect-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>Text / translation key</td><td>Display label or localization key. An explicit name wins. The filename supplies a fallback.</td></tr>
+<tr id="effect-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>Text / translation key</td><td>Use name for a fixed label, or nameKey for a translated effect name. The filename supplies a fallback.</td></tr>
 <tr id="effect-layers"><th scope="row"><code>layers</code></th><td>1–8 layers</td><td>Draw in layers. Each layer needs a sequence of frames.</td></tr>
 <tr id="effect-emitter"><th scope="row"><code>emitter</code></th><td>Optional object</td><td>Spawn independently moving copies of the layers. See the particle emitter reference.</td></tr>
 <tr id="effect-reflow"><th scope="row"><code>reflow</code></th><td>Boolean, default false</td><td>For a pickup, move the effect along the recorded trail toward the collection point.</td></tr>
@@ -352,18 +358,33 @@
 <tr id="emitter-drag"><th scope="row"><code>drag</code></th><td>0–32</td><td>Slow particles over time. Zero preserves velocity apart from gravity.</td></tr>
 <tr id="emitter-space"><th scope="row"><code>space</code></th><td>world · local</td><td>World anchors a particle at its emission point. Local moves the origin with the orb. Default: world.</td></tr>
 </tbody></table></div>
-        <p>In <a href="#moon-burst">Moon Burst</a>, try changing only <code>spread</code> from <code>45</code> to <code>10</code> and replay the effect. To emit along an orb’s flight, copy the file into <code>orb/effects/</code>, add <code>"distance": 0.25</code>, then select it as your orb artwork. The <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples/starfall/config/xp_orb_trails">Starfall example</a> includes working flight and pickup emitters.</p>
+        <p>In <a href="#moon-burst">Moon Burst</a>, try changing only <code>spread</code> from <code>45</code> to <code>10</code> and replay the effect. To emit along an orb’s flight, copy the file into <code>orb/effects/</code>, add <code>"distance": 0.25</code>, then select it as your orb artwork. The <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples/2.0.0example/starfall/config/xp_orb_trails">Starfall example</a> includes working flight and pickup emitters.</p>
+      </section>
+      <section class="chapter" id="effect-packs" aria-labelledby="title-effect-packs">
+        <h2 id="title-effect-packs">Packs &amp; advanced effects</h2>
+        <p class="intro">A pack combines one or more profiles with the artwork they use. The optional Effect Collection for 2.1.0 has 24 profiles, including Butterfly Homecoming, River Procession and Surface Prints.</p>
+        <h3 id="install-a-pack">Install or update a ZIP</h3>
+        <ol class="steps"><li>Download the ZIP from the <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples">examples page</a>.</li><li>Choose <strong>Profiles → Open Packs Folder</strong> and place the ZIP in <code>config/xp_orb_trails/packs/</code> while it is still compressed.</li><li>Choose <strong>File Profiles → Reload Files</strong> and select a profile marked with the ZIP filename. To update it, replace the ZIP under the same name, reload, and apply the profile again.</li></ol>
+        <h3 id="advanced-effects">Build on a working effect</h3>
+        <p>Start with a profile whose trigger matches what you want to draw. Copy its JSON and artwork, then change one value and try it in your world. The <a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples/2.1.0example">Effect Collection guide</a> lists all 24 triggers.</p>
+        <dl><dt id="topic-orb-body-and-pickup">Orb body and pickup</dt><dd>Use <code>advanced.body</code> for a moving body and <code>advanced.pickup</code> for its response to collection. Spring Flight combines a bird that hovers or glides with a burst of falling petals.</dd>
+        <dt id="topic-trails-and-scene-conditions">Trails and scene conditions</dt><dd>Use <code>advanced.trail</code> for trail geometry and <code>advanced.scene</code> for reactions to nearby orbs, blocks, water or sound. The Tideglass profile shows how to set up water ripples.</dd>
+        <dt id="topic-workshop-and-optics">Workshop and optics</dt><dd>Use <code>advanced.workshop</code> for effects such as decals, sprite fragments and crossing trails. Surface Prints leaves ink on solid ground and rings on water. For light or heat distortion, look at <code>advanced.optics</code> in Glowstone Beacon or Ember Mirage.</dd></dl>
+        <h3 id="localize-names">Give a profile a translated name</h3>
+        <p>Use a <code>nameKey</code> shared by your profile and your Minecraft resource pack. For example, use <code>my_pack.profile.moonwake</code> in the profile, then give it an English value in <code>assets/my_pack/lang/en_us.json</code> and a Chinese value in <code>assets/my_pack/lang/zh_cn.json</code>. Put the resource pack in Minecraft’s resource packs folder and enable it. The player can then switch languages in Minecraft. A fixed <code>name</code> lets you keep a single label across languages.</p>
+        <p>Orb, trail and pickup sprites can also have translated names. Use <code>nameKey</code> at the root of a grid descriptor or in <code>meta.pixelfx</code> for a packed atlas. A PNG-only sprite looks up <code>sprite.xporbtrails.&lt;folder-name&gt;</code>. Version 2.1 recognizes original English labels in older built-in files and official examples. A label you have edited keeps your spelling.</p>
       </section>
       <section class="chapter" id="test-and-share-your-look" aria-labelledby="title-test-and-share-your-look">
         <h2 id="title-test-and-share-your-look">Test &amp; share</h2>
         <p class="intro">Reload edited files, apply the profile again, then replay the preview and collect an orb in a world.</p>
         <dl class="help">
-        <dt>My file is missing from the menu.</dt><dd>Check the reload result and <code>logs/latest.log</code>. File profiles and drawn effects require strict JSON with <code>"version": 1</code>. Check the role, duplicate or unknown keys, and hex color spelling. An invalid edit to an existing effect or sprite can leave its last working version visible.</dd>
-        <dt>The original orb is still visible.</dt><dd>Check <strong>Show Vanilla Orb</strong> and the artwork ID. An orb outside the tracking range or count limit can use the vanilla body. Turning the vanilla body off and deliberately selecting no artwork hides it.</dd>
-        <dt>The sheet is rejected.</dt><dd>Check frame dimensions, the filename, and atlas trim information. Each sheet supports up to 1,024 frames, 4,096 pixels per side and 4,194,304 pixels total. Use at most one descriptor per folder. The library supports 64 atlases and 16,777,216 pixels combined.</dd>
-        <dt>Some particles disappear in a large burst.</dt><dd>Each effect has a geometry budget of 96 pieces across up to eight layers. Rings, arcs and radial shapes spend several pieces per copy. An emitter keeps at most 64 live particles with a 384-quad budget. Reduce copies or segments to keep more particles visible.</dd>
-        <dt>How do I send my look to another player?</dt><dd>Share the profile JSON and every asset it references. Preserve the <code>profiles/</code>, <code>orb/</code>, <code>pickup/</code> and <code>trail/</code> paths. Test the pack in a fresh instance, then have the recipient merge the folders into <code>config/xp_orb_trails/</code>, reload, and select the profile.</dd></dl>
-        <p><a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples">Browse example packs</a> · <a href="https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/sprite_sheet_examples.zip">Download four sprite profiles (.zip)</a></p>
+        <dt id="topic-my-file-is-missing-from-the-menu">My file is missing from the menu.</dt><dd>Check the reload result and <code>logs/latest.log</code>. File profiles and drawn effects require strict JSON with <code>"version": 1</code>. Check the role, duplicate or unknown keys, and hex color spelling. An invalid edit to an existing effect or sprite can leave its last working version visible.</dd>
+        <dt id="topic-the-original-orb-is-still-visible">The original orb is still visible.</dt><dd>Check <strong>Show Vanilla Orb</strong> and the artwork ID. An orb outside the tracking range or count limit can use the vanilla body. Turning the vanilla body off and deliberately selecting no artwork hides it.</dd>
+        <dt id="topic-the-sheet-is-rejected">The sheet is rejected.</dt><dd>Check frame dimensions, the filename, and atlas trim information. Each sheet supports up to 1,024 frames, 4,096 pixels per side and 4,194,304 pixels total. Use at most one descriptor per folder. The library supports 64 atlases and 16,777,216 pixels combined.</dd>
+        <dt id="topic-some-particles-disappear-in-a-large-burst">Some particles disappear in a large burst.</dt><dd>Each effect has a geometry budget of 96 pieces across up to eight layers. Rings, arcs and radial shapes spend several pieces per copy. An emitter keeps at most 64 live particles with a 384-quad budget. Reduce copies or segments to keep more particles visible.</dd>
+        <dt id="topic-how-do-i-send-my-look-to-another-player">How do I send my look to another player?</dt><dd>Put your JSON files in <code>profiles/</code> and your custom artwork under <code>orb/</code>, <code>pickup/</code> or <code>trail/</code>. Zip those folders together at the top level. One ZIP can include multiple profiles. Keep the filename when sharing an update.</dd>
+        <dt id="topic-how-do-i-use-a-zip-pack">How do I use a ZIP pack?</dt><dd>Choose <strong>Profiles → Open Packs Folder</strong> in the footer and put the ZIP there. Click <strong>Reload Files</strong> and select a profile labeled with the pack filename. Replace the ZIP to update it, or remove it to uninstall, then reload and select a profile.</dd></dl>
+        <p><a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples">Browse example packs</a> · <a href="https://github.com/GoldenEggOVO/xp_orb_trails/raw/refs/heads/26.3/examples/2.0.0example/sprite_sheet_examples.zip">Download four sprite profiles (.zip)</a></p>
       </section>
     </div>
     <section id="results" hidden aria-labelledby="results-title">

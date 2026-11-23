@@ -10,6 +10,38 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TrailHistoryTest {
     @Test
+    void interpolationReusesOnlyUnchangedSamplesAndKeepsPublishedFramesStable() {
+        var cached = new TrailRenderer.Trail();
+        var fresh = new TrailRenderer.Trail();
+        for (var trail : List.of(cached, fresh)) {
+            for (int i = 0; i < 12; i++)
+                trail.append(new Vec3(i, Math.sin(i), i / 2.0), i * 10L, 0.5);
+        }
+        var first = cached.samples(null);
+        var oldTip = first.getLast();
+        var tip = new Vec3(10.5, .25, 6.1);
+        var moving = cached.samples(tip);
+        assertEquals(fresh.samples(tip), moving);
+        assertSame(first.getFirst(), moving.getFirst());
+        assertSame(moving, cached.samples(tip));
+        assertSame(oldTip, first.getLast());
+
+        cached.flow(.7);
+        fresh.flow(.7);
+        var flowed = cached.samples(tip);
+        assertNotEquals(moving, flowed);
+        assertEquals(fresh.samples(tip), flowed);
+        cached.expireBefore(65);
+        fresh.expireBefore(65);
+        assertEquals(fresh.samples(tip), cached.samples(tip));
+        cached.append(new Vec3(20, 3, 9), 150, .5);
+        fresh.append(new Vec3(20, 3, 9), 150, .5);
+        assertEquals(fresh.samples(null), cached.samples(null));
+        cached.expireBefore(151);
+        assertTrue(cached.samples(tip).isEmpty());
+    }
+
+    @Test
     void retainsNewestPointsWhenHistoryReachesItsLimit() throws Exception {
         Object trail = newTrail();
         for (int i = 0; i <= 400; i++) append(trail, new Vec3(i * 0.25, 0, 0), i * 1_000_000L, 0.05);

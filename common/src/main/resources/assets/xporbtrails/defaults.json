@@ -41,5 +41,6 @@
   "pickupFlashStyle": "file:pickup/soft",
   "shardCount": 6,
   "spiralTurns": 0.65,
+  "advanced": {},
   "additiveGlow": true
 }

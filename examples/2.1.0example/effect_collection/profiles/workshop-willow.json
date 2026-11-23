@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.atlas_willow",
+  "showVanillaOrb": false,
+  "colorMode": "gradient",
+  "startColor": "#479789",
+  "endColor": "#F7D47B",
+  "effectStrength": 0.95,
+  "additiveGlow": false,
+  "pickupFlashStyle": "file:pickup/soft",
+  "pickupFlashSize": 0.32,
+  "pickupFlashSeconds": 0.2,
+  "pickupFlashStrength": 0.45,
+  "advanced": {
+    "body": {
+      "type": "firefly",
+      "count": 7,
+      "radius": 0.135,
+      "size": 0.122,
+      "lifetimeTicks": 52,
+      "launchSpeed": 0.032,
+      "attraction": 0.022,
+      "sprite": "sprite:orb/atlas-firefly",
+      "color": "#FFE4A1"
+    },
+    "trail": {
+      "geometry": "particles",
+      "particles": {
+        "birth": "distance",
+        "spacing": 0.14,
+        "burst": 2,
+        "lifetime": 1.36,
+        "size": 0.058,
+        "inheritVelocity": 0.08,
+        "gravity": -1.12,
+        "drag": 0.95,
+        "scatter": 0.25,
+        "turbulence": 0.55,
+        "frequency": 1.35,
+        "color": "#99DDA8",
+        "endColor": "#588DAD"
+      }
+    },
+    "pickup": {
+      "type": "vortex",
+      "count": 14,
+      "perTick": 2,
+      "radius": 0.36,
+      "size": 0.03,
+      "speed": 0.012,
+      "attraction": 0.105,
+      "tangent": -0.155,
+      "lifetimeTicks": 33,
+      "color": "#FFD284",
+      "accent": "#9CE8BD"
+    },
+    "scene": [
+      {
+        "type": "beat",
+        "sound": "minecraft:entity.experience_orb.pickup",
+        "range": 5.8,
+        "threshold": 0.23,
+        "radius": 0.39,
+        "duration": 0.43,
+        "color": "#E5CF82"
+      },
+      {
+        "type": "capture",
+        "range": 3.1,
+        "radius": 0.49,
+        "duration": 0.48,
+        "width": 0.026,
+        "color": "#B2EAC8"
+      }
+    ]
+  }
+}

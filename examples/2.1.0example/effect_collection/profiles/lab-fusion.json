@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_fusion",
+  "colorMode": "gradient",
+  "startColor": "#FFF0C0",
+  "endColor": "#AF5E38",
+  "width": 0.032,
+  "additiveGlow": false,
+  "showVanillaOrb": true,
+  "advanced": {
+    "workshop": [
+      {
+        "type": "fusion",
+        "color": "#F4A142",
+        "secondary": "#FFF0B5",
+        "radius": 0.21,
+        "range": 1.48
+      }
+    ]
+  },
+  "gradientStops": [
+    "#FFB250"
+  ],
+  "lifetimeSeconds": 0.68,
+  "pickupFlashStyle": "file:pickup/soft",
+  "pickupFlashSize": 0.38
+}

@@ -1,22 +1,23 @@
-# XP Orb Trails examples
+# Install an XP Orb Trails effect pack
 
-These four sprite profiles work with XP Orb Trails 2.0.0. Each one includes its own orb, trail and pickup artwork, so you can install them together or use just one.
+[简体中文](README.zh-CN.md)
 
-**[Download the four sprite profiles (.zip)](sprite_sheet_examples.zip?raw=1)**
+| Download | What’s inside |
+| --- | --- |
+| [Effect Collection for 2.1.0 (.zip)](2.1.0example/effect_collection.zip?raw=1) | 24 profiles with artwork for orb bodies, trails and pickups. [See each effect and how to trigger it](2.1.0example/). |
+| [Sprite sheet examples from 2.0.0 (.zip)](2.0.0example/sprite_sheet_examples.zip?raw=1) | Koi Stream, Lantern Bloom, Brass Clockwork and Ion Drive. [Browse the artwork, previews and Starfall source](2.0.0example/). |
 
-1. Open the mod settings and select **Profiles → Open Config Folder**.
-2. Extract the ZIP in a temporary folder. Open its `config/xp_orb_trails/` directory and **merge** the `orb/`, `trail/`, `pickup/` and `profiles/` folders into the folder opened by the mod. To install just one look from source, use the same four folders inside that example.
-3. Select **Profiles → File Profiles → Reload Files**, then click a profile by name. Open **Effect Preview → Replay Animation** to see it in motion.
+## Use a ZIP in 2.1.0
 
-The animated swatches below show the **orb**, **trail** and **pickup** artwork from left to right.
+1. Download a pack using one of the links above.
+2. In the mod settings, open **Profiles → Open Packs Folder**. Put the ZIP, still compressed, into the folder that opens. Its path is `config/xp_orb_trails/packs/` inside your Minecraft instance.
+3. Open **File Profiles → Reload Files** on the same page. Select the profile you want. The menu shows the ZIP filename next to each profile from that pack.
+4. Collect a few experience orbs to try it. Some effects need a second orb, moving water or a powered block. The Effect Collection guide lists the conditions for each one.
 
-| Profile | Sprite preview | What to try |
-| --- | --- | --- |
-| [Koi Stream](koi_stream/config/xp_orb_trails/) | ![A white and orange koi, a turquoise current, and a crown of water droplets](koi_stream/preview.gif) | The koi is a horizontal PNG strip. The ribbon tiles a wave along the flight path. Change `ribbonRepeatLength` to put its crests closer together. |
-| [Lantern Bloom](lantern_bloom/config/xp_orb_trails/) | ![A glowing paper lantern, drifting pink petals, and an unfolding five-petal bloom](lantern_bloom/preview.gif) | A red lantern leaves petal stamps fixed in the world. Increase `stampSpacing` to scatter them farther apart. |
-| [Brass Clockwork](brass_clockwork/config/xp_orb_trails/) | ![A brass gear, turning wind-up keys, and an uncoiling spring](brass_clockwork/preview.gif) | The orb uses a vertical strip. The pickup atlas gives each frame its own `duration` in milliseconds. Lengthen the middle frames to slow the spring as it opens. |
-| [Ion Drive](ion_drive/config/xp_orb_trails/) | ![A small spacecraft, a pulsing cyan rail, and an electric hexagonal flash](ion_drive/preview.gif) | The ribbon descriptor reserves 7 pixels for the tail and 9 for the head. Only its middle section tiles along the path. |
+To update a pack, replace the ZIP with the new file under the same name, reload files and reapply the profile. To uninstall it, choose another profile, remove the ZIP and reload files.
 
-To draw a replacement, edit a `sheet.png` in the role’s `sprites/` folder. Most sheets have a neighboring `sheet.json` that defines frame size, order and timing. Koi Stream’s orb demonstrates automatic square-frame detection and plays at 12 FPS using the PNG alone. After editing, reload files and select the profile again.
+**Playing on 2.0.0?** Download the sprite sheet examples, extract the ZIP, then merge its `profiles/`, `orb/`, `trail/` and `pickup/` folders into `config/xp_orb_trails/`. Reload files and select a profile in the settings.
 
-[Starfall](starfall/config/xp_orb_trails/) is a separate example for JSON particle emitters and a star-shaped trail. The [player guide](https://goldeneggovo.github.io/xp_orb_trails/wiki/) explains sprite sheets, texture mapping and sharing profiles.
+## Share a pack
+
+Place `profiles/` and the role folders your profiles use at the root of a ZIP. For example, `profiles/river_lights.json` can reference `orb/sprites/koi/sheet.png` as `sprite:orb/koi`. Pack your JSON and artwork together so players can install them in one step. [Player wiki](https://goldeneggovo.github.io/xp_orb_trails/wiki/#test-and-share-your-look)

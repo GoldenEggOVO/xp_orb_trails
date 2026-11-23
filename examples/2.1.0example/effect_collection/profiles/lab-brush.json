@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_brush",
+  "startColor": "#FFF0C5",
+  "endColor": "#253446",
+  "colorMode": "gradient",
+  "additiveGlow": false,
+  "lifetimeSeconds": 1.85,
+  "effectStrength": 1,
+  "advanced": {
+    "workshop": [
+      {
+        "type": "brush",
+        "nibDegrees": 53,
+        "tiltDegrees": 99,
+        "turnPressure": 3.1,
+        "speedSensitivity": 13,
+        "memory": 0.25,
+        "width": 0.29
+      }
+    ]
+  },
+  "gradientStops": [
+    "#E27859",
+    "#533858"
+  ],
+  "width": 0.025,
+  "pickupFlashStyle": "none"
+}

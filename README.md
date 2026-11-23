@@ -1,3 +1,5 @@
+<p align="center"><a href="docs/README.zh-CN.md" lang="zh-CN">简体中文</a></p>
+
 <p align="center">
   <picture>
     <source media="(prefers-reduced-motion: reduce)" srcset="docs/images/orb_trails_banner.png">
@@ -47,13 +49,13 @@ Finish with a soft glow, an expanding ring, or a particle burst. Select **Effect
 
 <img src="docs/images/heading_compatibility.png" alt="Compatibility">
 
-Install on your **Minecraft client** using Java 25 or newer. Choose one **2.0.0** JAR below and place it in your instance’s `mods/` folder. Fabric also requires [Fabric API](https://modrinth.com/mod/fabric-api).
+Install on your **Minecraft client** using Java 25 or newer. Choose one **2.1.0** JAR below and place it in your instance’s `mods/` folder. Fabric also requires [Fabric API](https://modrinth.com/mod/fabric-api).
 
 | Minecraft | Fabric | Forge | NeoForge |
 | --- | --- | --- | --- |
-| [26.3](https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3) | [Fabric JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.0.0/xp_orb_trails-fabric-2.0.0%2B26.3.jar) | [Forge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.0.0/xp_orb_trails-forge-2.0.0%2B26.3.jar) | [NeoForge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.0.0/xp_orb_trails-neoforge-2.0.0%2B26.3.jar) |
-| [26.2](https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.2) | [Fabric JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.0.0/xp_orb_trails-fabric-2.0.0%2B26.2.jar) | [Forge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.0.0/xp_orb_trails-forge-2.0.0%2B26.2.jar) | [NeoForge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.0.0/xp_orb_trails-neoforge-2.0.0%2B26.2.jar) |
-| [26.1 / 26.1.1 / 26.1.2](https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.1) | [Fabric JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.0.0/xp_orb_trails-fabric-2.0.0%2B26.1.2.jar) | [Forge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.0.0/xp_orb_trails-forge-2.0.0%2B26.1.2.jar) | [NeoForge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.0.0/xp_orb_trails-neoforge-2.0.0%2B26.1.2.jar) |
+| [26.3](https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3) | [Fabric JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.1.0/xp_orb_trails-fabric-2.1.0%2B26.3.jar) | [Forge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.1.0/xp_orb_trails-forge-2.1.0%2B26.3.jar) | [NeoForge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.1.0/xp_orb_trails-neoforge-2.1.0%2B26.3.jar) |
+| [26.2](https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.2) | [Fabric JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.1.0/xp_orb_trails-fabric-2.1.0%2B26.2.jar) | [Forge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.1.0/xp_orb_trails-forge-2.1.0%2B26.2.jar) | [NeoForge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.1.0/xp_orb_trails-neoforge-2.1.0%2B26.2.jar) |
+| [26.1 / 26.1.1 / 26.1.2](https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.1) | [Fabric JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.1.0/xp_orb_trails-fabric-2.1.0%2B26.1.2.jar) | [Forge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.1.0/xp_orb_trails-forge-2.1.0%2B26.1.2.jar) | [NeoForge JAR](https://github.com/GoldenEggOVO/xp_orb_trails/releases/download/v2.1.0/xp_orb_trails-neoforge-2.1.0%2B26.1.2.jar) |
 
 <details>
 <summary>Tested loader versions for Minecraft 26.3</summary>
@@ -104,9 +106,9 @@ To try the moth and its purple ribbon, open **Profiles → File Profiles** and s
 
 Open **Config** in Mod Menu on Fabric, or the mod’s config button on the **Mods** screen on Forge and NeoForge. On any loader, you can also assign **Open Trail Settings** in Minecraft’s controls. Changes appear in the preview as you edit and are saved when you close the settings.
 
-Choose **Profiles → Open Config Folder** to work with your own PNGs and JSON files. The player guide takes you from a first profile to a shareable look.
+Choose **General → Open Config Folder** to edit PNGs and JSON files. To install a shared pack, open **Profiles → Open Packs Folder**, drop in the ZIP, then click **File Profiles → Reload Files** and select a profile.
 
-- [Preview and download four animated sprite profiles](examples/README.md)
+- [Download example packs and read the ZIP installation guide](examples/README.md)
 - [Make your first profile](https://goldeneggovo.github.io/xp_orb_trails/wiki/#make-your-first-file-profile)
 - [Import a PNG or sprite sheet](https://goldeneggovo.github.io/xp_orb_trails/wiki/#bring-your-own-sprite)
 - [Design a trail or map a ribbon texture](https://goldeneggovo.github.io/xp_orb_trails/wiki/#choose-how-a-trail-is-drawn)

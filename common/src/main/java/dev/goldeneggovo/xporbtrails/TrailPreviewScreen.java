@@ -15,7 +15,9 @@ import org.joml.Matrix3x2f;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class TrailPreviewScreen extends Screen {
     private static final double TRAVEL_SECONDS = 4.0;
@@ -36,6 +38,9 @@ public final class TrailPreviewScreen extends Screen {
     private EffectEmission flightEmission, pickupEmission;
     private EmitterView emitterView;
     private long emitterCycle;
+    private EmitterView advancedView;
+    private AdvancedTrailPreview advancedTrail;
+    private BodyPickupPreview advancedOrb;
 
     public TrailPreviewScreen(Screen parent) {
         super(Component.translatable("screen.xporbtrails.preview_title"));
@@ -57,6 +62,7 @@ public final class TrailPreviewScreen extends Screen {
         fixedPath = null;
         ribbonPath = null;
         emitterView = null;
+        advancedView = null;
         demoStartNanos = System.nanoTime();
     }
 
@@ -77,6 +83,11 @@ public final class TrailPreviewScreen extends Screen {
         int x0 = width / 2 - canvasW / 2;
         int y0 = 30;
         extractPreview(graphics, x0, y0, canvasW, canvasH, false);
+        var advanced = XpOrbTrailsClient.CONFIG.advanced;
+        if (advanced.has("workshop"))
+            graphics.centeredText(font, Component.translatable("screen.xporbtrails.preview_workshop"), width / 2, y0 + 4, 0xffd0e9d5);
+        else if (advanced.has("scene") || advanced.has("optics"))
+            graphics.centeredText(font, Component.translatable("screen.xporbtrails.preview_world_rules"), width / 2, y0 + 4, 0xffd0e9d5);
     }
 
     public void extractPreview(GuiGraphicsExtractor graphics, int x, int y, int w, int h, boolean compact) {
@@ -107,6 +118,8 @@ public final class TrailPreviewScreen extends Screen {
         boolean bodyTrail = "body".equals(c.trailSprite);
         boolean customTrail = bodyTrail || trailSprite != null;
         boolean customTube = !customTrail && c.usesCustomCrossSection();
+        boolean hasAdvancedTrail = c.enabled && AdvancedTrails.enabled(c);
+        boolean hasAdvancedOrb = c.enabled && (c.advanced.has("body") || c.advanced.has("pickup"));
         CustomEffect pickup = XpOrbTrailsClient.effect(AssetRole.PICKUP, c.pickupFlashStyle);
         SpriteSheet pickupSprite = XpOrbTrailsClient.sprite(AssetRole.PICKUP, c.pickupFlashStyle);
         double flashSeconds = pickupSprite == null ? c.pickupFlashSeconds : pickupSprite.durationMillis() / 1000.0;
@@ -118,20 +131,24 @@ public final class TrailPreviewScreen extends Screen {
         travel = TrailEffects.smooth(travel);
         boolean particles = c.enabled && (flight != null && flight.emitter != null
                 || c.pickupFlash && pickup != null && pickup.emitter != null);
-        double pixelsPerBlock = particles ? Math.clamp((h - 48) / 5.0, 12, PIXELS_PER_BLOCK) : PIXELS_PER_BLOCK;
+        boolean scaledView = particles || hasAdvancedTrail || hasAdvancedOrb;
+        double pixelsPerBlock = scaledView ? Math.clamp((h - 48) / 5.0, 12, PIXELS_PER_BLOCK) : PIXELS_PER_BLOCK;
         int margin = (int) Math.min(w * 0.32, Math.max(30, pixelsPerBlock * 2.5));
-        int left = x + (particles ? margin : 28);
-        int right = x + w - (particles ? margin : 30);
-        int centerY = y + h / 2 + (particles ? 0 : 8);
+        int left = x + (scaledView ? margin : 28);
+        int right = x + w - (scaledView ? margin : 30);
+        int centerY = y + h / 2 + (scaledView ? 0 : 8);
 
         if (!compact) {
-            Component mode = customTrail ? Component.translatable("screen.xporbtrails.trail_sprite_mode").append(": ")
+            Component mode = hasAdvancedTrail ? Component.translatable("screen.xporbtrails.preview_advanced_trail")
+                    : customTrail ? Component.translatable("screen.xporbtrails.trail_sprite_mode").append(": ")
                     .append(previewLayout(c, trailSprite)) : Component.translatable("screen.xporbtrails.preview_mode")
                     .append(": ").append(Component.translatable("screen.xporbtrails.mode." + c.colorMode));
             Component flash = Component.translatable("screen.xporbtrails.preview_flash").append(": ")
-                    .append(TrailConfigScreen.effectLabel(AssetRole.PICKUP, c.pickupFlash ? c.pickupFlashStyle : "none"));
+                    .append(c.pickupFlash && c.advanced.has("pickup") ? Component.translatable("screen.xporbtrails.profile_effect")
+                            : TrailConfigScreen.effectLabel(AssetRole.PICKUP, c.pickupFlash ? c.pickupFlashStyle : "none"));
             Component flightLabel = Component.translatable("screen.xporbtrails.flight_effect").append(": ")
-                    .append(TrailConfigScreen.effectLabel(AssetRole.ORB, c.flightEffect));
+                    .append(c.advanced.has("body") ? Component.translatable("screen.xporbtrails.profile_effect")
+                            : TrailConfigScreen.effectLabel(AssetRole.ORB, c.flightEffect));
             graphics.text(font, mode, x + 10, y + 9, 0xFFBFD9C8);
             graphics.text(font, flash, x + 10, y + 21, 0xFF8EB59B);
             graphics.text(font, flightLabel, x + 10, y + 33, 0xFF8EB59B);
@@ -149,7 +166,21 @@ public final class TrailPreviewScreen extends Screen {
         double front = reflow ? TrailEffects.reflowFront(flashProgress) : TrailEffects.pulseFront(seconds, c.pulseSpeed);
         double bandWidth = reflow ? TrailEffects.reflowBandWidth(c.pickupFlashSize) : 0.12;
         double fade = reflow ? (flashProgress < 1 ? 1 : 0) : 1.0 - TrailEffects.smooth((cycle - TRAVEL_SECONDS) / c.pickupFadeSeconds);
-        if (c.enabled && customTrail && fade > 0 && travel > tailStart) {
+        PreviewFrame advanced = null;
+        if (hasAdvancedTrail || hasAdvancedOrb) {
+            var view = new EmitterView(left, right, centerY, h, pixelsPerBlock);
+            if (!view.equals(advancedView)) {
+                advancedView = view;
+                advancedTrail = new AdvancedTrailPreview();
+                advancedOrb = new BodyPickupPreview();
+            }
+            advanced = new PreviewFrame(graphics, canvas, view);
+            if (hasAdvancedTrail) {
+                advancedTrail.append(advanced, c, view::flight, (long) (elapsed / period), cycle, TRAVEL_SECONDS, fade);
+                advanced.flush();
+            }
+        }
+        if (c.enabled && !hasAdvancedTrail && customTrail && fade > 0 && travel > tailStart) {
             long fadeNow = (long) (seconds * 1.0E9), now = (long) (cycle * 1.0E9);
             double reflowProgress = reflow ? flashProgress : -1;
             if (bodyTrail || (c.fixedStamps && "stamps".equals(c.trailSpriteMode))) {
@@ -181,11 +212,11 @@ public final class TrailPreviewScreen extends Screen {
                 }
             }
         }
-        if (c.enabled && customTube && fade > 0 && travel > tailStart) {
+        if (c.enabled && !hasAdvancedTrail && customTube && fade > 0 && travel > tailStart) {
             drawCustomTube(graphics, canvas, c, left, right, centerY, h, pixelsPerBlock, tailStart, travel,
                     Math.min(samples, 44), seconds, fade, reflow ? flashProgress : -1, pulse);
         }
-        for (int i = 0; c.enabled && !customTrail && !customTube && fade > 0 && i < samples; i++) {
+        for (int i = 0; c.enabled && !hasAdvancedTrail && !customTrail && !customTube && fade > 0 && i < samples; i++) {
             double q = i / (double) (samples - 1);
             double p = tailStart + (travel - tailStart) * q;
             int px = left + (int) Math.round((right - left) * p);
@@ -213,6 +244,10 @@ public final class TrailPreviewScreen extends Screen {
         int headY = pathY(centerY, h, travel, seconds);
         if (cycle < TRAVEL_SECONDS) {
             drawBody(graphics, canvas, headX, headY, seconds, c, flightSprite, flight, pixelsPerBlock, 1, c.effectStrength, 1);
+        }
+        if (hasAdvancedOrb) {
+            advancedOrb.append(advanced, c, advancedView::flight, (long) (elapsed / period), cycle, TRAVEL_SECONDS);
+            advanced.flush();
         }
 
         if (c.enabled && c.pickupFlash && flashProgress >= 0.0 && flashProgress < 1.0) {
@@ -242,8 +277,10 @@ public final class TrailPreviewScreen extends Screen {
             graphics.fill(x, y + h - 22, x + w, y + h, 0xFF1A2C27);
             graphics.text(font, Component.translatable("screen.xporbtrails.preview_live"),
                     x + 9, y + 7, TrailConfigScreen.TEXT, false);
-            if (customTrail) {
-                graphics.text(font, font.plainSubstrByWidth(previewLayout(c, trailSprite).getString(), w - 18), x + 9, y + h - 15,
+            if (hasAdvancedTrail || customTrail) {
+                Component label = hasAdvancedTrail ? Component.translatable("screen.xporbtrails.preview_advanced_trail")
+                        : previewLayout(c, trailSprite);
+                graphics.text(font, font.plainSubstrByWidth(label.getString(), w - 18), x + 9, y + h - 15,
                         TrailConfigScreen.TEXT, false);
                 graphics.outline(x, y, w, h, 0xFF658D7B);
                 return;
@@ -262,6 +299,7 @@ public final class TrailPreviewScreen extends Screen {
             graphics.outline(x, y, w, h, 0xFF658D7B);
             return;
         }
+        if (hasAdvancedTrail) return;
         if (customTrail) {
             graphics.text(font, font.plainSubstrByWidth(TrailConfigScreen.trailLabel(c.trailSprite).getString(), w - 24), x + 12, y + h - 19,
                     TrailConfigScreen.TEXT, false);
@@ -318,6 +356,7 @@ public final class TrailPreviewScreen extends Screen {
             flash = EffectEmission.pickupDuration(pickup, flashSeconds) + pickup.emitter.maxLifetime();
         }
         if (c.enabled && flight != null && flight.emitter != null) flash = Math.max(flash, flight.emitter.maxLifetime());
+        if (c.enabled) flash = Math.max(flash, Math.max(AdvancedTrails.afterglowSeconds(c), BodyPickupPreview.afterglowSeconds(c)));
         return TRAVEL_SECONDS + Math.max(1.2, Math.max(c.pickupFadeSeconds, flash) + 0.2);
     }
 
@@ -434,6 +473,75 @@ public final class TrailPreviewScreen extends Screen {
     }
 
     private record EffectVertex(float x, float y, int color) {}
+
+    /** The orthographic GUI consumes the same world-space primitives as the in-game renderer. */
+    private static final class PreviewFrame extends EffectFrame {
+        private static final Vec3 VIEW = new Vec3(Math.sqrt(0.375), 0.5, Math.sqrt(0.375));
+        private record Layer(double depth, Consumer<List<EffectVertex>> emit) {}
+        private final List<Layer> layers = new ArrayList<>();
+        private final GuiGraphicsExtractor graphics;
+        private final ScreenRectangle canvas;
+        private final EmitterView view;
+
+        PreviewFrame(GuiGraphicsExtractor graphics, ScreenRectangle canvas, EmitterView view) {
+            this.graphics = graphics;
+            this.canvas = canvas;
+            this.view = view;
+        }
+
+        private EffectVertex project(Vec3 p, int argb) {
+            return new EffectVertex((float) (view.left + EmitterView.right(p.x, p.z) * view.pixelsPerBlock),
+                    (float) (view.centerY - EmitterView.up(p.x, p.y, p.z) * view.pixelsPerBlock), argb);
+        }
+
+        @Override void line(Vec3 a, Vec3 b, double width, int argb) {
+            if (width <= 0 || argb >>> 24 == 0) return;
+            Vec3 side = b.subtract(a).cross(VIEW).normalize().scale(width * 0.5);
+            quad(a.add(side), a.subtract(side), b.subtract(side), b.add(side), argb);
+        }
+
+        @Override void quad(Vec3 a, Vec3 b, Vec3 c, Vec3 d, int argb) {
+            if (argb >>> 24 == 0) return;
+            double depth = (a.dot(VIEW) + b.dot(VIEW) + c.dot(VIEW) + d.dot(VIEW)) / 4;
+            layers.add(new Layer(depth, vertices -> {
+                var pa = project(a, argb);
+                var pb = project(b, argb);
+                var pc = project(c, argb);
+                var pd = project(d, argb);
+                // Vanilla GUI culls clockwise screen faces; world ribbons are double-sided.
+                boolean reverse = (pb.x - pa.x) * (pd.y - pa.y) - (pb.y - pa.y) * (pd.x - pa.x) > 0;
+                vertices.add(pa);
+                vertices.add(reverse ? pd : pb);
+                vertices.add(pc);
+                vertices.add(reverse ? pb : pd);
+            }));
+        }
+
+        @Override void sprite(SpriteSheet sheet, Vec3 center, double size, double age, int argb, double rotation) {
+            if (sheet == null || size <= 0 || argb >>> 24 == 0) return;
+            var frame = sheet.frameAt(age, sheet.loop());
+            if (frame == null) return;
+            layers.add(new Layer(center.dot(VIEW), vertices -> {
+                submit(vertices);
+                var p = project(center, argb);
+                SpriteRenderer.guiTinted(graphics, sheet, frame, p.x, p.y, size * view.pixelsPerBlock, argb, rotation);
+            }));
+        }
+
+        private void submit(List<EffectVertex> vertices) {
+            if (vertices.isEmpty()) return;
+            submitEffect(graphics, canvas, List.copyOf(vertices));
+            vertices.clear();
+        }
+
+        void flush() {
+            layers.sort(Comparator.comparingDouble(Layer::depth));
+            List<EffectVertex> vertices = new ArrayList<>();
+            for (var layer : layers) layer.emit.accept(vertices);
+            submit(vertices);
+            layers.clear();
+        }
+    }
 
     // Screen right and up are orthogonal unit vectors in the preview's oblique world view.
     private record EmitterView(int left, int right, int centerY, int height, double pixelsPerBlock) {
