@@ -44,13 +44,6 @@ subprojects {
     tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
     repositories { mavenCentral() }
     tasks.withType(Test).configureEach { useJUnitPlatform() }
-    tasks.named('processResources') {
-        def example = rootProject.file('examples/2.0.0example/starfall')
-        from(new File(example, 'profiles')) { into 'assets/xporbtrails/profiles' }
-        ['orb', 'pickup'].each { role ->
-            from(new File(example, role + '/effects')) { into "assets/xporbtrails/effects/${role}" }
-        }
-    }
 }
 
 configure(subprojects.findAll { it.name != 'common' }) {

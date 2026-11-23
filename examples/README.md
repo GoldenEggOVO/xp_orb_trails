@@ -5,7 +5,7 @@
 | Download | What’s inside |
 | --- | --- |
 | [Effect Collection for 2.1.0 (.zip)](2.1.0example/2.1.0example.zip?raw=1) | 24 profiles with artwork for orb bodies, trails and pickups. [See each effect and how to trigger it](2.1.0example/). |
-| [Sprite sheet examples from 2.0.0 (.zip)](2.0.0example/2.0.0example.zip?raw=1) | Koi Stream, Lantern Bloom, Brass Clockwork and Ion Drive. [Browse the artwork, previews and Starfall source](2.0.0example/). |
+| [Sprite sheet examples from 2.0.0 (.zip)](2.0.0example/2.0.0example.zip?raw=1) | Koi Stream, Lantern Bloom, Brass Clockwork and Ion Drive. [Browse the artwork and previews](2.0.0example/). |
 
 Each version folder contains a ZIP with the same name. Browse its editable profiles and artwork in [the 2.0.0 pack](2.0.0example/pack/) or [the 2.1.0 pack](2.1.0example/pack/).
 
