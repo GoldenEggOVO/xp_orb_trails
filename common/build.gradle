@@ -9,8 +9,8 @@ dependencies {
 
 tasks.named('test') {
     dependsOn ':effectCollectionZip', ':spriteExamplesZip'
-    def collection = rootProject.file('examples/2.1.0example/effect_collection.zip')
-    def sprites = rootProject.file('examples/2.0.0example/sprite_sheet_examples.zip')
+    def collection = rootProject.file('examples/2.1.0example/2.1.0example.zip')
+    def sprites = rootProject.file('examples/2.0.0example/2.0.0example.zip')
     inputs.file(collection)
     inputs.file(sprites)
     systemProperty 'xporb.effectCollection', collection.absolutePath
