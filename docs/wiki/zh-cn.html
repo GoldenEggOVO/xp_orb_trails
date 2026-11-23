@@ -51,6 +51,16 @@
             <a href="#effect-packs">方案包与高级效果</a>
             <a href="#test-and-share-your-look">测试与分享</a>
           </div>
+          <div class="nav-group">
+            <p>2.1.0 扩展参数</p>
+            <a href="#advanced-parameters">从这里开始</a>
+            <a href="#advanced-body">经验球本体</a>
+            <a href="#advanced-trail">尾迹几何</a>
+            <a href="#advanced-pickup">拾取效果</a>
+            <a href="#advanced-scene">场景规则</a>
+            <a href="#advanced-optics">点光与热折射</a>
+            <a href="#advanced-workshop">工坊模块</a>
+          </div>
           <div class="mobile-links"><a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/README.zh-CN.md">示例 ↗</a><a href="https://github.com/GoldenEggOVO/xp_orb_trails">GitHub ↗</a></div>
         </nav>
       </details>
@@ -120,6 +130,7 @@
         <thead><tr><th scope="col">字段</th><th scope="col">可用值</th><th scope="col">作用</th></tr></thead>
         <tbody>
 <tr id="profile-version"><th scope="row"><code>version</code></th><td>1</td><td>必填。使用数字表示 JSON 格式版本。</td></tr>
+<tr id="profile-advanced"><th scope="row"><code>advanced</code></th><td>对象，可省略</td><td>参见<a href="#advanced-parameters">扩展参数表</a>，设置本体、尾迹、拾取、场景、光学和工坊效果。</td></tr>
 <tr id="profile-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>文本／翻译键</td><td>可以设置固定名称或翻译键。缺少显示名称时采用文件名。</td></tr>
 </tbody></table></div>
         <p>文件方案先读取 <code>defaults.json</code> 里的初始值，再应用方案中指定的外观字段。个人设置存放在上一级的 <code>config/xp_orb_trails.json</code>。切换文件方案会保留当前总开关、渲染距离和尾迹数量上限，游戏内保存的个人方案则会记录这三项。主配置和默认设置以整数保存 RGB 颜色，文件方案使用带引号的 <code>#RRGGBB</code> 颜色值。</p>
@@ -370,9 +381,469 @@
         <dl><dt id="topic-orb-body-and-pickup">经验球本体与拾取</dt><dd>使用 <code>advanced.body</code> 设置移动中的经验球本体，使用 <code>advanced.pickup</code> 设置拾取时的反应。例如「春日飞羽」让小鸟悬停或滑翔，拾取时撒出一阵花瓣。</dd>
         <dt id="topic-trails-and-scene-conditions">尾迹与场景条件</dt><dd>使用 <code>advanced.trail</code> 设置尾迹形状，使用 <code>advanced.scene</code> 设置对附近经验球、方块、水或声音的反应。「潮汐水镜」方案演示了如何产生水面涟漪。</dd>
         <dt id="topic-workshop-and-optics">工坊与光学效果</dt><dd>使用 <code>advanced.workshop</code> 制作贴花、精灵碎片或轨迹交叉等效果。例如「墨迹落印」会在地面留下墨迹，在水面留下圆环。要了解光照或热折射，可查看以下字段： <code>advanced.optics</code>。「萤石信标」和「流火蜃景」均有示例。</dd></dl>
+        <p><a href="#advanced-parameters">查看 2.1.0 扩展参数表</a>，可按效果类型或 JSON 字段名查找范围和默认值。</p>
         <h3 id="localize-names">给方案添加译名</h3>
         <p>使用同一个 <code>nameKey</code> 将方案与 Minecraft 资源包中的译名关联起来。例如，在方案中填入 <code>my_pack.profile.moonwake</code>，然后在 <code>assets/my_pack/lang/en_us.json</code> 中填写英文译名，在 <code>assets/my_pack/lang/zh_cn.json</code>中填写中文译名。把资源包放入 Minecraft 的资源包文件夹并启用，玩家就能通过游戏语言切换显示名称。使用固定的 <code>name</code> 则可以让各语言显示同一个名称。</p>
         <p>经验球、尾迹和拾取图集也支持译名。规则图集在描述文件的根节点写 <code>nameKey</code>，打包图集则写在 <code>meta.pixelfx</code> 中。只有 PNG 的素材会按 <code>sprite.xporbtrails.&lt;目录名&gt;</code> 查找翻译。升级到 2.1 后，旧内置文件和官方示例保留的原版英文名会随游戏语言切换。你自己改过的名称会按原样显示。</p>
+      </section>
+      <section class="chapter" id="advanced-parameters" aria-labelledby="title-advanced-parameters">
+        <h2 id="title-advanced-parameters">2.1.0 扩展参数</h2>
+        <p class="intro">独立方案放在 <code>config/xp_orb_trails/profiles/</code>，方案包里的文件放在 ZIP 根目录的 <code>profiles/</code>。打开方案 JSON，在 <code>advanced</code> 对象中修改对应部分。</p>
+<nav class="parameter-links" aria-label="跳转到参数表"><a href="#advanced-body">经验球本体</a> <a href="#advanced-trail">尾迹几何</a> <a href="#advanced-pickup">拾取效果</a> <a href="#advanced-scene">场景规则</a> <a href="#advanced-optics">点光与热折射</a> <a href="#advanced-workshop">工坊模块</a></nav>
+<p>方案省略 <code>advanced</code> 时会继承默认配置中的高级效果。写入 <code>advanced</code> 会替换整个对象，需要组合的各个部分都要保留。填写空对象 <code>{}</code> 可以清除继承的高级效果。</p>
+<p>下面的 <code>radius</code> 控制琥珀色点光能照多远。保存文件后，点<strong>方案 → 文件方案 → 重新加载文件</strong>，选中 <strong>Amber Light</strong>，让经验球沿墙飞过。表里的默认值指引擎默认值，你选的方案可以指定其他值。</p>
+<figure class="sample"><figcaption>profiles/amber-light.json</figcaption><pre><code>{
+  "version": 1,
+  "name": "Amber Light",
+  "advanced": {
+    "optics": {
+      "type": "light",
+      "radius": 2.8,
+      "strength": 1.92,
+      "color": "#FFBC63",
+      "maxOrbs": 4
+    }
+  }
+}</code></pre></figure>
+      </section>
+      <section class="chapter" id="advanced-body" aria-labelledby="title-advanced-body">
+        <h2 id="title-advanced-body">经验球本体 · advanced.body</h2>
+        <p class="intro">在 advanced.body 对象中指定 type。先调通用参数，再查该类型的专属参数。 示例方案：<a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/workshop-festival.json">春日飞羽</a>。</p>
+<nav class="parameter-links" aria-label="跳转到参数表"><a href="#adv-body">通用字段</a> <a href="#adv-body-planet">行星（planet）</a> <a href="#adv-body-firefly">萤火虫（firefly）</a> <a href="#adv-body-magnet">磁场（magnet）</a> <a href="#adv-body-tentacles">触须（tentacles）</a> <a href="#adv-body-droplet">水滴（droplet）</a> <a href="#adv-body-bird">飞鸟（bird）</a></nav>
+<div class="parameter-group"><h3 id="adv-body">advanced.body · 通用字段</h3>
+<p>给已追踪的经验球添加本体特效。如要替换原版球体，可将 showVanillaOrb 设为 false、flightEffect 设为 none。本体和拾取特效会把数值限制在表中范围，计数字段舍去小数部分。可选字段类型错误时采用默认值。正常游戏速度下 20 刻为 1 秒。</p>
+<div class="table-wrap"><table aria-labelledby="adv-body"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-body-field-type"><th scope="row"><code>type</code></th><td>必填 · planet / firefly / magnet / tentacles / droplet / bird</td><td>选择本体类型。省略整个对象即可关闭高级本体。</td></tr>
+<tr id="adv-body-field-size"><th scope="row"><code>size</code></th><td>0.005–2（默认 0.1）</td><td>基础尺寸，单位为格。对行星是核心赤道半径，对水滴是静止半径，对萤火虫和飞鸟是精灵图最长边。磁场标记的大小和触须的粗细也由它控制。</td></tr>
+<tr id="adv-body-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB（默认 #BDE9EF）</td><td>行星环、萤火虫、磁场标记、触须、水滴或飞鸟的主色。行星核心可单独设色。</td></tr>
+<tr id="adv-body-field-radius"><th scope="row"><code>radius</code></th><td>0.015–2（默认 0.28）</td><td>单位为格。控制行星环外半径、萤火虫生成半径、磁极间距（两极各距中心 0.68 倍半径）或触须根部的分布半径。</td></tr>
+<tr id="adv-body-field-lifetimeticks"><th scope="row"><code>lifetimeTicks</code></th><td>8–160（默认 34）</td><td>仅用于萤火虫和磁场。运动点经过指定刻数后重新生成。磁场点抵达另一极时也会重生。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-planet">advanced.body · 行星（planet）</h3>
+<p>实体核心外有一道倾斜的环，可随时间进动。</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-planet"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-body-planet-field-ringwidth"><th scope="row"><code>ringWidth</code></th><td>0.002–0.25（默认 0.026）</td><td>环沿半径方向的厚度，单位为格，最多取 radius 的 80%。</td></tr>
+<tr id="adv-body-planet-field-tiltdegrees"><th scope="row"><code>tiltDegrees</code></th><td>−180–180（默认 32）</td><td>环面法线相对竖直方向的倾角，单位为度。取 0 时环面水平。</td></tr>
+<tr id="adv-body-planet-field-yawdegrees"><th scope="row"><code>yawDegrees</code></th><td>−360–360（默认 18）</td><td>倾斜方向的初始方位角，单位为度。</td></tr>
+<tr id="adv-body-planet-field-precessiondegrees"><th scope="row"><code>precessionDegrees</code></th><td>−20–20（默认 0.6）</td><td>方位角每刻变化的度数。负值会反向旋转。</td></tr>
+<tr id="adv-body-planet-field-segments"><th scope="row"><code>segments</code></th><td>8–48（默认 28）</td><td>环的分段数。</td></tr>
+<tr id="adv-body-planet-field-corecolor"><th scope="row"><code>coreColor</code></th><td>#RRGGBB（默认 #988BBD）</td><td>核心表面的底色，渲染时会加上明暗。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-firefly">advanced.body · 萤火虫（firefly）</h3>
+<p>萤火虫从经验球周围飞出，随后逐渐被拉回并重新生成。</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-firefly"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-body-firefly-field-count"><th scope="row"><code>count</code></th><td>1–32（默认 10）</td><td>每颗经验球的萤火虫数量。</td></tr>
+<tr id="adv-body-firefly-field-launchspeed"><th scope="row"><code>launchSpeed</code></th><td>0–0.15（默认 0.027）</td><td>初始向外速度，单位为格/刻，同时带有少量侧向速度。</td></tr>
+<tr id="adv-body-firefly-field-attraction"><th scope="row"><code>attraction</code></th><td>0–0.12（默认 0.022）</td><td>向球心回拉的强度。同一只萤火虫越接近重生，受到的回拉越强。</td></tr>
+<tr id="adv-body-firefly-field-sprite"><th scope="row"><code>sprite</code></th><td>本体精灵图 ID（默认 sprite:orb/atlas-firefly）</td><td>每只萤火虫的动画图集，须随预设安装对应素材。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-magnet">advanced.body · 磁场（magnet）</h3>
+<p>短线沿磁场从一极运动至另一极。</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-magnet"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-body-magnet-field-count"><th scope="row"><code>count</code></th><td>1–32（默认 10）</td><td>运动中的磁场标记数量。</td></tr>
+<tr id="adv-body-magnet-field-fieldspeed"><th scope="row"><code>fieldSpeed</code></th><td>0.003–0.15（默认 0.035）</td><td>磁场标记每刻沿磁力线前进的距离，单位为格。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-tentacles">advanced.body · 触须（tentacles）</h3>
+<p>多根触须固定在球体周围，每个节点随前一个节点运动。</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-tentacles"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-body-tentacles-field-count"><th scope="row"><code>count</code></th><td>1–8（默认 4）</td><td>触须数量。</td></tr>
+<tr id="adv-body-tentacles-field-nodes"><th scope="row"><code>nodes</code></th><td>2–14（默认 7）</td><td>每根触须的节点数，包含根部。可见连接段数比节点少一。</td></tr>
+<tr id="adv-body-tentacles-field-spacing"><th scope="row"><code>spacing</code></th><td>0.012–0.25（默认 0.055）</td><td>每段触须的长度，单位为格。</td></tr>
+<tr id="adv-body-tentacles-field-damping"><th scope="row"><code>damping</code></th><td>0.1–0.99（默认 0.82）</td><td>每刻保留的节点位移比例，越大越能延续摆动。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-droplet">advanced.body · 水滴（droplet）</h3>
+<p>水滴沿速度方向拉长，横向随之收窄。</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-droplet"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-body-droplet-field-stretchgain"><th scope="row"><code>stretchGain</code></th><td>0–18（默认 3.8）</td><td>速度每增加 1 格/刻带来的目标拉伸增量。目标长度最高为静止长度的 2.8 倍。</td></tr>
+<tr id="adv-body-droplet-field-spring"><th scope="row"><code>spring</code></th><td>0.01–0.6（默认 0.22）</td><td>每刻向目标伸长量靠近的弹力强度。</td></tr>
+<tr id="adv-body-droplet-field-damping"><th scope="row"><code>damping</code></th><td>0.2–0.98（默认 0.77）</td><td>每刻保留的形变速度比例，越大越容易持续振荡。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-bird">advanced.body · 飞鸟（bird）</h3>
+<p>飞鸟加速后切入滑翔，减速后切回悬停。每次切换都会从头播放对应动画。</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-bird"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-body-bird-field-glidespeed"><th scope="row"><code>glideSpeed</code></th><td>0.002–2（默认 0.14）</td><td>经验球速度达到此值时开始滑翔，单位为格/刻。</td></tr>
+<tr id="adv-body-bird-field-hoverspeed"><th scope="row"><code>hoverSpeed</code></th><td>0–2（默认 0.07）</td><td>经验球降到此速度及以下时恢复悬停，单位为格/刻。实际阈值不超过 glideSpeed 的 99%。</td></tr>
+<tr id="adv-body-bird-field-hoversprite"><th scope="row"><code>hoverSprite</code></th><td>本体精灵图 ID（默认 sprite:orb/atlas-bird-hover）</td><td>悬停动画。提供两种姿态的图集后，飞鸟可替换原版球体。</td></tr>
+<tr id="adv-body-bird-field-glidesprite"><th scope="row"><code>glideSprite</code></th><td>本体精灵图 ID（默认 sprite:orb/atlas-bird-glide）</td><td>滑翔动画。</td></tr>
+</tbody></table></div></div>
+      </section>
+      <section class="chapter" id="advanced-trail" aria-labelledby="title-advanced-trail">
+        <h2 id="title-advanced-trail">尾迹几何 · advanced.trail</h2>
+        <p class="intro">在 advanced.trail 对象中指定 geometry。曲线位置从尾端向头部递增。strands 是数组，粒子发射参数写在 particles 对象中。 示例方案：<a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/workshop-storm.json">磁暴回路</a>。</p>
+<nav class="parameter-links" aria-label="跳转到参数表"><a href="#adv-trail">几何形状与曲线</a> <a href="#adv-trail-curves">曲线控制点</a> <a href="#adv-trail-strands">缎带带条</a> <a href="#adv-trail-branches">电弧分叉</a> <a href="#adv-trail-particles">粒子发射器</a></nav>
+<div class="parameter-group"><h3 id="adv-trail">advanced.trail · 几何形状与曲线</h3>
+<p>距离单位为格，发射器的时间单位为秒。高级拖尾会替换普通拖尾几何。导入预设时，拖尾中的未知字段、越界数值或填入小数的整数字段都会导致校验失败。</p>
+<div class="table-wrap"><table aria-labelledby="adv-trail"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-trail-field-geometry"><th scope="row"><code>geometry</code></th><td>必填 · ribbon / arc / crumble / particles</td><td>选择扁平缎带、分支电弧、逐渐崩解的拖尾或纯粒子拖尾。省略 advanced.trail 即使用普通拖尾。</td></tr>
+<tr id="adv-trail-field-period"><th scope="row"><code>period</code></th><td>0.08–16（默认 1）</td><td>仅用于缎带。偏移带条绕行一周、缎带累加一次 roll 角度所需的距离，单位为格。</td></tr>
+<tr id="adv-trail-field-roll"><th scope="row"><code>roll</code></th><td>−1440–1440（默认 0）</td><td>缎带每前进一个 period 所扭转的度数。正负号决定扭转方向。</td></tr>
+<tr id="adv-trail-field-orientation"><th scope="row"><code>orientation</code></th><td>−360–360（默认 0）</td><td>缎带绕前进方向的初始转角，单位为度。</td></tr>
+<tr id="adv-trail-field-breakat"><th scope="row"><code>breakAt</code></th><td>0.05–0.99（默认 0.72）</td><td>仅用于崩解拖尾。节点达到此寿命比例时，拖尾开始出现间隙。</td></tr>
+<tr id="adv-trail-field-breakspacing"><th scope="row"><code>breakSpacing</code></th><td>0.04–2（默认 0.18）</td><td>仅用于崩解拖尾。重复间隙之间的距离，单位为格。</td></tr>
+<tr id="adv-trail-field-widthcurve"><th scope="row"><code>widthCurve</code></th><td>1–16 组 [位置, 倍率]，倍率 0–4（默认沿用基础宽度倍率）</td><td>沿缎带、电弧或崩解拖尾调整基础宽度。省略时使用 tailWidthScale、middleWidthScale 和 headWidthScale。</td></tr>
+<tr id="adv-trail-field-opacitycurve"><th scope="row"><code>opacityCurve</code></th><td>1–16 组 [位置, 不透明度]，不透明度 0–1（默认 1）</td><td>沿路径缩放几何体的不透明度，最终效果还受 effectStrength、节点年龄和消失淡出影响。</td></tr>
+<tr id="adv-trail-field-colorcurve"><th scope="row"><code>colorCurve</code></th><td>1–16 组 [位置, &quot;#RRGGBB&quot;]（默认沿用基础颜色设置）</td><td>设置沿路径的颜色。显式指定的带条颜色会覆盖该条带上的颜色曲线。到期生成的粒子以尾端颜色起始。</td></tr>
+<tr id="adv-trail-field-strands"><th scope="row"><code>strands</code></th><td>1–4 个对象（默认一条居中的带条）</td><td>仅用于缎带。每个对象控制一条带条的路径、宽度和颜色。</td></tr>
+<tr id="adv-trail-field-branches"><th scope="row"><code>branches</code></th><td>对象，仅用于 arc（默认使用电弧参数的默认值）</td><td>设置弯道触发的分叉与主电弧抖动。在其他几何类型下填写这个对象会导致校验失败。</td></tr>
+<tr id="adv-trail-field-particles"><th scope="row"><code>particles</code></th><td>发射器对象（纯粒子几何必填，其他几何可选）</td><td>沿经验球路径或在拖尾节点到期时生成粒子。选用其他几何时，省略该对象可只绘制几何形状。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-trail-curves">advanced.trail · 曲线控制点</h3>
+<p>widthCurve、opacityCurve 和 colorCurve 都使用二元数组。例如，宽度曲线可以写成 [[0, 0.2], [0.5, 1.5], [1, 1]]。</p>
+<div class="table-wrap"><table aria-labelledby="adv-trail-curves"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-trail-curves-field-0"><th scope="row"><code>[0]</code></th><td>0–1，严格递增</td><td>以沿路径的距离计算位置。0 是尾端，1 是靠近经验球的头端。</td></tr>
+<tr id="adv-trail-curves-field-1"><th scope="row"><code>[1]</code></th><td>宽度 0–4 / 不透明度 0–1 / 颜色 #RRGGBB</td><td>控制点之间线性插值，超出首尾控制点时沿用最近端点的值。只写一个控制点会得到恒定值。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-trail-strands">advanced.trail.strands[] · 缎带带条</h3>
+<p>每条带条都可以沿椭圆截面绕路径运动，并围绕自身中心线扭转。</p>
+<div class="table-wrap"><table aria-labelledby="adv-trail-strands"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-trail-strands-field-phase"><th scope="row"><code>phase</code></th><td>−360–360（默认 0）</td><td>带条的起始绕行角和自身起始转角，单位为度。</td></tr>
+<tr id="adv-trail-strands-field-radius"><th scope="row"><code>radius</code></th><td>0–2（默认 0）</td><td>绕行椭圆的第一条半轴长度，单位为格。</td></tr>
+<tr id="adv-trail-strands-field-depth"><th scope="row"><code>depth</code></th><td>0–2（默认与 radius 相同）</td><td>第二条半轴长度，单位为格。设为与 radius 相同可得到圆形轨迹。</td></tr>
+<tr id="adv-trail-strands-field-width"><th scope="row"><code>width</code></th><td>0.01–4（默认 1）</td><td>在基础宽度和宽度曲线之上进一步缩放这条带条的宽度。</td></tr>
+<tr id="adv-trail-strands-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB（默认沿用路径颜色）</td><td>给这一条带条单独设色，仍然应用不透明度曲线。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-trail-branches">advanced.trail.branches · 电弧分叉</h3>
+<p>电弧会在路径转弯处出现闪烁的分叉。count 设为 0 时，主电弧仍可抖动。</p>
+<div class="table-wrap"><table aria-labelledby="adv-trail-branches"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-trail-branches-field-count"><th scope="row"><code>count</code></th><td>0–6（默认 3）</td><td>可见电弧上的最大分叉数。</td></tr>
+<tr id="adv-trail-branches-field-length"><th scope="row"><code>length</code></th><td>0.02–2（默认 0.35）</td><td>分支延伸长度及相邻分支沿路径的最小距离，单位为格，同时影响主电弧抖动的空间尺度。</td></tr>
+<tr id="adv-trail-branches-field-minturn"><th scope="row"><code>minTurn</code></th><td>1–180（默认 8）</td><td>弯道转角须超过此度数才会产生分支。</td></tr>
+<tr id="adv-trail-branches-field-jitter"><th scope="row"><code>jitter</code></th><td>0–0.5（默认 0.035）</td><td>主电弧在两个横向轴上各自的最大偏移幅度，单位为格。</td></tr>
+<tr id="adv-trail-branches-field-flashseconds"><th scope="row"><code>flashSeconds</code></th><td>0.04–1（默认 0.12）</td><td>重新随机绘制图案的周期，单位为秒。每周期的前 75% 时间可显示分叉。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-trail-particles">advanced.trail.particles · 粒子发射器</h3>
+<p>每颗经验球的发射器同时保留最多 48 个粒子。distance 模式沿经验球飞行路径生成。expiry 模式在旧拖尾节点寿命耗尽的位置生成。</p>
+<div class="table-wrap"><table aria-labelledby="adv-trail-particles"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-trail-particles-field-birth"><th scope="row"><code>birth</code></th><td>必填 · distance / expiry</td><td>选择触发粒子生成的条件，每个 particles 对象都需要此字段。</td></tr>
+<tr id="adv-trail-particles-field-spacing"><th scope="row"><code>spacing</code></th><td>0.03–4（默认 0.15）</td><td>distance 模式下，相邻两次生成之间需要移动的距离，单位为格。</td></tr>
+<tr id="adv-trail-particles-field-burst"><th scope="row"><code>burst</code></th><td>1–4（默认 1）</td><td>每次触发生成的粒子数。</td></tr>
+<tr id="adv-trail-particles-field-lifetime"><th scope="row"><code>lifetime</code></th><td>0.05–3（默认 0.7）</td><td>粒子寿命，单位为秒。</td></tr>
+<tr id="adv-trail-particles-field-size"><th scope="row"><code>size</code></th><td>0.005–0.5（默认 0.035）</td><td>基础粒子尺寸，单位为格。生成时在 0.7 至 1.3 倍间变化，随后随淡出逐渐缩小。</td></tr>
+<tr id="adv-trail-particles-field-inheritvelocity"><th scope="row"><code>inheritVelocity</code></th><td>0–2（默认 0）</td><td>distance 模式下，粒子生成时继承经验球速度的倍率。</td></tr>
+<tr id="adv-trail-particles-field-tangentspeed"><th scope="row"><code>tangentSpeed</code></th><td>−5–5（默认 0.4）</td><td>expiry 模式下，粒子沿路径切线的发射速度，单位为格/秒。负值反向。</td></tr>
+<tr id="adv-trail-particles-field-scatter"><th scope="row"><code>scatter</code></th><td>0–5（默认 0.2）</td><td>各坐标轴正反两个方向可随机附加的最大发射速度，单位为格/秒。</td></tr>
+<tr id="adv-trail-particles-field-gravity"><th scope="row"><code>gravity</code></th><td>−20–20（默认 0）</td><td>竖直加速度，单位为格/秒²。正值下落，负值上升。</td></tr>
+<tr id="adv-trail-particles-field-drag"><th scope="row"><code>drag</code></th><td>0–16（默认 0）</td><td>每秒阻力系数。值越大，粒子依靠初速度前进的距离越短。</td></tr>
+<tr id="adv-trail-particles-field-turbulence"><th scope="row"><code>turbulence</code></th><td>0–4（默认 0）</td><td>水平扰动风速的幅值，单位为格/秒。取 0 时的轨迹仅由初速度、重力和阻力决定。</td></tr>
+<tr id="adv-trail-particles-field-frequency"><th scope="row"><code>frequency</code></th><td>0.1–12（默认 2）</td><td>turbulence 大于 0 时的风场相位变化速率，单位为弧度/秒。越高则风向变化越快。</td></tr>
+<tr id="adv-trail-particles-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB（默认 #FFFFFF）</td><td>distance 粒子的起始颜色。expiry 粒子使用节点到期时的拖尾尾端颜色。</td></tr>
+<tr id="adv-trail-particles-field-endcolor"><th scope="row"><code>endColor</code></th><td>#RRGGBB（默认沿用起始颜色）</td><td>粒子在寿命内线性过渡到的颜色。</td></tr>
+</tbody></table></div></div>
+      </section>
+      <section class="chapter" id="advanced-pickup" aria-labelledby="title-advanced-pickup">
+        <h2 id="title-advanced-pickup">拾取效果 · advanced.pickup</h2>
+        <p class="intro">在 advanced.pickup 对象中指定 type。打开 pickupFlash，进入世界拾取经验球即可查看效果。 示例方案：<a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/workshop-tideglass.json">潮汐水镜</a>。</p>
+<nav class="parameter-links" aria-label="跳转到参数表"><a href="#adv-pickup">通用字段</a> <a href="#adv-pickup-petals">花瓣（petals）</a> <a href="#adv-pickup-children">烟花与回弹（fireworks / rebound）</a> <a href="#adv-pickup-rebound">回弹冰片（rebound）</a> <a href="#adv-pickup-ripple">涟漪（ripple）</a> <a href="#adv-pickup-vortex">涡旋（vortex）</a></nav>
+<div class="parameter-group"><h3 id="adv-pickup">advanced.pickup · 通用字段</h3>
+<p>开启 pickupFlash 后可播放这些特效。开启时，涡旋在飞行阶段也会产生粒子。这里的速度单位为格/刻，重力单位为格/刻²。</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-pickup-field-type"><th scope="row"><code>type</code></th><td>必填 · petals / fireworks / ripple / rebound / vortex</td><td>选择拾取效果。省略该对象即可关闭高级拾取效果。</td></tr>
+<tr id="adv-pickup-field-size"><th scope="row"><code>size</code></th><td>0.003–0.6（默认 0.045）</td><td>基础花瓣尺寸、粒子尺寸或涟漪线宽，单位为格。每个花瓣、火箭和冰片的实际大小会在 0.8 至 1.2 倍间变化。</td></tr>
+<tr id="adv-pickup-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB（默认 #C9F4FA）</td><td>精灵图、粒子或涟漪的主色。</td></tr>
+<tr id="adv-pickup-field-count"><th scope="row"><code>count</code></th><td>1–32（默认 10，涡旋默认 16）</td><td>花瓣、烟花、回弹分别生成指定数量的花瓣、火箭或冰片。涡旋用它限制每颗经验球同时漂浮的粒子数。</td></tr>
+<tr id="adv-pickup-field-speed"><th scope="row"><code>speed</code></th><td>0.002–0.65（默认 0.082）</td><td>花瓣、火箭、冰片或涡旋漂浮粒子的初速度。花瓣和冰片还会获得与此值成比例的向上速度。</td></tr>
+<tr id="adv-pickup-field-gravity"><th scope="row"><code>gravity</code></th><td>0–0.12（默认 0.009）</td><td>花瓣、烟花及回弹粒子的向下加速度，包括烟花火星和冰粉。</td></tr>
+<tr id="adv-pickup-field-lifetimeticks"><th scope="row"><code>lifetimeTicks</code></th><td>3–160（默认 32）</td><td>花瓣、火箭和冰片的基础寿命（实际约为 78% 至 100%）、每道涟漪的扩散时间，或涡旋粒子被捕获后的最长寿命，单位为刻。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-pickup-petals">advanced.pickup · 花瓣（petals）</h3>
+<p>拾取时花瓣扬起，随后一边横向摆动，一边旋转下落。</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup-petals"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-pickup-petals-field-sprite"><th scope="row"><code>sprite</code></th><td>拾取精灵图 ID（默认 sprite:pickup/atlas-sakura）</td><td>花瓣图集，须随预设安装对应素材。</td></tr>
+<tr id="adv-pickup-petals-field-flutter"><th scope="row"><code>flutter</code></th><td>0–0.04（默认 0.004）</td><td>横向摆动的加速度幅值，单位为格/刻²。</td></tr>
+<tr id="adv-pickup-petals-field-spinscale"><th scope="row"><code>spinScale</code></th><td>0–8（默认 1）</td><td>每片花瓣自转速度的倍率。取 0 时保持各自的初始朝向。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-pickup-children">advanced.pickup · 烟花与回弹（fireworks / rebound）</h3>
+<p>火箭寿命结束时爆出火星。冰片碰撞达到指定次数后碎成冰粉。单次拾取最多同时保留 160 个粒子。</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup-children"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-pickup-children-field-children"><th scope="row"><code>children</code></th><td>1–16（烟花默认 8，回弹默认 5）</td><td>每枚火箭产生的火星数，或每枚冰片碎裂产生的冰粉数，受同时存活的粒子上限约束。</td></tr>
+<tr id="adv-pickup-children-field-childspeed"><th scope="row"><code>childSpeed</code></th><td>0.002–0.4（默认 0.055）</td><td>子粒子基础发射速度，单位为格/刻。冰粉朝上抛出。</td></tr>
+<tr id="adv-pickup-children-field-childlifetimeticks"><th scope="row"><code>childLifetimeTicks</code></th><td>2–80（默认 14）</td><td>火星或冰粉的寿命，单位为刻。</td></tr>
+<tr id="adv-pickup-children-field-accent"><th scope="row"><code>accent</code></th><td>#RRGGBB（烟花默认 #EF9EAE，回弹默认 #EFFAFF）</td><td>子粒子交替使用强调色与主色。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-pickup-rebound">advanced.pickup · 回弹冰片（rebound）</h3>
+<p>冰片碰到方块碰撞面会反弹。在寿命内达到指定碰撞次数时才会碎成冰粉。</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup-rebound"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-pickup-rebound-field-restitution"><th scope="row"><code>restitution</code></th><td>0.02–1（默认 0.62）</td><td>反弹时保留的法向速度比例。</td></tr>
+<tr id="adv-pickup-rebound-field-contacts"><th scope="row"><code>contacts</code></th><td>1–6（默认 2）</td><td>冰片碎裂所需的碰撞次数。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-pickup-ripple">advanced.pickup · 涟漪（ripple）</h3>
+<p>落点标记和涟漪沿拾取点下方的固体表面绘制。探测深度以内需要有方块碰撞面。按水环境触发的效果可在 advanced.scene 中设置。</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup-ripple"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-pickup-ripple-field-probedepth"><th scope="row"><code>probeDepth</code></th><td>0.25–12（默认 4）</td><td>从拾取点向下寻找首个方块碰撞面的最大距离，单位为格。</td></tr>
+<tr id="adv-pickup-ripple-field-fallticks"><th scope="row"><code>fallTicks</code></th><td>0–25（默认 4）</td><td>首道涟漪开始前的下落时间，单位为刻。取 0 时直接开始扩散。</td></tr>
+<tr id="adv-pickup-ripple-field-radius"><th scope="row"><code>radius</code></th><td>0.03–3（默认 0.62）</td><td>涟漪扩散的目标半径，单位为格。每道环从此值的 4.5% 开始扩散。</td></tr>
+<tr id="adv-pickup-ripple-field-rings"><th scope="row"><code>rings</code></th><td>1–4（默认 2）</td><td>连续扩散的环数。</td></tr>
+<tr id="adv-pickup-ripple-field-segments"><th scope="row"><code>segments</code></th><td>8–36（默认 20）</td><td>每道环沿周向的地形采样数。较高的值可使轮廓更平滑。</td></tr>
+<tr id="adv-pickup-ripple-field-delayticks"><th scope="row"><code>delayTicks</code></th><td>1–20（默认 3）</td><td>相邻两道环开始扩散的间隔，单位为刻。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-pickup-vortex">advanced.pickup · 涡旋（vortex）</h3>
+<p>飞行时，各粒子独立漂浮 16 至 40 刻。拾取时，已有的漂浮粒子被吸向拾取点。</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup-vortex"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="adv-pickup-vortex-field-pertick"><th scope="row"><code>perTick</code></th><td>1–6（默认 2）</td><td>存活数低于 count 时，每刻最多生成的漂浮粒子数。</td></tr>
+<tr id="adv-pickup-vortex-field-radius"><th scope="row"><code>radius</code></th><td>0.02–3（默认 0.42）</td><td>生成半径，单位为格。每个粒子在该半径的 0.6 至 1.1 倍处生成。</td></tr>
+<tr id="adv-pickup-vortex-field-accent"><th scope="row"><code>accent</code></th><td>#RRGGBB（默认 #B8A2E0）</td><td>漂浮粒子的另一种颜色，与 color 随机选用。</td></tr>
+<tr id="adv-pickup-vortex-field-attraction"><th scope="row"><code>attraction</code></th><td>0.005–0.5（默认 0.12）</td><td>拾取后向内吸引的强度，吸力与粒子到拾取点的距离成正比。</td></tr>
+<tr id="adv-pickup-vortex-field-tangent"><th scope="row"><code>tangent</code></th><td>−0.3–0.3（默认 0.095）</td><td>拾取后绕竖轴旋转的侧向力，正负号决定旋向。</td></tr>
+</tbody></table></div></div>
+      </section>
+      <section class="chapter" id="advanced-scene" aria-labelledby="title-advanced-scene">
+        <h2 id="title-advanced-scene">场景规则 · advanced.scene</h2>
+        <p class="intro">每个需要监听的世界条件都在 advanced.scene 数组中写成一个单独的对象。 示例方案：<a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/workshop-dusk.json">暮雨月蛾</a>。</p>
+<nav class="parameter-links" aria-label="跳转到参数表"><a href="#scene-fields">场景规则字段</a> <a href="#scene-types">场景触发条件与可用字段</a></nav>
+<div class="parameter-group"><h3 id="scene-fields">场景规则字段</h3>
+<p>advanced.scene 数组中的每条规则都需要 type。下表给出字段范围，后面的规则表列出每种效果实际使用的字段。数值超出范围时会限制到边界。</p>
+<div class="table-wrap"><table aria-labelledby="scene-fields"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="scene-fields-field-type"><th scope="row"><code>type</code></th><td>必填字符串</td><td>从下表的 16 种规则中选一种。每个方案最多组合 8 种，每种只能出现一次。</td></tr>
+<tr id="scene-fields-field-radius"><th scope="row"><code>radius</code></th><td>0.02～4 格，默认 0.38</td><td>控制环、环绕轨迹或放射形状的大小。检测距离由 range 控制。</td></tr>
+<tr id="scene-fields-field-width"><th scope="row"><code>width</code></th><td>0.005～0.3 格，默认 0.032</td><td>根据规则控制线宽或粒子的基础尺寸。</td></tr>
+<tr id="scene-fields-field-range"><th scope="row"><code>range</code></th><td>0.1～32 格，默认 5</td><td>控制经验球到另一颗球、玩家、地面或声源的检测距离。</td></tr>
+<tr id="scene-fields-field-threshold"><th scope="row"><code>threshold</code></th><td>0.001～180，默认值随类型变化</td><td>combo 默认 1 秒，turn 为 28°，values 为 4 点经验，dust 为 0.65 格，speed 为 0.14 格/tick，beat 为 0.14 秒。</td></tr>
+<tr id="scene-fields-field-count"><th scope="row"><code>count</code></th><td>1～24，默认 4</td><td>限制连接、圆环、光带或粒子数量。dust 和 biome 每次最多散出 4 颗粒子。</td></tr>
+<tr id="scene-fields-field-duration"><th scope="row"><code>duration</code></th><td>0.08～5 秒，默认 1</td><td>一次性效果的寿命。常驻图形在相应条件满足时持续绘制。</td></tr>
+<tr id="scene-fields-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB，默认 #9EF9CA</td><td>主色，也用于地面取色或群系配置缺少颜色时的回退。</td></tr>
+<tr id="scene-fields-field-secondary"><th scope="row"><code>secondary</code></th><td>#RRGGBB，默认 #D7ACF9</td><td>交替着色或渐变时使用的第二种颜色。</td></tr>
+<tr id="scene-fields-field-sprite"><th scope="row"><code>sprite</code></th><td>经验球精灵图 ID，默认空</td><td>dusk 会按昼夜给这张经验球图集着色。未找到图集时绘制小十字。</td></tr>
+<tr id="scene-fields-field-sound"><th scope="row"><code>sound</code></th><td>声音事件 ID，默认 minecraft:entity.experience_orb.pickup</td><td>beat 监听客户端播放的这个声音事件。</td></tr>
+<tr id="scene-fields-field-biomes"><th scope="row"><code>biomes</code></th><td>对象，默认为 {}</td><td>biome 规则按「精确群系 ID → 首个匹配的 #标签 → *」查找变体。</td></tr>
+<tr id="scene-fields-field-biomes-id-shape"><th scope="row"><code>biomes.&lt;id&gt;.shape</code></th><td>字符串，默认 spark</td><td>选择散射粒子的形状，例如 spark 火花、snow 雪花、dust 尘片。未识别的名称会绘制十字火花。</td></tr>
+<tr id="scene-fields-field-biomes-id-color"><th scope="row"><code>biomes.&lt;id&gt;.color</code></th><td>#RRGGBB，默认沿用规则主色</td><td>覆盖这个群系或标签所用的粒子颜色。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="scene-types">场景触发条件与可用字段</h3>
+<p>将第一列的名称填入 type。例如，调高 turn 的 threshold，只有更急的转弯才会出现月牙弧光。</p>
+<div class="table-wrap"><table aria-labelledby="scene-types"><thead><tr><th scope="col">规则类型</th><th scope="col">生效字段</th><th scope="col">触发条件与效果</th></tr></thead><tbody>
+<tr id="scene-types-field-stars"><th scope="row"><code>stars</code></th><td><code>range, count, width, color</code></td><td>连接相邻经验球，count 限制每颗球的连线数量。</td></tr>
+<tr id="scene-types-field-chain"><th scope="row"><code>chain</code></th><td><code>range, count, width, duration, color, secondary</code></td><td>拾取时，电弧在 range 内跳到尚未连接的最近经验球。count 限制跳跃次数。</td></tr>
+<tr id="scene-types-field-combo"><th scope="row"><code>combo</code></th><td><code>threshold, count, radius, duration, color</code></td><td>本机玩家在 threshold 秒内再次拾取，光环就会变大。count 限制连击档数。</td></tr>
+<tr id="scene-types-field-level"><th scope="row"><code>level</code></th><td><code>count, width, duration, color, secondary</code></td><td>本机玩家经验等级上升时，向四周发射 count 颗两色交替的火花。</td></tr>
+<tr id="scene-types-field-values"><th scope="row"><code>values</code></th><td><code>threshold, count, radius, width, color, secondary</code></td><td>球内每累积 threshold 点经验就多一圈，最多 count 圈。</td></tr>
+<tr id="scene-types-field-wake"><th scope="row"><code>wake</code></th><td><code>range, count, radius, color, secondary</code></td><td>经验球进入玩家周围 range 格时，距离越近，count 片花瓣张得越开。</td></tr>
+<tr id="scene-types-field-turn"><th scope="row"><code>turn</code></th><td><code>threshold, radius, duration, color</code></td><td>运动方向改变至少 threshold 度时绘制月牙，冷却为 4 tick。</td></tr>
+<tr id="scene-types-field-speed"><th scope="row"><code>speed</code></th><td><code>threshold, width, color, secondary</code></td><td>用平滑后的球速为最近一段轨迹着色，达到 threshold 格/tick 时使用 secondary。</td></tr>
+<tr id="scene-types-field-groundcolor"><th scope="row"><code>groundcolor</code></th><td><code>range, width, color</code></td><td>采样下方实体表面的地图颜色，无有效颜色时用 color。与 speed 同用时混合两种着色。</td></tr>
+<tr id="scene-types-field-underwater"><th scope="row"><code>underwater</code></th><td><code>width, radius, duration, color, secondary</code></td><td>在水中生成气泡，进出水时产生水平圆环，环色取 secondary。</td></tr>
+<tr id="scene-types-field-rain"><th scope="row"><code>rain</code></th><td><code>width, duration, color</code></td><td>经验球暴露于雨中时生成雨滴，频率随当地降雨强度变化。</td></tr>
+<tr id="scene-types-field-dusk"><th scope="row"><code>dusk</code></th><td><code>radius, sprite, color, secondary</code></td><td>根据世界时钟在白天色和夜间色之间渐变。</td></tr>
+<tr id="scene-types-field-biome"><th scope="row"><code>biome</code></th><td><code>biomes, count, width, duration, color</code></td><td>每 3 tick 按当前位置的群系散出粒子，可以为各个群系单独设置形状和颜色。</td></tr>
+<tr id="scene-types-field-dust"><th scope="row"><code>dust</code></th><td><code>range, threshold, count, width, duration, color</code></td><td>移动的经验球靠近实体地面时扬尘。range 为探测距离，threshold 为扬尘高度，越贴近地面频率越高。</td></tr>
+<tr id="scene-types-field-capture"><th scope="row"><code>capture</code></th><td><code>range, radius, width, duration, color</code></td><td>经验球靠近时，一点光在球与玩家之间环绕；本机玩家拾取后，光点沿弧线收拢。</td></tr>
+<tr id="scene-types-field-beat"><th scope="row"><code>beat</code></th><td><code>sound, range, threshold, radius, duration, color</code></td><td>指定声音播放时，声源附近的经验球产生光环。threshold 为触发之间的最短秒数。</td></tr>
+</tbody></table></div></div>
+      </section>
+      <section class="chapter" id="advanced-optics" aria-labelledby="title-advanced-optics">
+        <h2 id="title-advanced-optics">点光与热折射 · advanced.optics</h2>
+        <p class="intro">在 advanced 里加入一个 optics 对象，找一面有纹理的墙，让球从墙前经过来观察变化。 示例方案：<a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/workshop-beacon.json">萤石信标</a>。</p>
+<div class="parameter-group"><h3 id="optics-fields">点光与热折射参数</h3>
+<p>每份方案选择一种模式。观察点光时可把球引到墙边，观察热折射时可让球从有纹理的表面前方飞过。</p>
+<div class="table-wrap"><table aria-labelledby="optics-fields"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="optics-fields-field-type"><th scope="row"><code>type</code></th><td>light / heat，必填</td><td>light 照亮球附近的可见表面；heat 让穿过球周围空间的背景产生折射。</td></tr>
+<tr id="optics-fields-field-radius"><th scope="row"><code>radius</code></th><td>0.1～8 格，light 默认 3.25，heat 默认 0.75</td><td>每颗经验球周围的光照或折射半径。</td></tr>
+<tr id="optics-fields-field-strength"><th scope="row"><code>strength</code></th><td>light 为 0～4，默认 1.4；heat 为 0～12，默认 3</td><td>控制点光强度，或热折射的画面偏移幅度。设为 0 会跳过光学效果。</td></tr>
+<tr id="optics-fields-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB，默认 #FFCB72</td><td>light 模式使用的光照颜色。</td></tr>
+<tr id="optics-fields-field-speed"><th scope="row"><code>speed</code></th><td>0～5，默认 1</td><td>heat 模式的波纹速度。设为 0 会让波纹静止，折射仍然可见。</td></tr>
+<tr id="optics-fields-field-maxorbs"><th scope="row"><code>maxOrbs</code></th><td>1～8，默认 6</td><td>限制同时参与计算的球数，优先选取 renderRange 内离相机最近的经验球。</td></tr>
+</tbody></table></div></div>
+      </section>
+      <section class="chapter" id="advanced-workshop" aria-labelledby="title-advanced-workshop">
+        <h2 id="title-advanced-workshop">工坊模块 · advanced.workshop</h2>
+        <p class="intro">advanced.workshop 是一个最多含 17 个对象的数组。每个对象需要一个 type，同一类型只能出现一次。使用 ink 或 events 时，还可以查阅发射器字段和事件连接两张表。 示例方案：<a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/lab-events.json">二次落地碎雪</a>。</p>
+<nav class="parameter-links" aria-label="跳转到参数表"><a href="#ws-assemble">拾取时拼图（assemble）</a> <a href="#ws-shed">飞行中剥落像素（shed）</a> <a href="#ws-directional">八方向精灵图（directional）</a> <a href="#ws-relief">像素浮雕（relief）</a> <a href="#ws-fracture">拾取时碎裂（fracture）</a> <a href="#ws-rig">关节模型（rig）</a> <a href="#ws-brush">压感笔迹（brush）</a> <a href="#ws-morph">变形截面（morph）</a> <a href="#ws-hoops">轨迹光环（hoops）</a> <a href="#ws-hand">飞向手部（hand）</a> <a href="#ws-school">鱼群（school）</a> <a href="#ws-crossing">轨迹交结（crossing）</a> <a href="#ws-current">水流微光（current）</a> <a href="#ws-redstone">红石花瓣（redstone）</a> <a href="#ws-fusion">经验球光桥（fusion）</a> <a href="#ws-ink">墨迹（ink）</a> <a href="#ws-events">粒子事件（events）</a> <a href="#ws-emitters">发射器字段</a> <a href="#ws-links">事件连接</a></nav>
+<div class="parameter-group"><h3 id="ws-assemble">workshop · 拾取时拼图（assemble）</h3>
+<p>开启 pickupFlash 后，像素会在拾取位置拼成经验球精灵图的第一帧。像素工坊的字段在载入时校验。</p>
+<div class="table-wrap"><table aria-labelledby="ws-assemble"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-assemble-field-sprite"><th scope="row"><code>sprite</code></th><td>经验球精灵图 ID，默认 sprite:orb/luna-moth</td><td>选择要拼成的图案。找不到素材时不会生成拼图。</td></tr>
+<tr id="ws-assemble-field-mode"><th scope="row"><code>mode</code></th><td>fill（默认）或 outline</td><td>fill 取全部可见格，outline 仅取外边缘及孔洞边缘。</td></tr>
+<tr id="ws-assemble-field-capturetrail"><th scope="row"><code>captureTrail</code></th><td>布尔值，默认 true</td><td>优先从仍在场的 shed 像素起步。未启用 shed 时使用拼图效果自己留下的光点。设为 false 或没有可用光点时，从球体周围随机起步。</td></tr>
+<tr id="ws-assemble-field-samples"><th scope="row"><code>samples</code></th><td>整数 4–512，默认 256</td><td>限制参与拼图的格数。采样网格的长边最多 32 格。</td></tr>
+<tr id="ws-assemble-field-size"><th scope="row"><code>size</code></th><td>0.05–4 格，默认 0.9</td><td>指定完整源帧（含裁剪前空白）的长边在世界中的尺寸。</td></tr>
+<tr id="ws-assemble-field-formticks"><th scope="row"><code>formTicks</code></th><td>整数 1–120 刻，默认 14</td><td>像素聚拢成图所用时间。</td></tr>
+<tr id="ws-assemble-field-holdticks"><th scope="row"><code>holdTicks</code></th><td>整数 0–120 刻，默认 10</td><td>成图后停留多久再散开。</td></tr>
+<tr id="ws-assemble-field-disperseticks"><th scope="row"><code>disperseTicks</code></th><td>整数 1–120 刻，默认 12</td><td>像素散开并消失所用时间。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-shed">workshop · 飞行中剥落像素（shed）</h3>
+<p>移动时，经验球从当前图案上剥落彩色像素。每个采样位置会在工坊球体上留下持续 4 刻的空缺。</p>
+<div class="table-wrap"><table aria-labelledby="ws-shed"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-shed-field-mode"><th scope="row"><code>mode</code></th><td>edge（默认）或 all</td><td>edge 从图案边缘剥落，all 从全部可见区域中抽取。</td></tr>
+<tr id="ws-shed-field-count"><th scope="row"><code>count</code></th><td>整数 1–16，默认 3</td><td>每颗移动经验球每刻剥落的像素数。</td></tr>
+<tr id="ws-shed-field-lifeticks"><th scope="row"><code>lifeTicks</code></th><td>整数 1–120 刻，默认 20</td><td>每个脱落像素的可见时长。每颗经验球最多保留 128 个脱落像素。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-directional">workshop · 八方向精灵图（directional）</h3>
+<p>把精灵图的帧按顺序分成八组，每组帧数相同。相机相对于经验球朝向的角度决定显示哪组。</p>
+<div class="table-wrap"><table aria-labelledby="ws-directional"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-directional-field-sprite"><th scope="row"><code>sprite</code></th><td>经验球精灵图 ID，默认 sprite:orb/lab-skiff</td><td>方向显示要求图集能载入且总帧数是 8 的倍数，否则会尝试浮雕或飞行素材，再尝试已启用的原版球体。</td></tr>
+<tr id="ws-directional-field-size"><th scope="row"><code>size</code></th><td>0.05–4 格，默认 0.8</td><td>八方向图案原始帧长边的世界尺寸。</td></tr>
+<tr id="ws-directional-field-fps"><th scope="row"><code>fps</code></th><td>0.1–60 帧/秒，默认 10</td><td>在选中的方向组内循环播放。组内只有一帧时保持静止。</td></tr>
+<tr id="ws-directional-field-heading"><th scope="row"><code>heading</code></th><td>−360–360 度，默认 0</td><td>初始水平朝向，0 度指向 +Z。水平速度超过 0.005 格/刻后，朝向改为移动方向。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-relief">workshop · 像素浮雕（relief）</h3>
+<p>把图案的可见采样格挤出成立体色块。如果 directional 同时提供了有效帧，浮雕会采用该帧及其尺寸。</p>
+<div class="table-wrap"><table aria-labelledby="ws-relief"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-relief-field-sprite"><th scope="row"><code>sprite</code></th><td>经验球精灵图 ID，默认取 flightEffect</td><td>选择颜色和轮廓。找不到精灵图时，启用显示的原版经验球可提供图案。</td></tr>
+<tr id="ws-relief-field-heightmap"><th scope="row"><code>heightMap</code></th><td>经验球精灵图 ID，默认省略</td><td>高度取遮罩亮度乘以透明度。没有可用遮罩时，按原图采样格的颜色计算。</td></tr>
+<tr id="ws-relief-field-size"><th scope="row"><code>size</code></th><td>0.05–4 格，默认 0.8</td><td>浮雕精灵图原始帧长边的尺寸。回退到原版球体时尺寸固定为 0.30 格。</td></tr>
+<tr id="ws-relief-field-depth"><th scope="row"><code>depth</code></th><td>0–3 格，默认 0.23</td><td>最亮像素额外增加的厚度。设为 0 时仍保留相当于 0.3 个源像素的基础厚度。</td></tr>
+<tr id="ws-relief-field-spin"><th scope="row"><code>spin</code></th><td>−360–360 度/秒，默认 35</td><td>在经验球运动朝向的基础上绕竖轴旋转，正负号决定旋转方向。</td></tr>
+<tr id="ws-relief-field-minresolution"><th scope="row"><code>minResolution</code></th><td>整数 2–64，默认 2</td><td>长边目标采样格数的下限，必须小于或等于 maxResolution。</td></tr>
+<tr id="ws-relief-field-maxresolution"><th scope="row"><code>maxResolution</code></th><td>整数 2–64，默认 32</td><td>长边目标采样格数的上限，实际可见细节也受素材本身分辨率限制。</td></tr>
+<tr id="ws-relief-field-pixelbudget"><th scope="row"><code>pixelBudget</code></th><td>整数 4–16384，默认 1200</td><td>预算除以追踪球数，开平方后向下取整，再限制在上述上下限内。最低分辨率可使实际用量超过预算。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-fracture">workshop · 拾取时碎裂（fracture）</h3>
+<p>开启 pickupFlash 后，经验球当前图案会在拾取处碎裂，碎片旋转着向外落下。</p>
+<div class="table-wrap"><table aria-labelledby="ws-fracture"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-fracture-field-fracturemap"><th scope="row"><code>fractureMap</code></th><td>经验球精灵图 ID，默认省略</td><td>以深色线切分上下左右相连的区域。线条要求 alpha ≥ 128/255 且乘过 alpha 的亮度 &lt; 0.4。遮罩缺失或全是分隔线时自动生成碎片。</td></tr>
+<tr id="ws-fracture-field-shards"><th scope="row"><code>shards</code></th><td>整数 2–32，默认 7</td><td>自动生成碎片时的种子点数。使用有效 fractureMap 时，碎片分组由遮罩决定。</td></tr>
+<tr id="ws-fracture-field-lifeticks"><th scope="row"><code>lifeTicks</code></th><td>整数 1–120 刻，默认 22</td><td>碎片飞散、下落并淡出的总时长。</td></tr>
+<tr id="ws-fracture-field-spread"><th scope="row"><code>spread</code></th><td>0–3，默认 0.7</td><td>控制整段动画的向外位移。设为 0 时仍会沿竖直弧线运动。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-rig">workshop · 关节模型（rig）</h3>
+<p>用彩色三角面和四边面搭建经验球模型，根节点会随移动方向转动。载入时会检查关节数组、父子顺序、向量和面索引。动画数值及缩放会被限制在取值范围内，颜色无效时使用默认色。</p>
+<div class="table-wrap"><table aria-labelledby="ws-rig"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-rig-field-scale"><th scope="row"><code>scale</code></th><td>0.1–4，默认 1</td><td>与预设的 orbScale 相乘，缩放整个模型及各关节的偏移。</td></tr>
+<tr id="ws-rig-field-joints"><th scope="row"><code>joints</code></th><td>必填，含 1–24 个对象的数组</td><td>先定义父关节，再定义子关节。各关节也按此顺序提交面片。</td></tr>
+<tr id="ws-rig-field-joints-id"><th scope="row"><code>joints[].id</code></th><td>必填，不可重复的非空白字符串</td><td>为关节命名，供子关节通过 parent 引用。</td></tr>
+<tr id="ws-rig-field-joints-parent"><th scope="row"><code>joints[].parent</code></th><td>前面已定义的关节 ID，默认为空字符串</td><td>将枢轴依附到指定关节。空字符串表示依附到模型根节点。</td></tr>
+<tr id="ws-rig-field-joints-vertices"><th scope="row"><code>joints[].vertices</code></th><td>必填，3–48 个 [x,y,z] 顶点，每个分量 −8…8</td><td>顶点相对于本关节枢轴的位置，坐标使用缩放前的模型单位。</td></tr>
+<tr id="ws-rig-field-joints-faces"><th scope="row"><code>joints[].faces</code></th><td>必填，1–48 个面，每个面含 3 或 4 个整数索引</td><td>按边界顺序引用本关节的顶点。首个顶点索引为 0，最后一个为顶点数减 1。</td></tr>
+<tr id="ws-rig-field-joints-pivot"><th scope="row"><code>joints[].pivot</code></th><td>[x,y,z]，每个分量 −8…8，默认 [0,0,0]</td><td>在父关节的局部坐标系中，从父枢轴到本枢轴的偏移。</td></tr>
+<tr id="ws-rig-field-joints-axis"><th scope="row"><code>joints[].axis</code></th><td>[x,y,z]，每个分量 −8…8，向量长度 ≥ 0.001，默认 [0,1,0]</td><td>局部旋转轴。渲染前会把向量归一化，只保留方向。</td></tr>
+<tr id="ws-rig-field-joints-basedegrees"><th scope="row"><code>joints[].baseDegrees</code></th><td>−360–360 度，默认 0</td><td>关节绕自身旋转轴的基础角度。</td></tr>
+<tr id="ws-rig-field-joints-swingdegrees"><th scope="row"><code>joints[].swingDegrees</code></th><td>−360–360 度，默认 0</td><td>相对于基础角度的正弦摆幅。设为 0 时保持基础角度。</td></tr>
+<tr id="ws-rig-field-joints-periodticks"><th scope="row"><code>joints[].periodTicks</code></th><td>2–600 刻，默认 16</td><td>完成一个摆动周期所用的时间。</td></tr>
+<tr id="ws-rig-field-joints-phasedegrees"><th scope="row"><code>joints[].phaseDegrees</code></th><td>−720–720 度，默认 0</td><td>偏移摆动相位，让不同关节错开摆动。</td></tr>
+<tr id="ws-rig-field-joints-color"><th scope="row"><code>joints[].color</code></th><td>#RRGGBB，默认 #5ECFC7</td><td>本关节所有面的填充颜色。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-brush">workshop · 压感笔迹（brush）</h3>
+<p>用压感笔迹替代常规拖尾，笔压与笔尖倾斜会随移动变化。下列数值范围是渲染时的限制，非数值输入使用默认值。</p>
+<div class="table-wrap"><table aria-labelledby="ws-brush"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-brush-field-width"><th scope="row"><code>width</code></th><td>0.005–1 格，默认取预设的 width</td><td>施加笔压前的笔迹宽度。</td></tr>
+<tr id="ws-brush-field-nibdegrees"><th scope="row"><code>nibDegrees</code></th><td>−180–180 度，默认 42</td><td>笔尖绕路径切线的基础旋转角。</td></tr>
+<tr id="ws-brush-field-tiltdegrees"><th scope="row"><code>tiltDegrees</code></th><td>0–180 度，默认 75</td><td>弯道引起的倾斜幅度上限。设为 0 时转弯不会引起倾斜。</td></tr>
+<tr id="ws-brush-field-turnpressure"><th scope="row"><code>turnPressure</code></th><td>0–4，默认 1</td><td>按转弯角度增加笔压，使弯道的笔迹变宽。</td></tr>
+<tr id="ws-brush-field-speedsensitivity"><th scope="row"><code>speedSensitivity</code></th><td>0–100，默认 6</td><td>随速度升高降低笔压。设为 0 时，笔压不会随速度改变。</td></tr>
+<tr id="ws-brush-field-memory"><th scope="row"><code>memory</code></th><td>0–0.95，默认 0.48</td><td>每次采样时保留上一点笔压和倾斜的比例。数值越大，变化越平缓。</td></tr>
+<tr id="ws-brush-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB，默认取对应路径位置的预设渐变色</td><td>为整条笔迹指定单色，覆盖沿路径的渐变。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-morph">workshop · 变形截面（morph）</h3>
+<p>用变形截面的轨迹替代常规拖尾，从头部向尾部依次变为圆形、星形和扁平形。颜色取预设渐变，截面使用 crossSectionSides 或已启用的自定义 crossSectionRadii。数值范围是渲染时的限制。</p>
+<div class="table-wrap"><table aria-labelledby="ws-morph"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-morph-field-radius"><th scope="row"><code>radius</code></th><td>0.005–1 格，默认取预设 width 的一半</td><td>截面变形及各方向的自定义缩放之前的基础半径。</td></tr>
+<tr id="ws-morph-field-starpoints"><th scope="row"><code>starPoints</code></th><td>整数 2–12，默认 4</td><td>星形的尖角数。实际轮廓的精细度还取决于预设截面的边数。小数先限制范围再取整。</td></tr>
+<tr id="ws-morph-field-innerradius"><th scope="row"><code>innerRadius</code></th><td>0.05–1，默认 0.35</td><td>星形内凹顶点的半径与外半径的比值。</td></tr>
+<tr id="ws-morph-field-starposition"><th scope="row"><code>starPosition</code></th><td>0.05–0.95，默认 0.5</td><td>星形最完整的位置，按从头（0）到尾（1）的路径长度比例计算。</td></tr>
+<tr id="ws-morph-field-flatness"><th scope="row"><code>flatness</code></th><td>0.001–1，默认 0.045</td><td>尾端在截面一条轴上保留的比例。越小越扁。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-hoops">workshop · 轨迹光环（hoops）</h3>
+<p>沿路径布置光环，拾取时有火花依次穿过。关闭 pickupFlash 也能回放。载入时会检查 order 和精灵图 ID，下列数值范围是渲染时的限制。</p>
+<div class="table-wrap"><table aria-labelledby="ws-hoops"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-hoops-field-spacing"><th scope="row"><code>spacing</code></th><td>0.08–4 格，默认 0.4</td><td>按实际路径长度计算的相邻光环间距。</td></tr>
+<tr id="ws-hoops-field-maxrings"><th scope="row"><code>maxRings</code></th><td>整数 2–48，默认 18</td><td>每颗经验球最多保留的光环数，优先移除最旧的。小数先限制范围再取整。</td></tr>
+<tr id="ws-hoops-field-radius"><th scope="row"><code>radius</code></th><td>0.02–2 格，默认 0.19</td><td>拾取时开始扩张之前的基础半径。</td></tr>
+<tr id="ws-hoops-field-width"><th scope="row"><code>width</code></th><td>0.003–0.3 格，默认 0.018</td><td>控制几何圆环的线宽和回放火花的大小。精灵图圆环自身的线宽取决于图片。</td></tr>
+<tr id="ws-hoops-field-order"><th scope="row"><code>order</code></th><td>reverse（默认）、forward，或 1–48 个互不重复的整数（−48 至 47）</td><td>reverse 从新到旧，forward 从旧到新。数组中 0 代表最旧，−1 代表最新。跳过当前不存在的索引，未列出的光环接在后面，按从新到旧回放。</td></tr>
+<tr id="ws-hoops-field-replayticks"><th scope="row"><code>replayTicks</code></th><td>2–200 刻，默认 20</td><td>火花走完整条回放路径所用的时间。</td></tr>
+<tr id="ws-hoops-field-expandticks"><th scope="row"><code>expandTicks</code></th><td>2–80 刻，默认 8</td><td>火花抵达单个光环后，该光环扩张并淡出的时间。</td></tr>
+<tr id="ws-hoops-field-expansion"><th scope="row"><code>expansion</code></th><td>0–8，默认 1.7</td><td>扩张时额外增加的半径倍数。结束时半径接近基础半径 × (1 + expansion)。</td></tr>
+<tr id="ws-hoops-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB，默认 #689EB7</td><td>火花抵达前的光环颜色。</td></tr>
+<tr id="ws-hoops-field-litcolor"><th scope="row"><code>litColor</code></th><td>#RRGGBB，默认 #FFDFA1</td><td>回放火花及点亮光环的颜色。</td></tr>
+<tr id="ws-hoops-field-sprite"><th scope="row"><code>sprite</code></th><td>none（默认）或拖尾精灵图 ID</td><td>使用垂直于路径的精灵图作为光环。没有可用素材时画出 16 边线环。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-hand">workshop · 飞向手部（hand）</h3>
+<p>开启 pickupFlash 后，拾取轨迹会飞向玩家随动作移动的手。载入时校验目标手名称和向量，动画数值范围是渲染时的限制。</p>
+<div class="table-wrap"><table aria-labelledby="ws-hand"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-hand-field-targethand"><th scope="row"><code>targetHand</code></th><td>auto（默认）、main、off</td><td>auto 优先选择持剑的主手。否则，副手拿灯笼或只有副手持物时选择副手，其余情况选择主手。</td></tr>
+<tr id="ws-hand-field-mainpoint"><th scope="row"><code>mainPoint</code></th><td>[x,y,z]，每个分量 −8…8，默认 [0.94,0.94,0.5]</td><td>主手物品模型局部坐标中的命中点。空手或手部未渲染时跟随握持位置。</td></tr>
+<tr id="ws-hand-field-offpoint"><th scope="row"><code>offPoint</code></th><td>[x,y,z]，每个分量 −8…8，默认 [0.5,0.38,0.5]</td><td>副手物品上的命中点。取不到物品姿态时，使用镜像后的握持位置。</td></tr>
+<tr id="ws-hand-field-durationticks"><th scope="row"><code>durationTicks</code></th><td>2–200 刻，默认 18</td><td>从拾取到火花抵达手部的时间。</td></tr>
+<tr id="ws-hand-field-archeight"><th scope="row"><code>arcHeight</code></th><td>−4–4 格，默认 0.65</td><td>飞行到一半时的竖直偏移。负值让轨迹向下弯。</td></tr>
+<tr id="ws-hand-field-width"><th scope="row"><code>width</code></th><td>0.003–0.3 格，默认 0.032</td><td>火花附近的最大线宽，同时控制火花尺寸。</td></tr>
+<tr id="ws-hand-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB，默认 #FFD27E</td><td>火花与后方弧线的颜色。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-school">workshop · 鱼群（school）</h3>
+<p>在 advanced.workshop 数组中添加 type 为 school 的对象。鱼沿两列错落的队形跟随经验球，遇到实体方块会尝试绕行。</p>
+<div class="table-wrap"><table aria-labelledby="ws-school"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-school-field-count"><th scope="row"><code>count</code></th><td>整数 2–12，默认 6</td><td>每颗被追踪的经验球带几条鱼。</td></tr>
+<tr id="ws-school-field-spacing"><th scope="row"><code>spacing</code></th><td>0.08–0.6 格，默认 0.24</td><td>相邻两排的前后间距。增大时，两列之间也会拉宽。</td></tr>
+<tr id="ws-school-field-size"><th scope="row"><code>size</code></th><td>0.04–0.25 格，默认 0.11</td><td>控制鱼身的基础大小。使用精灵图时，绘制尺寸为该值的 2.5 倍。</td></tr>
+<tr id="ws-school-field-speed"><th scope="row"><code>speed</code></th><td>0.025–0.4 格/刻，默认 0.13</td><td>鱼追赶队形和绕开障碍时的最高速度。</td></tr>
+<tr id="ws-school-field-sprite"><th scope="row"><code>sprite</code></th><td>none 或 sprite:orb/name，默认 none</td><td>已加载的经验球精灵图会随鱼的前进方向转动。没有可用贴图时会绘制几何鱼身和鱼尾。</td></tr>
+<tr id="ws-school-field-color"><th scope="row"><code>color</code><br><code>secondary</code></th><td>均为 #RRGGBB，依次默认为 #8AEDCF、#FFEDAC</td><td>几何鱼的鱼身色和鱼尾、鳃部点缀色。使用精灵图时，显示贴图原色。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-crossing">workshop · 轨迹交结（crossing）</h3>
+<p>使用 type 为 crossing 的对象。两颗不同经验球最近经过的路径横向相交时，交点会亮起一个光结。接近平行的路径不会触发。</p>
+<div class="table-wrap"><table aria-labelledby="ws-crossing"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-crossing-field-tolerance"><th scope="row"><code>tolerance</code></th><td>0.015–0.3 格，默认 0.12</td><td>两段交叉轨迹之间允许的最大三维距离。增大后，擦肩而过的轨迹也能触发。</td></tr>
+<tr id="ws-crossing-field-memoryticks"><th scope="row"><code>memoryTicks</code></th><td>整数 2–50 刻，默认 20</td><td>向前回看另一颗经验球轨迹的时长。所有经验球共用最多 256 段路径记录。</td></tr>
+<tr id="ws-crossing-field-lifetimeticks"><th scope="row"><code>lifetimeTicks</code></th><td>整数 4–48 刻，默认 16</td><td>光结由出现到消退的时长。同一对经验球在同一处附近再次触发也受该间隔限制。最多保留 32 个光结。</td></tr>
+<tr id="ws-crossing-field-color"><th scope="row"><code>color</code><br><code>secondary</code></th><td>均为 #RRGGBB，依次默认为 #8AEDCF、#FFEDAC</td><td>依次控制光结轮廓和向外散开的火花。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-current">workshop · 水流微光（current）</h3>
+<p>使用 type 为 current 的对象显示经验球附近的流向。微光会顺着流体移动，也能随气泡柱上升或下沉。静止流体不会产生微光。</p>
+<div class="table-wrap"><table aria-labelledby="ws-current"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-current-field-pertick"><th scope="row"><code>perTick</code></th><td>整数 1–3，默认 1</td><td>每颗经验球每刻尝试在流体中生成微光的次数。全部经验球合计最多同时显示 160 个。</td></tr>
+<tr id="ws-current-field-speed"><th scope="row"><code>speed</code></th><td>0.025–0.4，默认 0.13</td><td>每刻按这个倍数缩放当地流体的流速向量。水流越快，微光每刻移动得越远。</td></tr>
+<tr id="ws-current-field-lifetimeticks"><th scope="row"><code>lifetimeTicks</code></th><td>整数 4–48 刻，默认 16</td><td>单个微光从出现到淡出的最长时间。离开有效水流会提前消失。</td></tr>
+<tr id="ws-current-field-color"><th scope="row"><code>color</code><br><code>secondary</code></th><td>均为 #RRGGBB，依次默认为 #8AEDCF、#FFEDAC</td><td>依次控制沿流向的长光痕和短横线。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-redstone">workshop · 红石花瓣（redstone）</h3>
+<p>使用 type 为 redstone 的对象，让花瓣对 0–15 级红石信号作出反应。经验球所在方块有红石线时读取线的强度，其他位置读取相邻方块传入的最强信号。</p>
+<div class="table-wrap"><table aria-labelledby="ws-redstone"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-redstone-field-count"><th scope="row"><code>count</code></th><td>整数 2–12，默认 6</td><td>环绕经验球排列的花瓣数。</td></tr>
+<tr id="ws-redstone-field-radius"><th scope="row"><code>radius</code></th><td>0.04–0.65 格，默认 0.34</td><td>花形的基础半径，同时影响瓣尖高度和展开幅度。</td></tr>
+<tr id="ws-redstone-field-response"><th scope="row"><code>response</code></th><td>both、opening、brightness，默认 both</td><td>both 让开合与明暗均跟随信号。opening 将亮度系数固定为 85%，brightness 将展开系数固定为 60%。亮度同时控制混色和透明度。</td></tr>
+<tr id="ws-redstone-field-color"><th scope="row"><code>color</code><br><code>secondary</code></th><td>均为 #RRGGBB，依次默认为 #8AEDCF、#FFEDAC</td><td>弱信号色和强信号色。response 为 opening 时，两色的混合比例固定。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-fusion">workshop · 经验球光桥（fusion）</h3>
+<p>使用 type 为 fusion 的对象，在相邻经验球之间形成光桥。两球越近，桥身中间越粗。每帧最多绘制 12 座光桥。</p>
+<div class="table-wrap"><table aria-labelledby="ws-fusion"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-fusion-field-range"><th scope="row"><code>range</code></th><td>0.35–3 格，默认 1.6</td><td>两球中心距离大于 0.03 格并小于此值时绘制光桥。</td></tr>
+<tr id="ws-fusion-field-radius"><th scope="row"><code>radius</code></th><td>0.04–0.65 格，默认 0.13</td><td>光桥与两端经验球相接处的半径。球距越远，中部越细。</td></tr>
+<tr id="ws-fusion-field-color"><th scope="row"><code>color</code><br><code>secondary</code></th><td>均为 #RRGGBB，依次默认为 #8AEDCF、#FFEDAC</td><td>依次控制光桥表面和沿桥身延伸的高光。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-ink">workshop · 墨迹（ink）</h3>
+<p>type 为 ink 时，可以用命名发射器组合效果。例如“墨迹落印” 在碰到固体时留下贴花，在碰到水面时画出涟漪。ink 与 events 使用相同字段，可在同一预设内并用。</p>
+<div class="table-wrap"><table aria-labelledby="ws-ink"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-ink-field-trigger"><th scope="row"><code>trigger</code></th><td>pickup 或 flight，默认 pickup</td><td>pickup 在经验球被收集且 pickupFlash 开启时触发。flight 在追踪期间定时触发，经验球静止时也可触发。</td></tr>
+<tr id="ws-ink-field-interval"><th scope="row"><code>interval</code></th><td>整数 1–200 刻，默认 8</td><td>同一颗球两次飞行发射间隔的刻数，不同球错开发射。仅用于 flight。</td></tr>
+<tr id="ws-ink-field-root"><th scope="row"><code>root</code></th><td>必填，值为发射器名</td><td>指定从经验球位置启动的发射器。起点没有接触面，需要可见起始效果时选 kind 为 particle 的发射器。</td></tr>
+<tr id="ws-ink-field-emitters"><th scope="row"><code>emitters</code></th><td>必填对象，包含 1–24 个命名发射器</td><td>键名须匹配 [a-z0-9_-]{1,48}。在此定义根发射器和所有事件引用的子发射器。每个定义的字段见下文的发射器与事件连接表。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-events">workshop · 粒子事件（events）</h3>
+<p>type 为 events 时，可以把粒子的出生、碰撞和消失串联起来。“二次落地碎雪”示例在出生时生成闪光，第二次撞击时飞出雪花，消失时留下余辉。每张图最多同时保留 768 个粒子，每刻最多生成 128 个，根发射器之后最多再触发四代。</p>
+<div class="table-wrap"><table aria-labelledby="ws-events"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-events-field-trigger"><th scope="row"><code>trigger</code></th><td>pickup 或 flight，默认 pickup</td><td>pickup 在经验球被收集且 pickupFlash 开启时触发。flight 在追踪期间定时触发，经验球静止时也可触发。</td></tr>
+<tr id="ws-events-field-interval"><th scope="row"><code>interval</code></th><td>整数 1–200 刻，默认 8</td><td>同一颗球两次飞行发射间隔的刻数，不同球错开发射。仅用于 flight。</td></tr>
+<tr id="ws-events-field-root"><th scope="row"><code>root</code></th><td>必填，值为发射器名</td><td>指定从经验球位置启动的发射器。起点没有接触面，需要可见起始效果时选 kind 为 particle 的发射器。</td></tr>
+<tr id="ws-events-field-emitters"><th scope="row"><code>emitters</code></th><td>必填对象，包含 1–24 个命名发射器</td><td>键名须匹配 [a-z0-9_-]{1,48}。在此定义根发射器和所有事件引用的子发射器。每个定义的字段见下文的发射器与事件连接表。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-emitters">ink / events · 发射器字段</h3>
+<p>以下字段写在 emitters.&lt;名称&gt; 对象中。三种粒子都能设置数量、寿命、尺寸、颜色和淡出。贴花与光环还需要由事件连接传入命中表面的朝向。</p>
+<div class="table-wrap"><table aria-labelledby="ws-emitters"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-emitters-field-kind"><th scope="row"><code>kind</code></th><td>particle、decal、ring，默认 particle</td><td>particle 会移动。decal 在命中表面绘制方形贴花。ring 在表面绘制向外扩张的环形轮廓。</td></tr>
+<tr id="ws-emitters-field-count"><th scope="row"><code>count</code></th><td>整数 1–64，默认 1</td><td>每次触发该发射器时生成的数量，根发射器和事件触发的子发射器都适用。</td></tr>
+<tr id="ws-emitters-field-lifetime"><th scope="row"><code>lifetime</code></th><td>整数 1–200 刻，默认 18</td><td>最大存在时间，到期触发 death。移动粒子耗尽碰撞次数时也会提前结束。</td></tr>
+<tr id="ws-emitters-field-fadeticks"><th scope="row"><code>fadeTicks</code></th><td>整数 0 至 lifetime 刻，默认 max(1, round(lifetime × 0.35))</td><td>生命末段线性淡出的持续刻数。设为 0 时到消失前均保持原透明度。</td></tr>
+<tr id="ws-emitters-field-size"><th scope="row"><code>size</code></th><td>0.004–3 格，默认 0.065</td><td>控制移动粒子或贴花的尺寸。光环半径从该值的 5% 增至 50%。子粒子可继承父粒子的尺寸。</td></tr>
+<tr id="ws-emitters-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB，默认 #FFFFFF</td><td>控制粒子颜色或精灵图着色。连接设置了颜色继承时，子粒子采用父粒子的颜色。</td></tr>
+<tr id="ws-emitters-field-sprite"><th scope="row"><code>sprite</code></th><td>sprite:orb/name、sprite:pickup/name 或 sprite:trail/name，默认为空字符串</td><td>可为移动粒子或贴花指定精灵图。贴图不可用时，移动粒子显示为交叉短线，贴花显示为纯色方块。ring 始终绘制几何轮廓。</td></tr>
+<tr id="ws-emitters-field-face"><th scope="row"><code>face</code></th><td>any、floor、wall、ceiling，默认 any</td><td>限制贴花或光环可以出现的表面。floor 指朝上的面，ceiling 指朝下的面，wall 指侧面。仅用于 decal 和 ring。</td></tr>
+<tr id="ws-emitters-field-velocity"><th scope="row"><code>velocity</code></th><td>[x, y, z]，每轴 −1 至 1 格/刻，默认 [0, 0, 0]</td><td>初始速度，随后叠加随机偏移和继承的速度。正 y 向上。贴花和光环的位置固定。</td></tr>
+<tr id="ws-emitters-field-spread"><th scope="row"><code>spread</code></th><td>0–1 格/刻，默认 0.02</td><td>在初始速度的三个轴上分别加上 −spread 至 +spread 之间的独立随机值。</td></tr>
+<tr id="ws-emitters-field-gravity"><th scope="row"><code>gravity</code></th><td>−0.5 至 0.5 格/刻²，默认 0.005</td><td>每刻从移动粒子的竖直速度中减去此值，取负值时粒子向上加速。</td></tr>
+<tr id="ws-emitters-field-drag"><th scope="row"><code>drag</code></th><td>0–1，默认 0.98</td><td>每刻先将移动粒子的速度乘以此值，再应用重力。设为 1 时完整保留原速度。</td></tr>
+<tr id="ws-emitters-field-collide"><th scope="row"><code>collide</code></th><td>布尔值。存在 on.collision 时默认为 true，否则为 false</td><td>检测移动粒子路径上的碰撞。未定义碰撞事件连接时也可手动开启。</td></tr>
+<tr id="ws-emitters-field-collidefluids"><th scope="row"><code>collideFluids</code></th><td>布尔值，默认 false</td><td>启用 collide 后，若先撞到流体表面，可触发碰撞事件。若要用 water 或 lava 分支，应在移动的父粒子上开启此项。</td></tr>
+<tr id="ws-emitters-field-bounce"><th scope="row"><code>bounce</code></th><td>0–1，默认 0.55</td><td>碰撞后沿表面法线方向反弹的速度比例。0 只保留切向速度，1 表示法向分量完全反弹。</td></tr>
+<tr id="ws-emitters-field-maxhits"><th scope="row"><code>maxHits</code></th><td>整数 1–16，默认 2</td><td>启用 collide 时，移动粒子累计碰撞这么多次后消失。最后一次命中先触发 collision，再触发 death。</td></tr>
+<tr id="ws-emitters-field-on"><th scope="row"><code>on</code></th><td>对象，默认空</td><td>按事件组织子发射器连接，支持的键为 birth、collision、death。</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-links">ink / events · 事件连接</h3>
+<p>在 emitters.&lt;名称&gt;.on 对象内，每个事件都对应一个子连接数组。同一次事件可以在父粒子当前位置触发多个不同的发射器。</p>
+<div class="table-wrap"><table aria-labelledby="ws-links"><thead><tr><th scope="col">JSON 字段</th><th scope="col">取值与默认值</th><th scope="col">作用</th></tr></thead><tbody>
+<tr id="ws-links-field-birth"><th scope="row"><code>birth</code><br><code>collision</code><br><code>death</code></th><td>均为可选数组，每个事件容纳 0–8 个连接对象，默认空</td><td>每个新粒子生成时触发 birth，命中表面后反弹前触发 collision，到期或达到碰撞上限时触发 death。子粒子从该事件发生的位置生成。</td></tr>
+<tr id="ws-links-field-emit"><th scope="row"><code>emit</code></th><td>必填，值为发射器名</td><td>每个连接对象都要指定同一 emitters 对象内定义的子发射器名。递归连接也受该图的代数、每刻生成数和同时存在数限制。</td></tr>
+<tr id="ws-links-field-hit"><th scope="row"><code>hit</code></th><td>整数 0–16，默认 0</td><td>0 表示不筛选次数。collision 中的 1 只匹配第一次碰撞，2 匹配第二次，以此类推。正数仅可用于 collision，超过父粒子 maxHits 的次数不会触发。</td></tr>
+<tr id="ws-links-field-surface"><th scope="row"><code>surface</code></th><td>any、water、lava、solid，默认 any</td><td>按父粒子当前接触的材质过滤，子粒子生成时会带上该材质。移动粒子下一次移动未命中时清空接触信息。水和熔岩命中需要 collideFluids。</td></tr>
+<tr id="ws-links-field-inherit"><th scope="row"><code>inherit</code></th><td>由 color、size、velocity 组成的数组，默认 []</td><td>color 和 size 用父值替换子粒子自身设置。velocity 将父速度加到子粒子的初始速度和随机偏移上。碰撞连接获取的是反弹前的速度。</td></tr>
+</tbody></table></div></div>
       </section>
       <section class="chapter" id="test-and-share-your-look" aria-labelledby="title-test-and-share-your-look">
         <h2 id="title-test-and-share-your-look">测试与分享</h2>

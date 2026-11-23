@@ -27,7 +27,8 @@ for (const chapter of sections) {
   for (const row of chapter.querySelectorAll('tr[id]')) {
     const label = [...row.querySelectorAll('th code')].map(code => code.textContent).join(' / ');
     const values = [...row.cells[1].childNodes].map(node => node.textContent).join(' ');
-    addEntry(row, label, values + ' · ' + row.cells[2].textContent, title);
+    const group = row.closest('.parameter-group')?.querySelector('h3');
+    addEntry(row, label, values + ' · ' + row.cells[2].textContent, group ? title + ' › ' + group.textContent : title);
   }
   for (const term of chapter.querySelectorAll('dt')) {
     addEntry(term, term.textContent, term.nextElementSibling.textContent, title);
