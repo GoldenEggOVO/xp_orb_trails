@@ -51,6 +51,16 @@
             <a href="#effect-packs">Packs &amp; advanced effects</a>
             <a href="#test-and-share-your-look">Test & share</a>
           </div>
+          <div class="nav-group">
+            <p>2.1.0 effect parameters</p>
+            <a href="#advanced-parameters">Where to start</a>
+            <a href="#advanced-body">Orb body</a>
+            <a href="#advanced-trail">Trail geometry</a>
+            <a href="#advanced-pickup">Pickup effects</a>
+            <a href="#advanced-scene">Scene rules</a>
+            <a href="#advanced-optics">Light &amp; heat</a>
+            <a href="#advanced-workshop">Workshop modules</a>
+          </div>
           <div class="mobile-links"><a href="https://github.com/GoldenEggOVO/xp_orb_trails/tree/26.3/examples">Examples ↗</a><a href="https://github.com/GoldenEggOVO/xp_orb_trails">GitHub ↗</a></div>
         </nav>
       </details>
@@ -120,6 +130,7 @@
         <thead><tr><th scope="col">Field</th><th scope="col">Accepted values</th><th scope="col">What it changes</th></tr></thead>
         <tbody>
 <tr id="profile-version"><th scope="row"><code>version</code></th><td>1</td><td>Required JSON format version. Use a number.</td></tr>
+<tr id="profile-advanced"><th scope="row"><code>advanced</code></th><td>Optional object</td><td>See the <a href="#advanced-parameters">advanced reference</a> for body, trail, pickup, scene, optics and workshop fields.</td></tr>
 <tr id="profile-name"><th scope="row"><code>name</code><br><code>nameKey</code></th><td>Text / translation key</td><td>Use name for a fixed label, or nameKey for a translated label. The filename supplies a fallback.</td></tr>
 </tbody></table></div>
         <p>A file profile starts with your <code>defaults.json</code> values, then applies the visual fields it supplies. Personal settings live one level up in <code>config/xp_orb_trails.json</code>. File profiles preserve the active master switch, render range and trail limit. An in-game saved profile captures all three. The raw settings and defaults use integer RGB colors. File profiles use quoted <code>#RRGGBB</code> values.</p>
@@ -370,9 +381,469 @@
         <dl><dt id="topic-orb-body-and-pickup">Orb body and pickup</dt><dd>Use <code>advanced.body</code> for a moving body and <code>advanced.pickup</code> for its response to collection. Spring Flight combines a bird that hovers or glides with a burst of falling petals.</dd>
         <dt id="topic-trails-and-scene-conditions">Trails and scene conditions</dt><dd>Use <code>advanced.trail</code> for trail geometry and <code>advanced.scene</code> for reactions to nearby orbs, blocks, water or sound. The Tideglass profile shows how to set up water ripples.</dd>
         <dt id="topic-workshop-and-optics">Workshop and optics</dt><dd>Use <code>advanced.workshop</code> for effects such as decals, sprite fragments and crossing trails. Surface Prints leaves ink on solid ground and rings on water. For light or heat distortion, look at <code>advanced.optics</code> in Glowstone Beacon or Ember Mirage.</dd></dl>
+        <p><a href="#advanced-parameters">Open the 2.1.0 parameter reference</a> for field ranges, defaults and per-effect settings.</p>
         <h3 id="localize-names">Give a profile a translated name</h3>
         <p>Use a <code>nameKey</code> shared by your profile and your Minecraft resource pack. For example, use <code>my_pack.profile.moonwake</code> in the profile, then give it an English value in <code>assets/my_pack/lang/en_us.json</code> and a Chinese value in <code>assets/my_pack/lang/zh_cn.json</code>. Put the resource pack in Minecraft’s resource packs folder and enable it. The player can then switch languages in Minecraft. A fixed <code>name</code> lets you keep a single label across languages.</p>
         <p>Orb, trail and pickup sprites can also have translated names. Use <code>nameKey</code> at the root of a grid descriptor or in <code>meta.pixelfx</code> for a packed atlas. A PNG-only sprite looks up <code>sprite.xporbtrails.&lt;folder-name&gt;</code>. Version 2.1 recognizes original English labels in older built-in files and official examples. A label you have edited keeps your spelling.</p>
+      </section>
+      <section class="chapter" id="advanced-parameters" aria-labelledby="title-advanced-parameters">
+        <h2 id="title-advanced-parameters">2.1.0 effect parameters</h2>
+        <p class="intro">Edit the <code>advanced</code> object in a profile under <code>config/xp_orb_trails/profiles/</code>, or under <code>profiles/</code> at the root of a pack ZIP. Pick the section for the part of the effect you want to change.</p>
+<nav class="parameter-links" aria-label="Jump to a table"><a href="#advanced-body">Orb body</a> <a href="#advanced-trail">Trail geometry</a> <a href="#advanced-pickup">Pickup effects</a> <a href="#advanced-scene">Scene rules</a> <a href="#advanced-optics">Light &amp; heat</a> <a href="#advanced-workshop">Workshop modules</a></nav>
+<p>A profile that omits <code>advanced</code> inherits it from your defaults. Supplying <code>advanced</code> replaces that whole object, so keep all the sections you want to use together. An empty <code>{}</code> clears the inherited advanced effects.</p>
+<p>In this example, <code>radius</code> sets how far the amber light reaches. Save the file, use <strong>Profiles → File Profiles → Reload Files</strong>, then select <strong>Amber Light</strong> and lead an orb along a wall. The tables list engine defaults. A selected profile can supply its own values.</p>
+<figure class="sample"><figcaption>profiles/amber-light.json</figcaption><pre><code>{
+  "version": 1,
+  "name": "Amber Light",
+  "advanced": {
+    "optics": {
+      "type": "light",
+      "radius": 2.8,
+      "strength": 1.92,
+      "color": "#FFBC63",
+      "maxOrbs": 4
+    }
+  }
+}</code></pre></figure>
+      </section>
+      <section class="chapter" id="advanced-body" aria-labelledby="title-advanced-body">
+        <h2 id="title-advanced-body">Orb body · advanced.body</h2>
+        <p class="intro">Choose a type in advanced.body. Start with the shared fields, then tune the settings for that body. Example profile: <a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/workshop-festival.json">Spring Flight</a>.</p>
+<nav class="parameter-links" aria-label="Jump to a table"><a href="#adv-body">shared fields</a> <a href="#adv-body-planet">planet</a> <a href="#adv-body-firefly">firefly</a> <a href="#adv-body-magnet">magnet</a> <a href="#adv-body-tentacles">tentacles</a> <a href="#adv-body-droplet">droplet</a> <a href="#adv-body-bird">bird</a></nav>
+<div class="parameter-group"><h3 id="adv-body">advanced.body · shared fields</h3>
+<p>Add a body object to draw an effect on tracked orbs. For a replacement body, set showVanillaOrb to false and flightEffect to none. Body and pickup numbers are clamped to the listed ranges, and counts discard the fractional part. Optional values of the wrong type use their defaults. At normal speed, 20 ticks equal one second.</p>
+<div class="table-wrap"><table aria-labelledby="adv-body"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-body-field-type"><th scope="row"><code>type</code></th><td>Required · planet / firefly / magnet / tentacles / droplet / bird</td><td>Select the body. Omit the entire object for no advanced body.</td></tr>
+<tr id="adv-body-field-size"><th scope="row"><code>size</code></th><td>0.005–2 (default 0.1)</td><td>Base size in blocks. Sets the equatorial core radius for planet, the resting radius for droplet, and the longest sprite side for firefly and bird. Scales the magnet marks or tentacle thickness.</td></tr>
+<tr id="adv-body-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB (default #BDE9EF)</td><td>Primary tint for the ring, fireflies, field marks, tentacles, droplet or bird. The planet core has its own color.</td></tr>
+<tr id="adv-body-field-radius"><th scope="row"><code>radius</code></th><td>0.015–2 (default 0.28)</td><td>In blocks. Sets the planet ring’s outer radius, firefly spawn radius, magnet pole spacing (poles at ±0.68 × radius), or tentacle anchor radius.</td></tr>
+<tr id="adv-body-field-lifetimeticks"><th scope="row"><code>lifetimeTicks</code></th><td>8–160 (default 34)</td><td>Firefly and magnet only. Ticks before a moving point respawns. Magnet points can also respawn on reaching the opposite pole.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-planet">advanced.body · planet</h3>
+<p>A solid core sits inside a tilted, slowly turning ring.</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-planet"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-body-planet-field-ringwidth"><th scope="row"><code>ringWidth</code></th><td>0.002–0.25 (default 0.026)</td><td>Radial ring thickness in blocks, capped at 80% of radius.</td></tr>
+<tr id="adv-body-planet-field-tiltdegrees"><th scope="row"><code>tiltDegrees</code></th><td>−180–180 (default 32)</td><td>Ring-normal tilt from vertical, in degrees. At 0 the ring lies flat.</td></tr>
+<tr id="adv-body-planet-field-yawdegrees"><th scope="row"><code>yawDegrees</code></th><td>−360–360 (default 18)</td><td>Starting azimuth of the tilt, in degrees.</td></tr>
+<tr id="adv-body-planet-field-precessiondegrees"><th scope="row"><code>precessionDegrees</code></th><td>−20–20 (default 0.6)</td><td>Azimuth change in degrees per tick. A negative value reverses rotation.</td></tr>
+<tr id="adv-body-planet-field-segments"><th scope="row"><code>segments</code></th><td>8–48 (default 28)</td><td>Number of sections around the ring.</td></tr>
+<tr id="adv-body-planet-field-corecolor"><th scope="row"><code>coreColor</code></th><td>#RRGGBB (default #988BBD)</td><td>Core surface tint under shading.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-firefly">advanced.body · firefly</h3>
+<p>Sprites start around the orb, drift outward and curl back before respawning.</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-firefly"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-body-firefly-field-count"><th scope="row"><code>count</code></th><td>1–32 (default 10)</td><td>Number of fireflies per orb.</td></tr>
+<tr id="adv-body-firefly-field-launchspeed"><th scope="row"><code>launchSpeed</code></th><td>0–0.15 (default 0.027)</td><td>Initial outward velocity in blocks per tick, in addition to a slight sideways motion.</td></tr>
+<tr id="adv-body-firefly-field-attraction"><th scope="row"><code>attraction</code></th><td>0–0.12 (default 0.022)</td><td>Strength of the pull toward the orb, increasing as the firefly ages.</td></tr>
+<tr id="adv-body-firefly-field-sprite"><th scope="row"><code>sprite</code></th><td>Orb sprite ID (default sprite:orb/atlas-firefly)</td><td>Animated artwork for each firefly. Install the referenced sheet with the profile.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-magnet">advanced.body · magnet</h3>
+<p>Short dashes trace a magnetic field from one pole to the other.</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-magnet"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-body-magnet-field-count"><th scope="row"><code>count</code></th><td>1–32 (default 10)</td><td>Number of moving field marks.</td></tr>
+<tr id="adv-body-magnet-field-fieldspeed"><th scope="row"><code>fieldSpeed</code></th><td>0.003–0.15 (default 0.035)</td><td>Distance advanced along each field line in blocks per tick.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-tentacles">advanced.body · tentacles</h3>
+<p>Chains attach around the orb. Each node follows the previous node as the orb moves.</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-tentacles"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-body-tentacles-field-count"><th scope="row"><code>count</code></th><td>1–8 (default 4)</td><td>Number of tentacles.</td></tr>
+<tr id="adv-body-tentacles-field-nodes"><th scope="row"><code>nodes</code></th><td>2–14 (default 7)</td><td>Nodes per tentacle including its anchor. There are nodes − 1 visible links.</td></tr>
+<tr id="adv-body-tentacles-field-spacing"><th scope="row"><code>spacing</code></th><td>0.012–0.25 (default 0.055)</td><td>Length of each link in blocks.</td></tr>
+<tr id="adv-body-tentacles-field-damping"><th scope="row"><code>damping</code></th><td>0.1–0.99 (default 0.82)</td><td>Fraction of the previous node displacement retained each tick. Higher values preserve more swing.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-droplet">advanced.body · droplet</h3>
+<p>A moving droplet stretches along its heading and narrows across it.</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-droplet"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-body-droplet-field-stretchgain"><th scope="row"><code>stretchGain</code></th><td>0–18 (default 3.8)</td><td>Extra target stretch per unit of speed in blocks per tick. The target reaches at most 2.8 times the resting length.</td></tr>
+<tr id="adv-body-droplet-field-spring"><th scope="row"><code>spring</code></th><td>0.01–0.6 (default 0.22)</td><td>Response strength toward the target stretch each tick.</td></tr>
+<tr id="adv-body-droplet-field-damping"><th scope="row"><code>damping</code></th><td>0.2–0.98 (default 0.77)</td><td>Fraction of stretch velocity retained each tick. Higher values let oscillations last longer.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-body-bird">advanced.body · bird</h3>
+<p>The hovering bird changes to a glide at high speed and returns to hovering as it slows. Each pose restarts its animation on transition.</p>
+<div class="table-wrap"><table aria-labelledby="adv-body-bird"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-body-bird-field-glidespeed"><th scope="row"><code>glideSpeed</code></th><td>0.002–2 (default 0.14)</td><td>Enter glide at or above this orb speed in blocks per tick.</td></tr>
+<tr id="adv-body-bird-field-hoverspeed"><th scope="row"><code>hoverSpeed</code></th><td>0–2 (default 0.07)</td><td>Return to hovering at or below this speed in blocks per tick. The effective threshold is at most 99% of glideSpeed.</td></tr>
+<tr id="adv-body-bird-field-hoversprite"><th scope="row"><code>hoverSprite</code></th><td>Orb sprite ID (default sprite:orb/atlas-bird-hover)</td><td>Hover animation. Supply both pose sheets for the bird to replace the vanilla body.</td></tr>
+<tr id="adv-body-bird-field-glidesprite"><th scope="row"><code>glideSprite</code></th><td>Orb sprite ID (default sprite:orb/atlas-bird-glide)</td><td>Glide animation.</td></tr>
+</tbody></table></div></div>
+      </section>
+      <section class="chapter" id="advanced-trail" aria-labelledby="title-advanced-trail">
+        <h2 id="title-advanced-trail">Trail geometry · advanced.trail</h2>
+        <p class="intro">Choose a geometry in advanced.trail. Curve positions run from the tail to the head. Particle birth and strand settings are nested objects or arrays. Example profile: <a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/workshop-storm.json">Magnetic Storm</a>.</p>
+<nav class="parameter-links" aria-label="Jump to a table"><a href="#adv-trail">geometry and curves</a> <a href="#adv-trail-curves">curve stops</a> <a href="#adv-trail-strands">ribbon strips</a> <a href="#adv-trail-branches">arc forks</a> <a href="#adv-trail-particles">emitter</a></nav>
+<div class="parameter-group"><h3 id="adv-trail">advanced.trail · geometry and curves</h3>
+<p>Distances use blocks and emitter times use seconds. An advanced trail replaces the usual trail geometry. During profile import, unknown trail keys, values outside their ranges and fractional integer fields are rejected.</p>
+<div class="table-wrap"><table aria-labelledby="adv-trail"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-trail-field-geometry"><th scope="row"><code>geometry</code></th><td>Required · ribbon / arc / crumble / particles</td><td>Choose a flat ribbon, a branching arc, a breaking trail or a particle-only trail. Omit advanced.trail for the ordinary trail.</td></tr>
+<tr id="adv-trail-field-period"><th scope="row"><code>period</code></th><td>0.08–16 (default 1)</td><td>Ribbon only. Distance in blocks for one orbit of an offset strand and one full roll increment.</td></tr>
+<tr id="adv-trail-field-roll"><th scope="row"><code>roll</code></th><td>−1440–1440 (default 0)</td><td>Ribbon twist in degrees per period of travel. Its sign sets the twist direction.</td></tr>
+<tr id="adv-trail-field-orientation"><th scope="row"><code>orientation</code></th><td>−360–360 (default 0)</td><td>Starting ribbon tilt around the direction of travel, in degrees.</td></tr>
+<tr id="adv-trail-field-breakat"><th scope="row"><code>breakAt</code></th><td>0.05–0.99 (default 0.72)</td><td>Crumble only. Fraction of a sample’s lifetime at which gaps start to open.</td></tr>
+<tr id="adv-trail-field-breakspacing"><th scope="row"><code>breakSpacing</code></th><td>0.04–2 (default 0.18)</td><td>Crumble only. Distance in blocks between repeating gaps.</td></tr>
+<tr id="adv-trail-field-widthcurve"><th scope="row"><code>widthCurve</code></th><td>1–16 [position, multiplier] pairs, multiplier 0–4 (default basic width scales)</td><td>Multiply the base width along the ribbon, arc or crumble trail. Without a curve, tailWidthScale, middleWidthScale and headWidthScale shape the width.</td></tr>
+<tr id="adv-trail-field-opacitycurve"><th scope="row"><code>opacityCurve</code></th><td>1–16 [position, opacity] pairs, opacity 0–1 (default 1)</td><td>Scale geometry opacity along the path. Final opacity also follows effectStrength, sample age and disappearance fade.</td></tr>
+<tr id="adv-trail-field-colorcurve"><th scope="row"><code>colorCurve</code></th><td>1–16 [position, &quot;#RRGGBB&quot;] pairs (default basic color settings)</td><td>Set the path colors. An explicit ribbon strand color overrides this curve for that strand. Expiry particles take their starting color at the tail.</td></tr>
+<tr id="adv-trail-field-strands"><th scope="row"><code>strands</code></th><td>1–4 objects (default one centered strand)</td><td>Ribbon only. Each entry controls the path, width and tint of one strip.</td></tr>
+<tr id="adv-trail-field-branches"><th scope="row"><code>branches</code></th><td>Object, arc only (default standard arc settings)</td><td>Set bend-triggered forks and main-arc jitter. Supplying this object for another geometry fails validation.</td></tr>
+<tr id="adv-trail-field-particles"><th scope="row"><code>particles</code></th><td>Emitter object (required for particles geometry, otherwise optional)</td><td>Add particles along the orb’s path or when trail samples expire. Omit to draw geometry alone.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-trail-curves">advanced.trail · curve stops</h3>
+<p>Use the same two-item array format for widthCurve, opacityCurve and colorCurve. For example, [[0, 0.2], [0.5, 1.5], [1, 1]] widens a ribbon in the middle.</p>
+<div class="table-wrap"><table aria-labelledby="adv-trail-curves"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-trail-curves-field-0"><th scope="row"><code>[0]</code></th><td>0–1, strictly increasing</td><td>Position measured by distance along the path. 0 is the tail and 1 is the head beside the orb.</td></tr>
+<tr id="adv-trail-curves-field-1"><th scope="row"><code>[1]</code></th><td>Width 0–4 / opacity 0–1 / color #RRGGBB</td><td>Values interpolate linearly between stops. Outside the first or last stop, the nearest endpoint value is kept. A single stop is constant.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-trail-strands">advanced.trail.strands[] · ribbon strips</h3>
+<p>Each strip can orbit the path on an elliptical cross-section and twist about its own centerline.</p>
+<div class="table-wrap"><table aria-labelledby="adv-trail-strands"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-trail-strands-field-phase"><th scope="row"><code>phase</code></th><td>−360–360 (default 0)</td><td>Starting angle of the strand orbit and strip orientation, in degrees.</td></tr>
+<tr id="adv-trail-strands-field-radius"><th scope="row"><code>radius</code></th><td>0–2 (default 0)</td><td>First semi-axis of the orbit in blocks.</td></tr>
+<tr id="adv-trail-strands-field-depth"><th scope="row"><code>depth</code></th><td>0–2 (default radius)</td><td>Second semi-axis in blocks. Match radius for a circular path.</td></tr>
+<tr id="adv-trail-strands-field-width"><th scope="row"><code>width</code></th><td>0.01–4 (default 1)</td><td>Additional multiplier for this strip after base width and widthCurve.</td></tr>
+<tr id="adv-trail-strands-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB (default path color)</td><td>Override the trail color for this strip while retaining the opacity curve.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-trail-branches">advanced.trail.branches · arc forks</h3>
+<p>Forks appear at bends and flicker as the arc redraws. The main arc can still jitter with count set to 0.</p>
+<div class="table-wrap"><table aria-labelledby="adv-trail-branches"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-trail-branches-field-count"><th scope="row"><code>count</code></th><td>0–6 (default 3)</td><td>Maximum branches along the visible arc.</td></tr>
+<tr id="adv-trail-branches-field-length"><th scope="row"><code>length</code></th><td>0.02–2 (default 0.35)</td><td>Branch reach and minimum along-path separation of forks, in blocks. Also sets the scale of main-arc jitter.</td></tr>
+<tr id="adv-trail-branches-field-minturn"><th scope="row"><code>minTurn</code></th><td>1–180 (default 8)</td><td>A bend angle must exceed this number of degrees for a fork to form.</td></tr>
+<tr id="adv-trail-branches-field-jitter"><th scope="row"><code>jitter</code></th><td>0–0.5 (default 0.035)</td><td>Maximum offset scale of the main arc in each transverse direction, in blocks.</td></tr>
+<tr id="adv-trail-branches-field-flashseconds"><th scope="row"><code>flashSeconds</code></th><td>0.04–1 (default 0.12)</td><td>Seconds before the random pattern changes. Forks can appear during the first 75% of each cycle.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-trail-particles">advanced.trail.particles · emitter</h3>
+<p>The emitter keeps up to 48 live particles per orb. Distance births follow the moving orb. Expiry births occur where an old trail sample reaches its lifetime.</p>
+<div class="table-wrap"><table aria-labelledby="adv-trail-particles"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-trail-particles-field-birth"><th scope="row"><code>birth</code></th><td>Required · distance / expiry</td><td>Choose what triggers a burst. Every particles object requires this field.</td></tr>
+<tr id="adv-trail-particles-field-spacing"><th scope="row"><code>spacing</code></th><td>0.03–4 (default 0.15)</td><td>Distance mode. Blocks traveled between bursts.</td></tr>
+<tr id="adv-trail-particles-field-burst"><th scope="row"><code>burst</code></th><td>1–4 (default 1)</td><td>Particles per emission event.</td></tr>
+<tr id="adv-trail-particles-field-lifetime"><th scope="row"><code>lifetime</code></th><td>0.05–3 (default 0.7)</td><td>Particle life in seconds.</td></tr>
+<tr id="adv-trail-particles-field-size"><th scope="row"><code>size</code></th><td>0.005–0.5 (default 0.035)</td><td>Base particle size in blocks, varied from 0.7× to 1.3× at birth, then shrunk as it fades.</td></tr>
+<tr id="adv-trail-particles-field-inheritvelocity"><th scope="row"><code>inheritVelocity</code></th><td>0–2 (default 0)</td><td>Distance mode. Multiplier for the orb velocity inherited at birth.</td></tr>
+<tr id="adv-trail-particles-field-tangentspeed"><th scope="row"><code>tangentSpeed</code></th><td>−5–5 (default 0.4)</td><td>Expiry mode. Launch speed along the path tangent in blocks per second. A negative value reverses the direction.</td></tr>
+<tr id="adv-trail-particles-field-scatter"><th scope="row"><code>scatter</code></th><td>0–5 (default 0.2)</td><td>Maximum random launch speed added on each axis in either direction, in blocks per second.</td></tr>
+<tr id="adv-trail-particles-field-gravity"><th scope="row"><code>gravity</code></th><td>−20–20 (default 0)</td><td>Vertical acceleration in blocks per second squared. Positive values pull down and negative values lift.</td></tr>
+<tr id="adv-trail-particles-field-drag"><th scope="row"><code>drag</code></th><td>0–16 (default 0)</td><td>Drag coefficient per second. Higher values shorten the distance traveled from the launch impulse.</td></tr>
+<tr id="adv-trail-particles-field-turbulence"><th scope="row"><code>turbulence</code></th><td>0–4 (default 0)</td><td>Horizontal wind speed amplitude in blocks per second. At 0, particles follow only launch velocity, gravity and drag.</td></tr>
+<tr id="adv-trail-particles-field-frequency"><th scope="row"><code>frequency</code></th><td>0.1–12 (default 2)</td><td>Wind phase rate in radians per second when turbulence is above 0. Higher values vary the wind more rapidly.</td></tr>
+<tr id="adv-trail-particles-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB (default #FFFFFF)</td><td>Starting color for distance births. Expiry births use the trail’s tail color at the time of expiry.</td></tr>
+<tr id="adv-trail-particles-field-endcolor"><th scope="row"><code>endColor</code></th><td>#RRGGBB (default starting color)</td><td>Color approached linearly over particle life.</td></tr>
+</tbody></table></div></div>
+      </section>
+      <section class="chapter" id="advanced-pickup" aria-labelledby="title-advanced-pickup">
+        <h2 id="title-advanced-pickup">Pickup effects · advanced.pickup</h2>
+        <p class="intro">Choose a type in advanced.pickup. To see it, enable pickupFlash and collect an orb in the world. Example profile: <a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/workshop-tideglass.json">Tideglass</a>.</p>
+<nav class="parameter-links" aria-label="Jump to a table"><a href="#adv-pickup">shared fields</a> <a href="#adv-pickup-petals">petals</a> <a href="#adv-pickup-children">fireworks and rebound</a> <a href="#adv-pickup-rebound">rebound</a> <a href="#adv-pickup-ripple">ripple</a> <a href="#adv-pickup-vortex">vortex</a></nav>
+<div class="parameter-group"><h3 id="adv-pickup">advanced.pickup · shared fields</h3>
+<p>Turn on pickupFlash to play these effects. The vortex also emits during flight while that switch is on. Here, speed is in blocks per tick and gravity is in blocks per tick squared.</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-pickup-field-type"><th scope="row"><code>type</code></th><td>Required · petals / fireworks / ripple / rebound / vortex</td><td>Select the pickup response. Omit the object for no advanced pickup response.</td></tr>
+<tr id="adv-pickup-field-size"><th scope="row"><code>size</code></th><td>0.003–0.6 (default 0.045)</td><td>Base petal size, particle size or ripple line width in blocks. Individual petals, rockets and ice shards vary from 0.8× to 1.2×.</td></tr>
+<tr id="adv-pickup-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB (default #C9F4FA)</td><td>Primary sprite, particle or ring tint.</td></tr>
+<tr id="adv-pickup-field-count"><th scope="row"><code>count</code></th><td>1–32 (default 10, vortex 16)</td><td>Petals, fireworks and rebound spawn this many petals, rockets or ice shards. Vortex uses it as the maximum number of live drift particles per orb.</td></tr>
+<tr id="adv-pickup-field-speed"><th scope="row"><code>speed</code></th><td>0.002–0.65 (default 0.082)</td><td>Initial speed of petals, rockets, shards or free vortex particles. Petals and shards also receive a fixed fraction as upward lift.</td></tr>
+<tr id="adv-pickup-field-gravity"><th scope="row"><code>gravity</code></th><td>0–0.12 (default 0.009)</td><td>Downward acceleration for petals, fireworks and rebound, including sparks and powder.</td></tr>
+<tr id="adv-pickup-field-lifetimeticks"><th scope="row"><code>lifetimeTicks</code></th><td>3–160 (default 32)</td><td>Base ticks for petals, rockets and shards (randomized to about 78–100%), duration of each ripple ring, or maximum time for captured vortex particles.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-pickup-petals">advanced.pickup · petals</h3>
+<p>Petals rise on collection, flutter sideways and rotate while falling.</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup-petals"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-pickup-petals-field-sprite"><th scope="row"><code>sprite</code></th><td>Pickup sprite ID (default sprite:pickup/atlas-sakura)</td><td>Petal artwork. Install the referenced sheet with the profile.</td></tr>
+<tr id="adv-pickup-petals-field-flutter"><th scope="row"><code>flutter</code></th><td>0–0.04 (default 0.004)</td><td>Sideways acceleration amplitude in blocks per tick squared.</td></tr>
+<tr id="adv-pickup-petals-field-spinscale"><th scope="row"><code>spinScale</code></th><td>0–8 (default 1)</td><td>Multiplier for each petal’s rotation rate. Use 0 to hold the initial orientation.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-pickup-children">advanced.pickup · fireworks and rebound</h3>
+<p>Rockets burst when their lifetime ends. Ice shards release powder when they reach the contact count. Each pickup simulation holds up to 160 live particles.</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup-children"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-pickup-children-field-children"><th scope="row"><code>children</code></th><td>1–16 (default fireworks 8, rebound 5)</td><td>Sparks per rocket or powder particles per shattered shard, subject to the live particle cap.</td></tr>
+<tr id="adv-pickup-children-field-childspeed"><th scope="row"><code>childSpeed</code></th><td>0.002–0.4 (default 0.055)</td><td>Base child launch speed in blocks per tick. Powder is launched upward.</td></tr>
+<tr id="adv-pickup-children-field-childlifetimeticks"><th scope="row"><code>childLifetimeTicks</code></th><td>2–80 (default 14)</td><td>Lifetime in ticks of sparks or powder.</td></tr>
+<tr id="adv-pickup-children-field-accent"><th scope="row"><code>accent</code></th><td>#RRGGBB (default fireworks #EF9EAE, rebound #EFFAFF)</td><td>Children alternate between accent and the parent color.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-pickup-rebound">advanced.pickup · rebound</h3>
+<p>Shards reflect from solid block collision surfaces. Only shards that reach the specified number of contacts shatter.</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup-rebound"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-pickup-rebound-field-restitution"><th scope="row"><code>restitution</code></th><td>0.02–1 (default 0.62)</td><td>Fraction of incoming perpendicular speed recovered in the bounce.</td></tr>
+<tr id="adv-pickup-rebound-field-contacts"><th scope="row"><code>contacts</code></th><td>1–6 (default 2)</td><td>Number of impacts needed to shatter a shard.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-pickup-ripple">advanced.pickup · ripple</h3>
+<p>The falling mark and rings follow solid terrain below the pickup. The effect needs a block surface within probeDepth. Water-triggered scene reactions use advanced.scene.</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup-ripple"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-pickup-ripple-field-probedepth"><th scope="row"><code>probeDepth</code></th><td>0.25–12 (default 4)</td><td>Maximum downward distance to find the first solid collision surface, in blocks.</td></tr>
+<tr id="adv-pickup-ripple-field-fallticks"><th scope="row"><code>fallTicks</code></th><td>0–25 (default 4)</td><td>Ticks before the first ring starts. At 0, rings start without the falling mark.</td></tr>
+<tr id="adv-pickup-ripple-field-radius"><th scope="row"><code>radius</code></th><td>0.03–3 (default 0.62)</td><td>Outer scale of the expanding rings in blocks. Each begins at 4.5% of this radius.</td></tr>
+<tr id="adv-pickup-ripple-field-rings"><th scope="row"><code>rings</code></th><td>1–4 (default 2)</td><td>Number of consecutive rings.</td></tr>
+<tr id="adv-pickup-ripple-field-segments"><th scope="row"><code>segments</code></th><td>8–36 (default 20)</td><td>Terrain samples around each ring. Higher values give a smoother contour.</td></tr>
+<tr id="adv-pickup-ripple-field-delayticks"><th scope="row"><code>delayTicks</code></th><td>1–20 (default 3)</td><td>Time between successive ring starts, in ticks.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="adv-pickup-vortex">advanced.pickup · vortex</h3>
+<p>During flight, particles drift independently for 16–40 ticks. Collection draws the existing particles into the pickup point.</p>
+<div class="table-wrap"><table aria-labelledby="adv-pickup-vortex"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="adv-pickup-vortex-field-pertick"><th scope="row"><code>perTick</code></th><td>1–6 (default 2)</td><td>Maximum drift particles emitted each tick while below count.</td></tr>
+<tr id="adv-pickup-vortex-field-radius"><th scope="row"><code>radius</code></th><td>0.02–3 (default 0.42)</td><td>Spawn radius in blocks, varied from 0.6× to 1.1× per particle.</td></tr>
+<tr id="adv-pickup-vortex-field-accent"><th scope="row"><code>accent</code></th><td>#RRGGBB (default #B8A2E0)</td><td>Alternate drift color, chosen randomly with color.</td></tr>
+<tr id="adv-pickup-vortex-field-attraction"><th scope="row"><code>attraction</code></th><td>0.005–0.5 (default 0.12)</td><td>Inward pull proportional to the particle’s distance from the pickup point.</td></tr>
+<tr id="adv-pickup-vortex-field-tangent"><th scope="row"><code>tangent</code></th><td>−0.3–0.3 (default 0.095)</td><td>Sideways pull around the vertical axis after collection. Its sign chooses the direction of the swirl.</td></tr>
+</tbody></table></div></div>
+      </section>
+      <section class="chapter" id="advanced-scene" aria-labelledby="title-advanced-scene">
+        <h2 id="title-advanced-scene">Scene rules · advanced.scene</h2>
+        <p class="intro">Add an object to advanced.scene for each condition you want to observe in the world. Example profile: <a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/workshop-dusk.json">Dusk Moth</a>.</p>
+<nav class="parameter-links" aria-label="Jump to a table"><a href="#scene-fields">Scene rule fields</a> <a href="#scene-types">Scene triggers and active fields</a></nav>
+<div class="parameter-group"><h3 id="scene-fields">Scene rule fields</h3>
+<p>Each item in advanced.scene needs a type. The rule list below identifies which settings each type uses. Numeric settings are clamped to the listed ranges.</p>
+<div class="table-wrap"><table aria-labelledby="scene-fields"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="scene-fields-field-type"><th scope="row"><code>type</code></th><td>Required string</td><td>Choose one of the 16 rule names below. Use up to eight different types in one profile.</td></tr>
+<tr id="scene-fields-field-radius"><th scope="row"><code>radius</code></th><td>0.02–4 blocks · default 0.38</td><td>Sets the size of a ring, orbit or radial shape. Range of detection is set separately by range.</td></tr>
+<tr id="scene-fields-field-width"><th scope="row"><code>width</code></th><td>0.005–0.3 blocks · default 0.032</td><td>Sets line thickness or the base particle size, depending on the rule.</td></tr>
+<tr id="scene-fields-field-range"><th scope="row"><code>range</code></th><td>0.1–32 blocks · default 5</td><td>Controls the distance to another orb, the player, the ground or a sound source.</td></tr>
+<tr id="scene-fields-field-threshold"><th scope="row"><code>threshold</code></th><td>0.001–180 · default depends on type</td><td>combo: 1 second; turn: 28°; values: 4 XP; dust: 0.65 blocks; speed: 0.14 blocks/tick; beat: 0.14 seconds.</td></tr>
+<tr id="scene-fields-field-count"><th scope="row"><code>count</code></th><td>1–24 · default 4</td><td>Sets a link, ring, streak or particle count. The dust and biome rules emit at most four particles per burst.</td></tr>
+<tr id="scene-fields-field-duration"><th scope="row"><code>duration</code></th><td>0.08–5 seconds · default 1</td><td>Lifetime of an emitted event. The persistent elements are drawn while their condition is active.</td></tr>
+<tr id="scene-fields-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB · default #9EF9CA</td><td>Primary color, or fallback when sampling ground or biome artwork.</td></tr>
+<tr id="scene-fields-field-secondary"><th scope="row"><code>secondary</code></th><td>#RRGGBB · default #D7ACF9</td><td>Second color for rules that alternate or interpolate colors.</td></tr>
+<tr id="scene-fields-field-sprite"><th scope="row"><code>sprite</code></th><td>Orb sprite ID · default empty</td><td>dusk draws this sprite, tinted by time of day. An unresolved sprite draws a small cross.</td></tr>
+<tr id="scene-fields-field-sound"><th scope="row"><code>sound</code></th><td>Sound event ID · default minecraft:entity.experience_orb.pickup</td><td>beat listens for this exact client sound event.</td></tr>
+<tr id="scene-fields-field-biomes"><th scope="row"><code>biomes</code></th><td>Object · default {}</td><td>For biome, map an exact biome ID, a #tag or * to a variant. Exact ID wins, then the first matching tag, then *.</td></tr>
+<tr id="scene-fields-field-biomes-id-shape"><th scope="row"><code>biomes.&lt;id&gt;.shape</code></th><td>String · default spark</td><td>Choose a scatter shape, for example spark, snow or dust. Unknown names draw a spark-shaped cross.</td></tr>
+<tr id="scene-fields-field-biomes-id-color"><th scope="row"><code>biomes.&lt;id&gt;.color</code></th><td>#RRGGBB · default rule color</td><td>Overrides the particle color for this biome or tag.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="scene-types">Scene triggers and active fields</h3>
+<p>Use the name in the first column as type. For example, raise threshold on turn to reserve the crescent for sharper turns.</p>
+<div class="table-wrap"><table aria-labelledby="scene-types"><thead><tr><th scope="col">Rule type</th><th scope="col">Active fields</th><th scope="col">Trigger and result</th></tr></thead><tbody>
+<tr id="scene-types-field-stars"><th scope="row"><code>stars</code></th><td><code>range, count, width, color</code></td><td>Draws lines between nearby orbs. count limits the connections per orb.</td></tr>
+<tr id="scene-types-field-chain"><th scope="row"><code>chain</code></th><td><code>range, count, width, duration, color, secondary</code></td><td>At pickup, arcs hop to the nearest unvisited orb within range. count limits hops.</td></tr>
+<tr id="scene-types-field-combo"><th scope="row"><code>combo</code></th><td><code>threshold, count, radius, duration, color</code></td><td>Picking up another orb within threshold seconds grows the ring. count caps the local player&#x27;s streak.</td></tr>
+<tr id="scene-types-field-level"><th scope="row"><code>level</code></th><td><code>count, width, duration, color, secondary</code></td><td>When the local player&#x27;s XP level increases, emits count alternating colored sparks.</td></tr>
+<tr id="scene-types-field-values"><th scope="row"><code>values</code></th><td><code>threshold, count, radius, width, color, secondary</code></td><td>Adds one band per threshold XP stored in the orb, up to count.</td></tr>
+<tr id="scene-types-field-wake"><th scope="row"><code>wake</code></th><td><code>range, count, radius, color, secondary</code></td><td>Opens count petals as the orb approaches the player within range.</td></tr>
+<tr id="scene-types-field-turn"><th scope="row"><code>turn</code></th><td><code>threshold, radius, duration, color</code></td><td>Creates a crescent when the change in travel direction meets threshold degrees. Cooldown is four ticks.</td></tr>
+<tr id="scene-types-field-speed"><th scope="row"><code>speed</code></th><td><code>threshold, width, color, secondary</code></td><td>Colors recent trail positions by smoothed orb speed. secondary is reached at threshold blocks/tick.</td></tr>
+<tr id="scene-types-field-groundcolor"><th scope="row"><code>groundcolor</code></th><td><code>range, width, color</code></td><td>Samples the map color of the solid surface below the orb. color is the fallback. Combining it with speed blends the two tints.</td></tr>
+<tr id="scene-types-field-underwater"><th scope="row"><code>underwater</code></th><td><code>width, radius, duration, color, secondary</code></td><td>Makes bubbles in water and a flat ring when an orb enters or leaves water. secondary colors the ring.</td></tr>
+<tr id="scene-types-field-rain"><th scope="row"><code>rain</code></th><td><code>width, duration, color</code></td><td>Emits drops while the orb is exposed to rain. Emission follows the local rain intensity.</td></tr>
+<tr id="scene-types-field-dusk"><th scope="row"><code>dusk</code></th><td><code>radius, sprite, color, secondary</code></td><td>Interpolates between day and night colors over the world clock cycle.</td></tr>
+<tr id="scene-types-field-biome"><th scope="row"><code>biome</code></th><td><code>biomes, count, width, duration, color</code></td><td>Every third tick, scatters particles for the local biome. Variants can override shape and color.</td></tr>
+<tr id="scene-types-field-dust"><th scope="row"><code>dust</code></th><td><code>range, threshold, count, width, duration, color</code></td><td>A moving orb kicks up dust near solid ground. range is the probe distance and threshold sets the emission height; closer orbs emit more often.</td></tr>
+<tr id="scene-types-field-capture"><th scope="row"><code>capture</code></th><td><code>range, radius, width, duration, color</code></td><td>A light orbits between the approaching orb and player. On local pickup, a fading spark curls toward the player.</td></tr>
+<tr id="scene-types-field-beat"><th scope="row"><code>beat</code></th><td><code>sound, range, threshold, radius, duration, color</code></td><td>On the matching sound, emits rings on nearby orbs. threshold is the minimum interval in seconds.</td></tr>
+</tbody></table></div></div>
+      </section>
+      <section class="chapter" id="advanced-optics" aria-labelledby="title-advanced-optics">
+        <h2 id="title-advanced-optics">Light &amp; heat · advanced.optics</h2>
+        <p class="intro">Put one optics object inside advanced. Test it in the world with a textured wall and a moving orb. Example profile: <a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/workshop-beacon.json">Glowstone Beacon</a>.</p>
+<div class="parameter-group"><h3 id="optics-fields">Light and heat settings</h3>
+<p>Choose one mode per profile. Use light near a wall to see its tint, or heat in front of a textured surface to see the moving distortion.</p>
+<div class="table-wrap"><table aria-labelledby="optics-fields"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="optics-fields-field-type"><th scope="row"><code>type</code></th><td>light / heat · required</td><td>light brightens visible surfaces near the orb; heat refracts the background through a volume around it.</td></tr>
+<tr id="optics-fields-field-radius"><th scope="row"><code>radius</code></th><td>0.1–8 blocks · light 3.25, heat 0.75</td><td>Radius of the light or distortion around each orb.</td></tr>
+<tr id="optics-fields-field-strength"><th scope="row"><code>strength</code></th><td>light 0–4, default 1.4 · heat 0–12, default 3</td><td>Controls light intensity or screen-space displacement in heat mode. Zero skips the effect.</td></tr>
+<tr id="optics-fields-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB · default #FFCB72</td><td>Tint of light mode.</td></tr>
+<tr id="optics-fields-field-speed"><th scope="row"><code>speed</code></th><td>0–5 · default 1</td><td>Animation rate in heat mode. Zero freezes the wave pattern while leaving distortion visible.</td></tr>
+<tr id="optics-fields-field-maxorbs"><th scope="row"><code>maxOrbs</code></th><td>1–8 · default 6</td><td>Limits the simultaneous sources. The nearest tracked orbs within renderRange take priority.</td></tr>
+</tbody></table></div></div>
+      </section>
+      <section class="chapter" id="advanced-workshop" aria-labelledby="title-advanced-workshop">
+        <h2 id="title-advanced-workshop">Workshop modules · advanced.workshop</h2>
+        <p class="intro">advanced.workshop takes an array of up to 17 objects. Each object needs a unique type. For ink and events, also see the emitter and event-link tables. Example profile: <a href="https://github.com/GoldenEggOVO/xp_orb_trails/blob/26.3/examples/2.1.0example/pack/profiles/lab-events.json">Second Bounce Snow</a>.</p>
+<nav class="parameter-links" aria-label="Jump to a table"><a href="#ws-assemble">assemble</a> <a href="#ws-shed">shed</a> <a href="#ws-directional">directional</a> <a href="#ws-relief">relief</a> <a href="#ws-fracture">fracture</a> <a href="#ws-rig">rig</a> <a href="#ws-brush">brush</a> <a href="#ws-morph">morph</a> <a href="#ws-hoops">hoops</a> <a href="#ws-hand">hand</a> <a href="#ws-school">school</a> <a href="#ws-crossing">crossing</a> <a href="#ws-current">current</a> <a href="#ws-redstone">redstone</a> <a href="#ws-fusion">fusion</a> <a href="#ws-ink">ink</a> <a href="#ws-events">events</a> <a href="#ws-emitters">emitter fields</a> <a href="#ws-links">event links</a></nav>
+<div class="parameter-group"><h3 id="ws-assemble">workshop · assemble</h3>
+<p>With pickupFlash enabled, moving pixels form the first frame of an orb sprite at the pickup position. These pixel-workshop fields are validated on load.</p>
+<div class="table-wrap"><table aria-labelledby="ws-assemble"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-assemble-field-sprite"><th scope="row"><code>sprite</code></th><td>Orb sprite ID, default sprite:orb/luna-moth</td><td>Selects the target image. A missing sprite produces no assembly.</td></tr>
+<tr id="ws-assemble-field-mode"><th scope="row"><code>mode</code></th><td>fill (default) or outline</td><td>Samples all visible cells or only their outer and hole edges.</td></tr>
+<tr id="ws-assemble-field-capturetrail"><th scope="row"><code>captureTrail</code></th><td>Boolean, default true</td><td>Starts motes at surviving shed pixels, or at the drift dots this effect emits when shed is absent. With false or no dots, motes start scattered near the orb.</td></tr>
+<tr id="ws-assemble-field-samples"><th scope="row"><code>samples</code></th><td>Integer 4–512, default 256</td><td>Caps the number of cells that fly into place. The grid samples up to 32 cells along the longest side.</td></tr>
+<tr id="ws-assemble-field-size"><th scope="row"><code>size</code></th><td>0.05–4 blocks, default 0.9</td><td>Sets the longer side of the full, untrimmed source frame in the world.</td></tr>
+<tr id="ws-assemble-field-formticks"><th scope="row"><code>formTicks</code></th><td>Integer 1–120 ticks, default 14</td><td>Time for the pixels to converge.</td></tr>
+<tr id="ws-assemble-field-holdticks"><th scope="row"><code>holdTicks</code></th><td>Integer 0–120 ticks, default 10</td><td>Time to hold the completed picture before scattering.</td></tr>
+<tr id="ws-assemble-field-disperseticks"><th scope="row"><code>disperseTicks</code></th><td>Integer 1–120 ticks, default 12</td><td>Time for the pixels to drift apart and fade.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-shed">workshop · shed</h3>
+<p>The moving orb sheds colored cells from its current artwork. Each sampled position leaves a four-tick hole in the workshop body.</p>
+<div class="table-wrap"><table aria-labelledby="ws-shed"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-shed-field-mode"><th scope="row"><code>mode</code></th><td>edge (default) or all</td><td>Draws pixels from visible edges or anywhere in the visible image.</td></tr>
+<tr id="ws-shed-field-count"><th scope="row"><code>count</code></th><td>Integer 1–16, default 3</td><td>Pixels selected per moving orb per tick.</td></tr>
+<tr id="ws-shed-field-lifeticks"><th scope="row"><code>lifeTicks</code></th><td>Integer 1–120 ticks, default 20</td><td>Lifetime of each drifting pixel. Each orb retains up to 128 shed pixels.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-directional">workshop · directional</h3>
+<p>Give the sheet eight consecutive, equally sized groups of frames. The camera angle relative to the orb’s heading selects one group.</p>
+<div class="table-wrap"><table aria-labelledby="ws-directional"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-directional-field-sprite"><th scope="row"><code>sprite</code></th><td>Orb sprite ID, default sprite:orb/lab-skiff</td><td>Frames must load and divide evenly into eight groups for directional display. Otherwise the renderer tries the relief or flight artwork and then the visible vanilla orb.</td></tr>
+<tr id="ws-directional-field-size"><th scope="row"><code>size</code></th><td>0.05–4 blocks, default 0.8</td><td>World length of the directional frame’s longer untrimmed side.</td></tr>
+<tr id="ws-directional-field-fps"><th scope="row"><code>fps</code></th><td>0.1–60 frames/s, default 10</td><td>Loops the frames in the selected direction group. A one-frame group stays still.</td></tr>
+<tr id="ws-directional-field-heading"><th scope="row"><code>heading</code></th><td>−360–360 degrees, default 0</td><td>Initial yaw, with 0 toward +Z. Horizontal movement sets the heading once its speed exceeds 0.005 blocks/tick.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-relief">workshop · relief</h3>
+<p>Extrudes each visible sample into a small, shaded box. If directional also supplies a valid frame, that frame and its size provide the relief artwork.</p>
+<div class="table-wrap"><table aria-labelledby="ws-relief"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-relief-field-sprite"><th scope="row"><code>sprite</code></th><td>Orb sprite ID, default flightEffect</td><td>Selects the source colors and silhouette. If no sprite resolves, a visible vanilla orb can supply the artwork.</td></tr>
+<tr id="ws-relief-field-heightmap"><th scope="row"><code>heightMap</code></th><td>Orb sprite ID, default omitted</td><td>Uses mask brightness multiplied by alpha for extrusion height. With no loaded mask the source cell’s own color determines height.</td></tr>
+<tr id="ws-relief-field-size"><th scope="row"><code>size</code></th><td>0.05–4 blocks, default 0.8</td><td>Sets the longer untrimmed side for the relief sprite. The vanilla fallback uses 0.30 blocks.</td></tr>
+<tr id="ws-relief-field-depth"><th scope="row"><code>depth</code></th><td>0–3 blocks, default 0.23</td><td>Extra thickness at full brightness. A base thickness of 0.3 source pixels remains even at zero.</td></tr>
+<tr id="ws-relief-field-spin"><th scope="row"><code>spin</code></th><td>−360–360 degrees/s, default 35</td><td>Adds rotation around the vertical axis to the orb’s travel heading.</td></tr>
+<tr id="ws-relief-field-minresolution"><th scope="row"><code>minResolution</code></th><td>Integer 2–64, default 2</td><td>Lower bound for the longest-side sampling target. It must be at most maxResolution.</td></tr>
+<tr id="ws-relief-field-maxresolution"><th scope="row"><code>maxResolution</code></th><td>Integer 2–64, default 32</td><td>Upper bound for the longest-side sampling target. Sampling cannot add detail beyond the image.</td></tr>
+<tr id="ws-relief-field-pixelbudget"><th scope="row"><code>pixelBudget</code></th><td>Integer 4–16384, default 1200</td><td>The target is floor(sqrt(pixelBudget / tracked orbs)), bounded by the two resolutions. The minimum can take priority over the budget.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-fracture">workshop · fracture</h3>
+<p>With pickupFlash on, fragments of the orb’s current frame spin and fall away from its pickup position.</p>
+<div class="table-wrap"><table aria-labelledby="ws-fracture"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-fracture-field-fracturemap"><th scope="row"><code>fractureMap</code></th><td>Orb sprite ID, default omitted</td><td>Dark lines (alpha ≥ 128/255 and alpha-weighted brightness &lt; 0.4) divide the image into four-connected regions. Missing or entirely inked masks use generated regions.</td></tr>
+<tr id="ws-fracture-field-shards"><th scope="row"><code>shards</code></th><td>Integer 2–32, default 7</td><td>Number of seed points when generating the break pattern. A usable fractureMap determines its own groups.</td></tr>
+<tr id="ws-fracture-field-lifeticks"><th scope="row"><code>lifeTicks</code></th><td>Integer 1–120 ticks, default 22</td><td>Total time for the pieces to travel, fall and fade.</td></tr>
+<tr id="ws-fracture-field-spread"><th scope="row"><code>spread</code></th><td>0–3, default 0.7</td><td>Scales outward displacement over the whole animation. The vertical arc remains at zero spread.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-rig">workshop · rig</h3>
+<p>Build an orb model from colored triangles and quads. The root follows the direction of travel. Joint arrays, hierarchy, vectors and face indices are validated. Numeric animation settings and scale are clamped. Invalid colors use their defaults.</p>
+<div class="table-wrap"><table aria-labelledby="ws-rig"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-rig-field-scale"><th scope="row"><code>scale</code></th><td>0.1–4, default 1</td><td>Multiplies the profile’s orbScale for the entire rig, including pivot offsets.</td></tr>
+<tr id="ws-rig-field-joints"><th scope="row"><code>joints</code></th><td>Required array of 1–24 objects</td><td>Define parents before their children. The order also determines how faces are submitted.</td></tr>
+<tr id="ws-rig-field-joints-id"><th scope="row"><code>joints[].id</code></th><td>Required, unique nonblank string</td><td>Names a joint so other joints can use it as their parent.</td></tr>
+<tr id="ws-rig-field-joints-parent"><th scope="row"><code>joints[].parent</code></th><td>Earlier joint ID, default empty string</td><td>Attaches the pivot to the named joint. An empty string attaches it to the model root.</td></tr>
+<tr id="ws-rig-field-joints-vertices"><th scope="row"><code>joints[].vertices</code></th><td>Required, 3–48 [x,y,z] points, each component −8…8</td><td>Vertex positions relative to this joint’s pivot, before scale.</td></tr>
+<tr id="ws-rig-field-joints-faces"><th scope="row"><code>joints[].faces</code></th><td>Required, 1–48 arrays of 3 or 4 integer indices</td><td>Each face references this joint’s vertices in perimeter order. The first vertex is 0, the last is the vertex count minus one.</td></tr>
+<tr id="ws-rig-field-joints-pivot"><th scope="row"><code>joints[].pivot</code></th><td>[x,y,z], each −8…8, default [0,0,0]</td><td>Offset from the parent pivot in the parent’s local coordinate system.</td></tr>
+<tr id="ws-rig-field-joints-axis"><th scope="row"><code>joints[].axis</code></th><td>[x,y,z], each −8…8, length ≥ 0.001, default [0,1,0]</td><td>Local rotation axis. Its direction is normalized before use.</td></tr>
+<tr id="ws-rig-field-joints-basedegrees"><th scope="row"><code>joints[].baseDegrees</code></th><td>−360–360 degrees, default 0</td><td>Fixed rotation around the joint’s axis.</td></tr>
+<tr id="ws-rig-field-joints-swingdegrees"><th scope="row"><code>joints[].swingDegrees</code></th><td>−360–360 degrees, default 0</td><td>Amplitude of the sinusoidal swing around the base angle. Zero keeps the joint at its base angle.</td></tr>
+<tr id="ws-rig-field-joints-periodticks"><th scope="row"><code>joints[].periodTicks</code></th><td>2–600 ticks, default 16</td><td>Duration of one full swing cycle.</td></tr>
+<tr id="ws-rig-field-joints-phasedegrees"><th scope="row"><code>joints[].phaseDegrees</code></th><td>−720–720 degrees, default 0</td><td>Offsets the swing phase to stagger joints.</td></tr>
+<tr id="ws-rig-field-joints-color"><th scope="row"><code>joints[].color</code></th><td>#RRGGBB, default #5ECFC7</td><td>Solid color shared by this joint’s faces.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-brush">workshop · brush</h3>
+<p>Replaces the ordinary trail with a ribbon whose pressure and tilt follow the orb’s motion. Numeric ranges below are rendering clamps. Non-numeric values use the defaults.</p>
+<div class="table-wrap"><table aria-labelledby="ws-brush"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-brush-field-width"><th scope="row"><code>width</code></th><td>0.005–1 block, default profile width</td><td>Base stroke width before pressure scaling.</td></tr>
+<tr id="ws-brush-field-nibdegrees"><th scope="row"><code>nibDegrees</code></th><td>−180–180 degrees, default 42</td><td>Sets the nib’s base angle around the path tangent.</td></tr>
+<tr id="ws-brush-field-tiltdegrees"><th scope="row"><code>tiltDegrees</code></th><td>0–180 degrees, default 75</td><td>Maximum tilt response to a bend. Zero disables turn-induced tilt.</td></tr>
+<tr id="ws-brush-field-turnpressure"><th scope="row"><code>turnPressure</code></th><td>0–4, default 1</td><td>Adds pressure as the angle of a turn increases, widening bends.</td></tr>
+<tr id="ws-brush-field-speedsensitivity"><th scope="row"><code>speedSensitivity</code></th><td>0–100, default 6</td><td>Reduces pressure at higher movement speeds. Zero removes the speed response.</td></tr>
+<tr id="ws-brush-field-memory"><th scope="row"><code>memory</code></th><td>0–0.95, default 0.48</td><td>Fraction of previous pressure and tilt retained at each path sample. Larger values smooth changes.</td></tr>
+<tr id="ws-brush-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB, default profile gradient at each path position</td><td>Overrides the gradient with a single stroke color.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-morph">workshop · morph</h3>
+<p>Replaces the ordinary trail with a cross-section that changes from round at the head to a star, then flattens toward the tail. It uses the profile gradient and crossSectionSides or the enabled custom crossSectionRadii. Numeric ranges are rendering clamps.</p>
+<div class="table-wrap"><table aria-labelledby="ws-morph"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-morph-field-radius"><th scope="row"><code>radius</code></th><td>0.005–1 block, default half the profile width</td><td>Base radius of the cross-section before shape and custom-radius scaling.</td></tr>
+<tr id="ws-morph-field-starpoints"><th scope="row"><code>starPoints</code></th><td>Integer 2–12, default 4</td><td>Number of star tips. The profile’s side count sets the sampling detail. Fractional counts truncate after clamping.</td></tr>
+<tr id="ws-morph-field-innerradius"><th scope="row"><code>innerRadius</code></th><td>0.05–1, default 0.35</td><td>Radius of the star’s inner vertices as a fraction of its outer radius.</td></tr>
+<tr id="ws-morph-field-starposition"><th scope="row"><code>starPosition</code></th><td>0.05–0.95, default 0.5</td><td>Position of the fully formed star along the path, measured from head (0) to tail (1).</td></tr>
+<tr id="ws-morph-field-flatness"><th scope="row"><code>flatness</code></th><td>0.001–1, default 0.045</td><td>Fraction of one cross-section axis retained at the tail. Lower values create a flatter ribbon.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-hoops">workshop · hoops</h3>
+<p>Places hoops along the path, then runs a spark through them on pickup, even with pickupFlash off. Order and sprite IDs are checked on load. Numeric ranges are rendering clamps.</p>
+<div class="table-wrap"><table aria-labelledby="ws-hoops"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-hoops-field-spacing"><th scope="row"><code>spacing</code></th><td>0.08–4 blocks, default 0.4</td><td>Distance along the sampled path between consecutive hoops.</td></tr>
+<tr id="ws-hoops-field-maxrings"><th scope="row"><code>maxRings</code></th><td>Integer 2–48, default 18</td><td>Caps retained hoops per orb. Oldest hoops are discarded first. Fractional counts truncate after clamping.</td></tr>
+<tr id="ws-hoops-field-radius"><th scope="row"><code>radius</code></th><td>0.02–2 blocks, default 0.19</td><td>Base hoop radius before pickup expansion.</td></tr>
+<tr id="ws-hoops-field-width"><th scope="row"><code>width</code></th><td>0.003–0.3 blocks, default 0.018</td><td>Line thickness for geometric hoops and size of the replay spark. A sprite controls its own ring thickness.</td></tr>
+<tr id="ws-hoops-field-order"><th scope="row"><code>order</code></th><td>reverse (default), forward, or 1–48 unique integers from −48 to 47</td><td>reverse goes newest to oldest, forward the opposite. In an array, 0 is the oldest and −1 the newest. Unavailable indices are skipped, then remaining rings follow in reverse order.</td></tr>
+<tr id="ws-hoops-field-replayticks"><th scope="row"><code>replayTicks</code></th><td>2–200 ticks, default 20</td><td>Time for the spark to travel the entire replay route.</td></tr>
+<tr id="ws-hoops-field-expandticks"><th scope="row"><code>expandTicks</code></th><td>2–80 ticks, default 8</td><td>Time each hoop expands and fades after the spark arrives.</td></tr>
+<tr id="ws-hoops-field-expansion"><th scope="row"><code>expansion</code></th><td>0–8, default 1.7</td><td>Added radius as a multiple of the base radius. At the end, radius approaches base × (1 + expansion).</td></tr>
+<tr id="ws-hoops-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB, default #689EB7</td><td>Color of resting hoops before the spark arrives.</td></tr>
+<tr id="ws-hoops-field-litcolor"><th scope="row"><code>litColor</code></th><td>#RRGGBB, default #FFDFA1</td><td>Color of the travelling spark and each lit hoop.</td></tr>
+<tr id="ws-hoops-field-sprite"><th scope="row"><code>sprite</code></th><td>none (default) or trail sprite ID</td><td>Uses the sprite as the hoop face perpendicular to the path. Without a loaded sprite, a 16-sided line loop is drawn.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-hand">workshop · hand</h3>
+<p>With pickupFlash enabled, sends an arc to the collecting player’s moving hand. Target-hand names and vectors are validated. Numeric animation ranges are rendering clamps.</p>
+<div class="table-wrap"><table aria-labelledby="ws-hand"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-hand-field-targethand"><th scope="row"><code>targetHand</code></th><td>auto (default), main, off</td><td>Auto selects the main hand for a sword. Otherwise it uses the off hand if that hand holds a lantern or if only that hand holds an item. All other cases use the main hand.</td></tr>
+<tr id="ws-hand-field-mainpoint"><th scope="row"><code>mainPoint</code></th><td>[x,y,z], each −8…8, default [0.94,0.94,0.5]</td><td>Target in the main-hand item’s local model coordinates. Empty or hidden hands use the animated grip.</td></tr>
+<tr id="ws-hand-field-offpoint"><th scope="row"><code>offPoint</code></th><td>[x,y,z], each −8…8, default [0.5,0.38,0.5]</td><td>Corresponding point on the off-hand item. When no item pose is available, the grip is mirrored for that hand.</td></tr>
+<tr id="ws-hand-field-durationticks"><th scope="row"><code>durationTicks</code></th><td>2–200 ticks, default 18</td><td>Time from pickup until the spark reaches the hand.</td></tr>
+<tr id="ws-hand-field-archeight"><th scope="row"><code>arcHeight</code></th><td>−4–4 blocks, default 0.65</td><td>Vertical offset halfway along the flight. A negative value bends the arc downward.</td></tr>
+<tr id="ws-hand-field-width"><th scope="row"><code>width</code></th><td>0.003–0.3 blocks, default 0.032</td><td>Maximum stroke width near the spark. Also scales the spark.</td></tr>
+<tr id="ws-hand-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB, default #FFD27E</td><td>Color of the spark and its trailing arc.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-school">workshop · school</h3>
+<p>Place an object with type = school in advanced.workshop. Fish follow each orb in two staggered lanes and steer around solid blocks.</p>
+<div class="table-wrap"><table aria-labelledby="ws-school"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-school-field-count"><th scope="row"><code>count</code></th><td>Integer 2–12, default 6</td><td>Fish per tracked orb.</td></tr>
+<tr id="ws-school-field-spacing"><th scope="row"><code>spacing</code></th><td>0.08–0.6 blocks, default 0.24</td><td>Distance between successive rows. Increasing it also widens the two lanes.</td></tr>
+<tr id="ws-school-field-size"><th scope="row"><code>size</code></th><td>0.04–0.25 blocks, default 0.11</td><td>Base scale for the fish body. A sprite draws at 2.5 times this size.</td></tr>
+<tr id="ws-school-field-speed"><th scope="row"><code>speed</code></th><td>0.025–0.4 blocks/tick, default 0.13</td><td>Maximum approach and obstacle-avoidance speed.</td></tr>
+<tr id="ws-school-field-sprite"><th scope="row"><code>sprite</code></th><td>none or sprite:orb/name, default none</td><td>A loaded orb sprite turns with the fish. Without a loaded sprite the game draws a body and tail.</td></tr>
+<tr id="ws-school-field-color"><th scope="row"><code>color</code><br><code>secondary</code></th><td>#RRGGBB each. Defaults #8AEDCF, #FFEDAC, respectively</td><td>Body and tail/gill accent for the geometric fish. A loaded sprite uses its original colors.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-crossing">workshop · crossing</h3>
+<p>Use type = crossing to mark the point where two different orbs’ recent paths cross. Nearly parallel paths do not create a knot.</p>
+<div class="table-wrap"><table aria-labelledby="ws-crossing"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-crossing-field-tolerance"><th scope="row"><code>tolerance</code></th><td>0.015–0.3 blocks, default 0.12</td><td>Maximum 3D gap between two crossing segments. Increase it to allow near misses.</td></tr>
+<tr id="ws-crossing-field-memoryticks"><th scope="row"><code>memoryTicks</code></th><td>Integer 2–50 ticks, default 20</td><td>How far back to look for the other orb’s path. Up to 256 segments are kept across orbs.</td></tr>
+<tr id="ws-crossing-field-lifetimeticks"><th scope="row"><code>lifetimeTicks</code></th><td>Integer 4–48 ticks, default 16</td><td>Knot fade-out time and cooldown for another knot from the same pair near that spot. Up to 32 knots are retained.</td></tr>
+<tr id="ws-crossing-field-color"><th scope="row"><code>color</code><br><code>secondary</code></th><td>#RRGGBB each. Defaults #8AEDCF, #FFEDAC, respectively</td><td>Knot outline and outward sparks, respectively.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-current">workshop · current</h3>
+<p>Use type = current to show moving fluid around an orb. Motes follow the local flow, including the vertical push or pull of bubble columns. Still fluid produces no motes.</p>
+<div class="table-wrap"><table aria-labelledby="ws-current"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-current-field-pertick"><th scope="row"><code>perTick</code></th><td>Integer 1–3, default 1</td><td>Spawn attempts per orb per tick in moving fluid. Up to 160 motes can be active in total.</td></tr>
+<tr id="ws-current-field-speed"><th scope="row"><code>speed</code></th><td>0.025–0.4, default 0.13</td><td>Multiplier applied to the local flow vector each tick. Faster currents move motes farther.</td></tr>
+<tr id="ws-current-field-lifetimeticks"><th scope="row"><code>lifetimeTicks</code></th><td>Integer 4–48 ticks, default 16</td><td>Maximum time before a mote fades out. It also disappears upon leaving the current.</td></tr>
+<tr id="ws-current-field-color"><th scope="row"><code>color</code><br><code>secondary</code></th><td>#RRGGBB each. Defaults #8AEDCF, #FFEDAC, respectively</td><td>Long streak along the current and small cross-stroke, respectively.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-redstone">workshop · redstone</h3>
+<p>Use type = redstone for petals that react to power from 0 to 15. The orb samples the wire in its own block or the strongest signal from neighboring blocks.</p>
+<div class="table-wrap"><table aria-labelledby="ws-redstone"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-redstone-field-count"><th scope="row"><code>count</code></th><td>Integer 2–12, default 6</td><td>Number of petals arranged around the orb.</td></tr>
+<tr id="ws-redstone-field-radius"><th scope="row"><code>radius</code></th><td>0.04–0.65 blocks, default 0.34</td><td>Base size controlling both the height and open span of the petals.</td></tr>
+<tr id="ws-redstone-field-response"><th scope="row"><code>response</code></th><td>both, opening, brightness. Default both</td><td>both varies opening and brightness. opening fixes brightness at 85%. brightness fixes opening at 60%. Brightness controls tint and opacity.</td></tr>
+<tr id="ws-redstone-field-color"><th scope="row"><code>color</code><br><code>secondary</code></th><td>#RRGGBB each. Defaults #8AEDCF, #FFEDAC, respectively</td><td>Low-signal and high-signal colors. With response = opening their blend stays fixed.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-fusion">workshop · fusion</h3>
+<p>Use type = fusion to connect nearby orbs with a luminous bridge. Its middle thickens as the orbs approach. Up to 12 bridges are drawn per frame.</p>
+<div class="table-wrap"><table aria-labelledby="ws-fusion"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-fusion-field-range"><th scope="row"><code>range</code></th><td>0.35–3 blocks, default 1.6</td><td>Draw a bridge when center distance is above 0.03 blocks and below this value.</td></tr>
+<tr id="ws-fusion-field-radius"><th scope="row"><code>radius</code></th><td>0.04–0.65 blocks, default 0.13</td><td>Radius at either orb. The middle narrows with distance.</td></tr>
+<tr id="ws-fusion-field-color"><th scope="row"><code>color</code><br><code>secondary</code></th><td>#RRGGBB each. Defaults #8AEDCF, #FFEDAC, respectively</td><td>Bridge surface and its lengthwise highlight, respectively.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-ink">workshop · ink</h3>
+<p>Use type = ink for a named particle graph. The Surface Prints example routes solid hits to a decal and water hits to a ring. ink and events use the same settings and can run side by side.</p>
+<div class="table-wrap"><table aria-labelledby="ws-ink"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-ink-field-trigger"><th scope="row"><code>trigger</code></th><td>pickup or flight, default pickup</td><td>pickup emits on collection when pickupFlash is enabled. flight emits at intervals while the orb is tracked, including while stationary.</td></tr>
+<tr id="ws-ink-field-interval"><th scope="row"><code>interval</code></th><td>Integer 1–200 ticks, default 8</td><td>Ticks between flight emissions for one orb. Each orb uses its own phase. Applies only to flight.</td></tr>
+<tr id="ws-ink-field-root"><th scope="row"><code>root</code></th><td>Required emitter name</td><td>Name of the emitter to start at the orb. Use kind = particle for a visible root because the starting position has no contact surface.</td></tr>
+<tr id="ws-ink-field-emitters"><th scope="row"><code>emitters</code></th><td>Required object, 1–24 named definitions</td><td>Each key must match [a-z0-9_-]{1,48}. Define root and every linked child here. The emitter and event-link tables below describe each definition.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-events">workshop · events</h3>
+<p>Use type = events to connect particle births, impacts and deaths. The Second Bounce Snow example makes a glint at birth, snow on the second hit and an afterglow at death. Each graph supports up to 768 live particles, 128 births per tick and four child generations after the root.</p>
+<div class="table-wrap"><table aria-labelledby="ws-events"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-events-field-trigger"><th scope="row"><code>trigger</code></th><td>pickup or flight, default pickup</td><td>pickup emits on collection when pickupFlash is enabled. flight emits at intervals while the orb is tracked, including while stationary.</td></tr>
+<tr id="ws-events-field-interval"><th scope="row"><code>interval</code></th><td>Integer 1–200 ticks, default 8</td><td>Ticks between flight emissions for one orb. Each orb uses its own phase. Applies only to flight.</td></tr>
+<tr id="ws-events-field-root"><th scope="row"><code>root</code></th><td>Required emitter name</td><td>Name of the emitter to start at the orb. Use kind = particle for a visible root because the starting position has no contact surface.</td></tr>
+<tr id="ws-events-field-emitters"><th scope="row"><code>emitters</code></th><td>Required object, 1–24 named definitions</td><td>Each key must match [a-z0-9_-]{1,48}. Define root and every linked child here. The emitter and event-link tables below describe each definition.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-emitters">ink / events · emitter fields</h3>
+<p>These keys belong inside emitters.&lt;name&gt;. Count, lifetime, size, color and fading work for all three kinds. A decal or ring needs a hit normal passed through an event link.</p>
+<div class="table-wrap"><table aria-labelledby="ws-emitters"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-emitters-field-kind"><th scope="row"><code>kind</code></th><td>particle, decal, ring. Default particle</td><td>particle moves. decal draws a square lying on the hit surface. ring draws an expanding outline on that surface.</td></tr>
+<tr id="ws-emitters-field-count"><th scope="row"><code>count</code></th><td>Integer 1–64, default 1</td><td>Number spawned on each activation of this emitter, including when a parent event activates it.</td></tr>
+<tr id="ws-emitters-field-lifetime"><th scope="row"><code>lifetime</code></th><td>Integer 1–200 ticks, default 18</td><td>Maximum age. Reaching this limit fires death. A moving particle can end earlier on its last allowed hit.</td></tr>
+<tr id="ws-emitters-field-fadeticks"><th scope="row"><code>fadeTicks</code></th><td>Integer 0–lifetime ticks, default max(1, round(lifetime × 0.35))</td><td>Length of the final linear opacity fade. Set 0 for constant opacity until removal.</td></tr>
+<tr id="ws-emitters-field-size"><th scope="row"><code>size</code></th><td>0.004–3 blocks, default 0.065</td><td>Size of a moving particle or decal. A ring grows from 5% to 50% of this value in radius. A child can inherit the parent’s size.</td></tr>
+<tr id="ws-emitters-field-color"><th scope="row"><code>color</code></th><td>#RRGGBB, default #FFFFFF</td><td>Particle color or sprite tint. A link that inherits color gives the child its parent’s color.</td></tr>
+<tr id="ws-emitters-field-sprite"><th scope="row"><code>sprite</code></th><td>sprite:orb/name, sprite:pickup/name or sprite:trail/name. Default empty string</td><td>A loaded sprite draws the particle or decal. Otherwise a particle draws crossed strokes and a decal draws a solid square. ring always draws its own outline.</td></tr>
+<tr id="ws-emitters-field-face"><th scope="row"><code>face</code></th><td>any, floor, wall, ceiling. Default any</td><td>Restricts the surfaces where a decal or ring may spawn. floor faces up, ceiling faces down. Applies only to decal and ring.</td></tr>
+<tr id="ws-emitters-field-velocity"><th scope="row"><code>velocity</code></th><td>[x, y, z], each −1 to 1 block/tick. Default [0, 0, 0]</td><td>Initial velocity before random spread and inherited velocity. Positive y points up. Decals and rings stay fixed.</td></tr>
+<tr id="ws-emitters-field-spread"><th scope="row"><code>spread</code></th><td>0–1 block/tick, default 0.02</td><td>Add an independent random initial velocity between −spread and +spread on each axis.</td></tr>
+<tr id="ws-emitters-field-gravity"><th scope="row"><code>gravity</code></th><td>−0.5 to 0.5 blocks/tick², default 0.005</td><td>Subtract from the moving particle’s vertical velocity each tick. Negative values accelerate it upward.</td></tr>
+<tr id="ws-emitters-field-drag"><th scope="row"><code>drag</code></th><td>0–1, default 0.98</td><td>Velocity fraction retained each tick before gravity. At 1 all previous velocity is retained.</td></tr>
+<tr id="ws-emitters-field-collide"><th scope="row"><code>collide</code></th><td>Boolean, default true when on.collision exists, otherwise false</td><td>Check a moving particle’s path for impact. Can be enabled even with no collision links.</td></tr>
+<tr id="ws-emitters-field-collidefluids"><th scope="row"><code>collideFluids</code></th><td>Boolean, default false</td><td>When collide is enabled, a fluid surface hit before a solid can trigger collision. Set true on the moving parent for water/lava links.</td></tr>
+<tr id="ws-emitters-field-bounce"><th scope="row"><code>bounce</code></th><td>0–1, default 0.55</td><td>Fraction of the incoming normal speed returned on impact. At 0 only tangential velocity remains, at 1 the normal component fully rebounds.</td></tr>
+<tr id="ws-emitters-field-maxhits"><th scope="row"><code>maxHits</code></th><td>Integer 1–16, default 2</td><td>With collide enabled, this many impacts end the moving particle. collision fires before death on the last hit.</td></tr>
+<tr id="ws-emitters-field-on"><th scope="row"><code>on</code></th><td>Object, default empty</td><td>Groups child links by event. Its available keys are birth, collision and death.</td></tr>
+</tbody></table></div></div>
+<div class="parameter-group"><h3 id="ws-links">ink / events · event links</h3>
+<p>Inside emitters.&lt;name&gt;.on, each event holds an array of child links. One event can start several different emitters at the parent’s current position.</p>
+<div class="table-wrap"><table aria-labelledby="ws-links"><thead><tr><th scope="col">JSON field</th><th scope="col">Values and defaults</th><th scope="col">What it changes</th></tr></thead><tbody>
+<tr id="ws-links-field-birth"><th scope="row"><code>birth</code><br><code>collision</code><br><code>death</code></th><td>Each is an optional array of 0–8 link objects, default empty</td><td>birth fires for every newborn particle, collision on an impact before bounce, death at expiry or the final allowed hit. Children start at the event location.</td></tr>
+<tr id="ws-links-field-emit"><th scope="row"><code>emit</code></th><td>Required emitter name</td><td>In each link object, name the child defined in the same graph’s emitters object. Recursive links share the graph’s depth and particle limits.</td></tr>
+<tr id="ws-links-field-hit"><th scope="row"><code>hit</code></th><td>Integer 0–16, default 0</td><td>0 allows every hit. On collision, 1 selects the first hit, 2 the second and so on. A positive hit is valid only on collision and cannot fire beyond the parent’s maxHits.</td></tr>
+<tr id="ws-links-field-surface"><th scope="row"><code>surface</code></th><td>any, water, lava, solid. Default any</td><td>Filter by the parent’s current contact material. Children start with that material. A moving particle clears it once it travels without a hit. Water and lava hits require collideFluids.</td></tr>
+<tr id="ws-links-field-inherit"><th scope="row"><code>inherit</code></th><td>Array of color, size, velocity. Default []</td><td>color and size replace the child’s own values. velocity adds the parent’s velocity to the child’s initial velocity and spread. A collision link receives the incoming velocity before bounce.</td></tr>
+</tbody></table></div></div>
       </section>
       <section class="chapter" id="test-and-share-your-look" aria-labelledby="title-test-and-share-your-look">
         <h2 id="title-test-and-share-your-look">Test &amp; share</h2>
