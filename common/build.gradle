@@ -6,3 +6,13 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.12.2'
 }
+
+tasks.named('test') {
+    dependsOn ':effectCollectionZip', ':spriteExamplesZip'
+    def collection = rootProject.file('examples/2.1.0example/effect_collection.zip')
+    def sprites = rootProject.file('examples/2.0.0example/sprite_sheet_examples.zip')
+    inputs.file(collection)
+    inputs.file(sprites)
+    systemProperty 'xporb.effectCollection', collection.absolutePath
+    systemProperty 'xporb.spriteExamples', sprites.absolutePath
+}

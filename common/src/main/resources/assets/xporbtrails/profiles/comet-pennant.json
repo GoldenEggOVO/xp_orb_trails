@@ -11,6 +11,7 @@
   "effectStrength": 1,
   "additiveGlow": false,
   "name": "Comet Pennant",
+  "nameKey": "screen.xporbtrails.profile.comet-pennant",
   "trailSprite": "sprite:trail/comet-pennant",
   "trailSpriteMode": "ribbon",
   "ribbonRepeatLength": 0.48,

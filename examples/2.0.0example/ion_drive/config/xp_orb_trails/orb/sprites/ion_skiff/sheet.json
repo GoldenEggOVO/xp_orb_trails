@@ -1,0 +1,10 @@
+{
+  "image": "sheet.png",
+  "name": "Ion Skiff",
+  "nameKey": "sprite.xporbtrails.ion_skiff",
+  "frameWidth": 24,
+  "frameHeight": 24,
+  "frames": 8,
+  "fps": 12,
+  "loop": true
+}

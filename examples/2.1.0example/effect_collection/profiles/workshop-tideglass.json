@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.atlas_tideglass",
+  "showVanillaOrb": false,
+  "colorMode": "gradient",
+  "startColor": "#496FAD",
+  "endColor": "#DAFFF0",
+  "width": 0.104,
+  "lifetimeSeconds": 1.32,
+  "effectStrength": 0.96,
+  "additiveGlow": false,
+  "pickupFlashStyle": "file:pickup/soft",
+  "pickupFlashSize": 0.32,
+  "pickupFlashSeconds": 0.14,
+  "pickupFlashStrength": 0.42,
+  "advanced": {
+    "body": {
+      "type": "droplet",
+      "size": 0.158,
+      "stretchGain": 6.4,
+      "spring": 0.33,
+      "damping": 0.72,
+      "color": "#56CBBD"
+    },
+    "trail": {
+      "geometry": "ribbon",
+      "period": 2.5,
+      "orientation": 24,
+      "roll": 85,
+      "widthCurve": [
+        [0, 0.06],
+        [0.11, 0.42],
+        [0.23, 1.26],
+        [0.39, 0.11],
+        [0.56, 0.31],
+        [0.72, 2.36],
+        [0.84, 1.66],
+        [1, 0.08]
+      ],
+      "opacityCurve": [[0, 0.12], [0.21, 0.73], [0.44, 0.38], [0.74, 1], [1, 0.89]],
+      "colorCurve": [
+        [0, "#6177BC"],
+        [0.24, "#598DC6"],
+        [0.5, "#298E9C"],
+        [0.75, "#69D7C8"],
+        [1, "#DDFFE7"]
+      ]
+    },
+    "pickup": {
+      "type": "ripple",
+      "probeDepth": 4.5,
+      "fallTicks": 3,
+      "radius": 0.86,
+      "rings": 2,
+      "segments": 24,
+      "delayTicks": 6,
+      "size": 0.027,
+      "lifetimeTicks": 19,
+      "color": "#A2F3E3"
+    },
+    "scene": [
+      {
+        "type": "underwater",
+        "duration": 0.78,
+        "radius": 0.53,
+        "width": 0.026,
+        "color": "#B6F6ED",
+        "secondary": "#86CBFF"
+      },
+      {
+        "type": "groundcolor",
+        "range": 3.5,
+        "width": 0.025,
+        "color": "#5388B2"
+      }
+    ]
+  }
+}

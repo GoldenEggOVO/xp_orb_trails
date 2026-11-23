@@ -20,6 +20,23 @@ public final class TrailClientTest implements FabricClientGameTest {
 
     @Override
     public void runTest(ClientGameTestContext context) {
+        if (Boolean.getBoolean("xporb.collectionGallery")) {
+            EffectCollectionClientTest.withPack(context, () -> EffectCollectionClientTest.gallery(context));
+            return;
+        }
+        if (System.getProperty("xporb.testPack") != null) {
+            EffectCollectionClientTest.withPack(context, () ->
+                    PresetPackClientTest.run(context, java.nio.file.Path.of(System.getProperty("xporb.testPack"))));
+            return;
+        }
+        if (Boolean.getBoolean("xporb.labProbe")) {
+            EffectCollectionClientTest.withPack(context, () -> LabClientTest.run(context));
+            return;
+        }
+        if (Boolean.getBoolean("xporb.advancedProbe")) {
+            EffectCollectionClientTest.withPack(context, () -> AdvancedSceneClientTest.run(context));
+            return;
+        }
         if (Boolean.getBoolean("xporb.shaderProbe")) {
             ShaderTrailClientTest.run(context);
             return;
@@ -47,6 +64,7 @@ public final class TrailClientTest implements FabricClientGameTest {
             if (!failures.isEmpty()) throw new AssertionError(String.join("; ", failures));
             return;
         }
+        AssetNamesClientTest.run(context);
         context.runOnClient(client -> {
             verifyCometStripName();
             client.options.guiScale().set(2);
@@ -86,7 +104,7 @@ public final class TrailClientTest implements FabricClientGameTest {
         context.clickScreenButton("screen.xporbtrails.profiles");
         checkFolderButton(context);
         if (Boolean.getBoolean("xporb.openFolderProbe")) {
-            context.clickScreenButton("screen.xporbtrails.open_config_folder");
+            context.clickScreenButton("screen.xporbtrails.open_packs");
         }
         click(context, "screen.xporbtrails.profile.standard");
         context.runOnClient(client -> {
@@ -433,10 +451,10 @@ public final class TrailClientTest implements FabricClientGameTest {
         context.runOnClient(client -> check(!XpOrbTrailsClient.CONFIG.flightPulse, "Appearance must disable the flight pulse"));
         context.clickScreenButton("screen.xporbtrails.orb_body");
         click(context, "screen.xporbtrails.flight_effect");
-        click(context, "Twin Orbit");
+        click(context, "effect.xporbtrails.twin-orbit");
         context.clickScreenButton("screen.xporbtrails.pickup");
         click(context, "screen.xporbtrails.flash_style");
-        click(context, "Twin Orbit");
+        click(context, "effect.xporbtrails.twin-orbit");
         context.runOnClient(client -> check("file:orb/twin-orbit".equals(XpOrbTrailsClient.CONFIG.flightEffect)
                         && "file:pickup/twin-orbit".equals(XpOrbTrailsClient.CONFIG.pickupFlashStyle),
                 "Both choosers must select the effect by its file name and store its stable id"));
@@ -504,7 +522,7 @@ public final class TrailClientTest implements FabricClientGameTest {
         context.runOnClient(client -> check(XpOrbTrailsClient.fileStyles().stream().anyMatch(style -> "Comet Pennant".equals(style.name())),
                 "A fresh installation must load the bundled Comet Pennant file style"));
         click(context, "screen.xporbtrails.reload_styles");
-        click(context, "Comet Pennant");
+        click(context, "screen.xporbtrails.profile.comet-pennant");
         context.runOnClient(client -> {
             var config = XpOrbTrailsClient.CONFIG;
             check(!config.showVanillaOrb && "ribbon".equals(config.trailSpriteMode)
@@ -717,7 +735,8 @@ public final class TrailClientTest implements FabricClientGameTest {
         for (var role : AssetRole.values()) {
             String id = "sprite:" + role.folder + "/comet-strip";
             String label = TrailConfigScreen.effectLabel(role, id).getString();
-            if (!label.equals("Comet Strip")) throw new AssertionError(id + " displayed as " + label);
+            String expected = net.minecraft.network.chat.Component.translatable("sprite.xporbtrails.comet-strip").getString();
+            if (!label.equals(expected)) throw new AssertionError(id + " displayed as " + label);
         }
     }
 
@@ -880,16 +899,16 @@ public final class TrailClientTest implements FabricClientGameTest {
         context.runOnClient(client -> {
             Screen screen = client.gui.screen();
             var configRoot = net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("xp_orb_trails");
-            check(XpOrbTrailsClient.assetDirectory().equals(configRoot) && java.nio.file.Files.isDirectory(configRoot),
-                    "Folder button must target this instance's artwork and profiles directory");
-            String key = "screen.xporbtrails.open_config_folder";
+            check(XpOrbTrailsClient.assetDirectory().equals(configRoot) && java.nio.file.Files.isDirectory(configRoot.resolve("packs")),
+                    "The packs folder must exist inside this instance's config directory");
+            String key = "screen.xporbtrails.open_packs";
             var folder = findControl(screen, key);
             var preview = findControl(screen, "screen.xporbtrails.open_preview");
             check(folder.visible && folder.active && !folder.getMessage().getString().equals(key)
                             && folder.getWidth() >= client.font.width(folder.getMessage()) + 10
                             && folder.getX() >= 0 && folder.getRight() <= preview.getX()
                             && folder.getY() == preview.getY() && folder.getBottom() <= screen.height,
-                    "The translated config folder button must fit to the left of Preview");
+                    "The translated packs folder button must fit to the left of Preview");
         });
     }
 
@@ -974,7 +993,7 @@ public final class TrailClientTest implements FabricClientGameTest {
         context.waitTicks(2);
     }
 
-    private static AbstractWidget findControl(Screen screen, String key) {
+    static AbstractWidget findControl(Screen screen, String key) {
         var label = net.minecraft.network.chat.Component.translatable(key);
         for (var child : screen.children()) {
             if (child instanceof TrailSettingsList list) {
@@ -1016,7 +1035,7 @@ public final class TrailClientTest implements FabricClientGameTest {
         }
     }
 
-    private static Object field(Object target, String name) {
+    static Object field(Object target, String name) {
         try {
             var field = (target == null ? TrailRenderer.class : target.getClass()).getDeclaredField(name);
             field.setAccessible(true);

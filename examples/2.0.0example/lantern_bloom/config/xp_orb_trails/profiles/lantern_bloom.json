@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "name": "Lantern Bloom",
+  "nameKey": "screen.xporbtrails.profile.lantern_bloom",
+  "showVanillaOrb": false,
+  "flightEffect": "sprite:orb/silk_lantern",
+  "orbScale": 1,
+  "trailSprite": "sprite:trail/drifting_petal",
+  "trailSpriteMode": "stamps",
+  "fixedStamps": true,
+  "stampSpacing": 1,
+  "stampScale": 0.9,
+  "lifetimeSeconds": 1.5,
+  "pickupFlash": true,
+  "pickupFlashStyle": "sprite:pickup/paper_peony",
+  "pickupFlashSize": 1.25,
+  "pickupFlashSeconds": 0.67,
+  "effectStrength": 1,
+  "additiveGlow": false,
+  "colorMode": "solid",
+  "startColor": "#FFFFFF",
+  "endColor": "#FFFFFF"
+}

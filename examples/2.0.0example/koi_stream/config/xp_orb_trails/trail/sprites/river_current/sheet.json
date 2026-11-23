@@ -1,0 +1,10 @@
+{
+  "image": "sheet.png",
+  "name": "River Current",
+  "nameKey": "sprite.xporbtrails.river_current",
+  "frameWidth": 24,
+  "frameHeight": 14,
+  "frames": 8,
+  "fps": 10,
+  "loop": true
+}

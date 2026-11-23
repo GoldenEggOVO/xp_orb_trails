@@ -61,6 +61,8 @@ public final class TrailRenderer {
     private static final Map<Integer, Trail> TRAILS = new LinkedHashMap<>();
     private static volatile List<RenderTrail> renderTrails = List.of();
     private static ClientLevel lastLevel;
+    private static long effectTick;
+    private static volatile EffectFrame advancedFrame = new EffectFrame();
 
     private TrailRenderer() { }
 
@@ -69,8 +71,24 @@ public final class TrailRenderer {
         if (lastLevel != level) {
             TRAILS.clear();
             renderTrails = List.of();
+            advancedFrame = new EffectFrame();
+            SceneOptics.close();
+            SceneEffects.clear();
+            Workshop.clear();
+            BodyPickupEffects.clear();
             lastLevel = level;
         }
+    }
+
+    static long effectTick() {
+        return effectTick;
+    }
+
+    public static synchronized void tickEffects(ClientLevel level) {
+        updateWorld(level);
+        if (lastLevel == null) return;
+        effectTick++;
+        EventParticles.tick(level, effectTick);
     }
 
     public static synchronized void track(ExperienceOrb orb) {
@@ -97,6 +115,14 @@ public final class TrailRenderer {
         Vec3 position = orb.getPosition(1.0F);
         Vec3 point = trailPoint(orb, position, cfg);
         long now = System.nanoTime();
+        if (cfg.advanced.size() != 0) {
+            BodyPickupEffects.tick(orb);
+            SceneEffects.track(orb);
+            Workshop.track(orb);
+        }
+        trail.advancedState = AdvancedTrails.state(trail.advancedState, cfg);
+        if (trail.advancedState != null)
+            trail.advancedState.move(position.add(0, cfg.orbYOffset, 0), orb.getDeltaMovement().scale(20), now, orbSeed(orb));
         trail.lastSeen = now;
         trail.disappearedAt = 0L;
         trail.useSource(FixedStampHistory.Source.selected(cfg));
@@ -112,8 +138,16 @@ public final class TrailRenderer {
 
     public static synchronized boolean showsVanillaBody(ExperienceOrb orb) {
         TrailConfig cfg = XpOrbTrailsClient.CONFIG;
-        if (!cfg.enabled || cfg.showVanillaOrb) return true;
-        if ("none".equals(cfg.flightEffect)) return false;
+        if (!cfg.enabled) return true;
+        // Entity rendering can precede the first tick of a newly spawned orb.
+        if (orb.tickCount == 0 && (lastLevel != orb.level() || !TRAILS.containsKey(orb.getId()))
+                && orb.level().getEntity(orb.getId()) == orb) track(orb);
+        if (cfg.advanced.has("workshop") && PixelWorkshop.replacesVanilla(orb)) return false;
+        if (cfg.showVanillaOrb) return true;
+        if ("none".equals(cfg.flightEffect)) {
+            if (!cfg.advanced.has("body")) return false;
+            return !BodyPickupEffects.hasBody(cfg) || !TRAILS.containsKey(orb.getId());
+        }
         trimToCap(cfg.trailCap);
         Vec3 camera = Minecraft.getInstance().gameRenderer.mainCamera().position();
         boolean tracked = lastLevel == orb.level() && TRAILS.containsKey(orb.getId())
@@ -132,10 +166,22 @@ public final class TrailRenderer {
     }
 
     public static synchronized void confirmPickup(ExperienceOrb orb) {
+        confirmPickup(orb, Minecraft.getInstance().player == null ? -1 : Minecraft.getInstance().player.getId());
+    }
+
+    public static synchronized void confirmPickup(ExperienceOrb orb, int collector) {
         TrailConfig cfg = XpOrbTrailsClient.CONFIG;
-        if (!cfg.enabled || !cfg.pickupFlash || orb.level() != lastLevel) return;
+        if (!cfg.enabled || orb.level() != lastLevel) return;
+        if (cfg.advanced.size() != 0 && (TRAILS.containsKey(orb.getId()) || TRAILS.size() < cfg.trailCap)
+                && orb.position().distanceToSqr(Minecraft.getInstance().gameRenderer.mainCamera().position()) <= cfg.renderRange * cfg.renderRange) {
+            SceneEffects.pickup(orb, collector);
+            Workshop.pickup(orb, collector);
+            if (cfg.pickupFlash) BodyPickupEffects.pickup(orb);
+        }
+        if (!cfg.pickupFlash) return;
         CustomEffect pickup = XpOrbTrailsClient.effect(AssetRole.PICKUP, cfg.pickupFlashStyle);
-        if (pickup == null && XpOrbTrailsClient.sprite(AssetRole.PICKUP, cfg.pickupFlashStyle) == null) return;
+        Object pickupSource = pickup != null ? pickup : XpOrbTrailsClient.sprite(AssetRole.PICKUP, cfg.pickupFlashStyle);
+        if (pickupSource == null) return;
         Trail trail = TRAILS.get(orb.getId());
         if (trail == null) {
             Vec3 camera = Minecraft.getInstance().gameRenderer.mainCamera().position();
@@ -144,6 +190,7 @@ public final class TrailRenderer {
             trail = new Trail();
             TRAILS.put(orb.getId(), trail);
         }
+        trail.pickupSource = pickupSource;
         trail.pickupAt = System.nanoTime();
         trail.pickupPosition = trailPoint(orb, orb.getPosition(1.0F), cfg);
         trail.pickupPath = null;
@@ -157,7 +204,7 @@ public final class TrailRenderer {
             trail.expireBefore(oldest);
             trail.append(trail.pickupPosition, trail.pickupAt, cfg.pointSpacing);
             if (trail.pickupMarks.isEmpty()) {
-                trail.pickupPath = sampleCurve(trail.points, trail.pickupPosition);
+                trail.pickupPath = sampleCurve(trail.points, trail.pickupPosition, null);
             } else {
                 trail.pickupPosition = orb.getPosition(1.0F).add(0, cfg.orbYOffset, 0);
                 List<Sample> path = new ArrayList<>(trail.pickupMarks.size() + 1);
@@ -167,6 +214,7 @@ public final class TrailRenderer {
             }
             // A stacked orb can survive the pickup. Its next flight gets a fresh history.
             trail.points.clear();
+            trail.cachedSamples = null;
         }
         if (pickup != null && pickup.emitter != null) {
             var path = trail.pickupPath;
@@ -181,6 +229,11 @@ public final class TrailRenderer {
     private static long orbSeed(ExperienceOrb orb) {
         var uuid = orb.getUUID();
         return uuid.getMostSignificantBits() ^ Long.rotateLeft(uuid.getLeastSignificantBits(), 23);
+    }
+
+    static synchronized double bodySpriteAge(ExperienceOrb orb, long frameNanos) {
+        var trail = TRAILS.get(orb.getId());
+        return trail == null ? 0 : (frameNanos - trail.startedAt) / 1.0E9;
     }
 
     private static Vec3 trailPoint(ExperienceOrb orb, Vec3 position, TrailConfig cfg) {
@@ -204,17 +257,25 @@ public final class TrailRenderer {
         long now = System.nanoTime();
         TrailConfig cfg = XpOrbTrailsClient.CONFIG;
         updateWorld(level);
-        if (!cfg.enabled) return;
+        SceneOptics.extract(level, camera, partialTick, TRAILS.keySet());
+        if (!cfg.enabled || level == null) return;
+        EffectFrame frame = new EffectFrame();
+        BodyPickupEffects.extract(frame, level, partialTick);
+        SceneEffects.extract(frame, level, partialTick);
+        Workshop.extract(frame, level, partialTick, now);
         trimToCap(cfg.trailCap);
         long lifetime = (long) (cfg.lifetimeSeconds * 1_000_000_000L);
 
         double rangeSq = cfg.renderRange * cfg.renderRange;
         var fixedSource = FixedStampHistory.Source.selected(cfg);
+        boolean advancedTrail = AdvancedTrails.enabled(cfg);
+        boolean needsCurve = advancedTrail || (!Workshop.replacesTrail() && fixedSource == null && !"body".equals(cfg.trailSprite));
         CustomEffect flight = XpOrbTrailsClient.effect(AssetRole.ORB, cfg.flightEffect);
         boolean drawFlight = flight != null
                 || XpOrbTrailsClient.sprite(AssetRole.ORB, cfg.flightEffect) != null;
         SpriteSheet pickup = XpOrbTrailsClient.sprite(AssetRole.PICKUP, cfg.pickupFlashStyle);
         CustomEffect pickupEffect = XpOrbTrailsClient.effect(AssetRole.PICKUP, cfg.pickupFlashStyle);
+        Object pickupSource = pickupEffect != null ? pickupEffect : pickup;
         double flashSeconds = pickup == null ? cfg.pickupFlashSeconds : pickup.durationMillis() / 1000.0;
         List<RenderTrail> snapshot = new ArrayList<>(TRAILS.size());
 
@@ -223,6 +284,11 @@ public final class TrailRenderer {
         while (iterator.hasNext()) {
             Map.Entry<Integer, Trail> entry = iterator.next();
             Trail trail = entry.getValue();
+            if (trail.pickupSource != null && (!cfg.pickupFlash || trail.pickupSource != pickupSource)) {
+                trail.pickupSource = null;
+                trail.pickupAt = 0L;
+                trail.pickupPosition = null;
+            }
             trail.useSource(fixedSource);
             ExperienceOrb liveOrb = level.getEntity(entry.getKey()) instanceof ExperienceOrb orb
                     && orb.isAlive() && !orb.isRemoved() ? orb : null;
@@ -232,7 +298,8 @@ public final class TrailRenderer {
                 iterator.remove();
                 continue;
             }
-            trail.expireBefore(now - lifetime);
+            trail.advancedState = AdvancedTrails.state(trail.advancedState, cfg);
+            trail.expireAdvanced(now, lifetime, trail.startedAt, cfg);
             Vec3 orbPosition = liveOrb == null ? null : liveOrb.getPosition(partialTick);
             Vec3 livePoint = liveOrb == null ? null : trailPoint(liveOrb, orbPosition, cfg);
             if (liveOrb != null) {
@@ -245,7 +312,10 @@ public final class TrailRenderer {
                 trail.disappearedAt = now;
             }
             var emissions = trail.emissions(now, flight, cfg.pickupFlash ? pickupEffect : null);
-            boolean keepParticles = !emissions.isEmpty() || !trail.pickups.isEmpty();
+            boolean advancedParticles = trail.advancedState != null && trail.advancedState.alive(now);
+            if (advancedParticles) trail.advancedState.appendParticles(frame, now, cfg.effectStrength);
+            boolean pendingDebris = trail.advancedState != null && trail.advancedState.usesExpiry() && !trail.points.isEmpty();
+            boolean keepParticles = pendingDebris || advancedParticles || !emissions.isEmpty() || !trail.pickups.isEmpty();
             long fadeNow = trail.disappearedAt == 0L ? now : trail.disappearedAt;
             double disappearanceFade = trail.disappearedAt == 0L ? 1.0
                     : 1.0 - TrailEffects.smooth((now - trail.disappearedAt)
@@ -256,7 +326,7 @@ public final class TrailRenderer {
             if (trail.pickupPath != null) {
                 if (flashVisible && pickupEffect != null && pickupEffect.reflow) {
                     snapshot.add(new RenderTrail(trail.pickupPath, trail.pickupMarks, fixedSource, trail.pickupAt, 1.0, flashProgress,
-                            trail.pickupPosition, orbPosition, trail.startedAt, emissions));
+                            trail.pickupPosition, orbPosition, trail.startedAt, emissions, false));
                     continue;
                 }
                 trail.pickupPath = null;
@@ -274,19 +344,23 @@ public final class TrailRenderer {
             }
             var marks = trail.fixed.snapshot(fadeNow - lifetime);
             if (trail.points.size() >= 2 || !marks.isEmpty() || flashVisible || !emissions.isEmpty() || (drawFlight && orbPosition != null)) {
-                List<Sample> samples = trail.points.size() < 2 || fixedSource != null || "body".equals(cfg.trailSprite)
-                        ? List.of() : trail.samples(livePoint);
+                List<Sample> samples = needsCurve ? trail.samples(livePoint) : List.of();
+                boolean replace = advancedTrail && AdvancedTrails.append(frame, samples, orbPosition, now,
+                        trail.startedAt, disappearanceFade, cfg);
                 snapshot.add(new RenderTrail(samples, marks, fixedSource, fadeNow, disappearanceFade, flashProgress, trail.pickupPosition,
-                        orbPosition, trail.startedAt, emissions));
+                        orbPosition, trail.startedAt, emissions, replace));
             }
         }
+        advancedFrame = frame;
         renderTrails = List.copyOf(snapshot);
     }
 
     public static void render(Vec3 camera) {
         if (!XpOrbTrailsClient.CONFIG.enabled) return;
         List<RenderTrail> snapshot = renderTrails;
-        if (snapshot.isEmpty()) return;
+        SceneOptics.render(camera);
+        EffectFrame extra = advancedFrame;
+        if (snapshot.isEmpty() && extra.size() == 0) return;
 
         TrailConfig cfg = XpOrbTrailsClient.CONFIG;
         RenderPipeline pipeline = cfg.additiveGlow ? WorldBuffers.ADDITIVE : WorldBuffers.ALPHA;
@@ -305,51 +379,56 @@ public final class TrailRenderer {
         SpriteSheet flightSprite = XpOrbTrailsClient.sprite(AssetRole.ORB, cfg.flightEffect);
         SpriteSheet pickupSprite = XpOrbTrailsClient.sprite(AssetRole.PICKUP, cfg.pickupFlashStyle);
         var fixedSource = FixedStampHistory.Source.selected(cfg);
-        boolean drawSprites = trailSprite != null || flightSprite != null || pickupSprite != null
+        boolean drawSprites = extra.size() != 0 || trailSprite != null || flightSprite != null || pickupSprite != null
                 || (fixedSource != null && fixedSource.vanilla());
         if (drawSprites) SpriteRenderer.begin(cfg.additiveGlow);
+        extra.draw(vertices, camera);
         long now = System.nanoTime();
         double flightSeconds = now / 1.0E9;
         double flightProgress = TrailEffects.flightProgress(flightSeconds, cfg.pulseSpeed);
+        boolean workshopTrail = Workshop.replacesTrail();
+        boolean drawFlightSprite = flightSprite != null && !PixelWorkshop.replacesFlightSprite();
         for (RenderTrail trail : snapshot) {
             boolean flash = cfg.pickupFlash && (pickup != null || pickupSprite != null) && trail.flashProgress >= 0 && trail.flashProgress < 1
                     && trail.pickupPosition != null;
             double reflow = flash && pickup != null && pickup.reflow ? trail.flashProgress : -1;
             boolean pulse = cfg.flightPulse && trail.orbPosition != null && !flash;
-            if ("body".equals(cfg.trailSprite) || fixedSource != null) {
-                if (fixedSource != null && fixedSource.equals(trail.fixedSource)) {
-                    emitFixedStamps(trail.marks, trail.now, cfg, trail.opacity, reflow, pulse, (mark, scale, alpha) -> {
-                        if (fixedSource.vanilla()) {
-                            Vec3 origin = mark.position().add(0, 0.1 - fixedSource.yOffset(), 0);
-                            SpriteRenderer.worldOrb(mark.icon(), FixedStampHistory.vanillaTint(mark.orbAge()),
-                                    origin, camera, 0.30 * scale, alpha * (128.0 / 255));
-                        }
-                        if (fixedSource.sprite() != null) {
-                            var sheet = fixedSource.sprite();
-                            var frame = mark.spriteFrame(sheet, now, trail.startedAt, fixedSource.body(), fixedSource.vanilla());
-                            if (frame != null) SpriteRenderer.world(sheet, frame, mark.position(), camera,
-                                    (fixedSource.body() ? 2 * TrailEffects.flightSize(cfg) : 0.30) * scale, alpha);
-                        } else if (fixedSource.vector() != null) {
-                            double seconds = mark.time() / 1.0E9;
-                            appendEffectPieces(vertices, mark.position(), camera, TrailEffects.flightProgress(seconds, cfg.pulseSpeed),
-                                    cfg, seconds, fixedSource.vector(), TrailEffects.flightSize(cfg) * scale, alpha);
-                        }
-                    });
+            if (!trail.replacesTrail && !workshopTrail) {
+                if ("body".equals(cfg.trailSprite) || fixedSource != null) {
+                    if (fixedSource != null && fixedSource.equals(trail.fixedSource)) {
+                        emitFixedStamps(trail.marks, trail.now, cfg, trail.opacity, reflow, pulse, (mark, scale, alpha) -> {
+                            if (fixedSource.vanilla()) {
+                                Vec3 origin = mark.position().add(0, 0.1 - fixedSource.yOffset(), 0);
+                                SpriteRenderer.worldOrb(mark.icon(), FixedStampHistory.vanillaTint(mark.orbAge()),
+                                        origin, camera, 0.30 * scale, alpha * (128.0 / 255));
+                            }
+                            if (fixedSource.sprite() != null) {
+                                var sheet = fixedSource.sprite();
+                                var frame = mark.spriteFrame(sheet, now, trail.startedAt, fixedSource.body(), fixedSource.vanilla());
+                                if (frame != null) SpriteRenderer.world(sheet, frame, mark.position(), camera,
+                                        (fixedSource.body() ? 2 * TrailEffects.flightSize(cfg) : 0.30) * scale, alpha);
+                            } else if (fixedSource.vector() != null) {
+                                double seconds = mark.time() / 1.0E9;
+                                appendEffectPieces(vertices, mark.position(), camera, TrailEffects.flightProgress(seconds, cfg.pulseSpeed),
+                                        cfg, seconds, fixedSource.vector(), TrailEffects.flightSize(cfg) * scale, alpha);
+                            }
+                        });
+                    }
+                } else if (trailSprite != null && "ribbon".equals(cfg.trailSpriteMode)) {
+                    var frame = trailSprite.frameAt((now - trail.startedAt) / 1.0E9, trailSprite.loop());
+                    if (frame != null && trail.samples.size() >= 2) {
+                        SpriteRenderer.worldRibbon(trailSprite, frame, trail.samples, camera, trail.now, cfg,
+                                trail.opacity, reflow, pulse);
+                    }
+                } else if (trailSprite != null) {
+                    emitTrailStamps(trailSprite, trail.samples, trail.now, now, cfg, trail.opacity, reflow, pulse, 1,
+                            (frame, position, size, alpha) -> SpriteRenderer.world(trailSprite, frame, position, camera, size, alpha));
+                } else {
+                    appendStyledTube(vertices, trail.samples, camera, trail.now, lifetime, cfg, cfg.effectStrength * trail.opacity,
+                            reflow, pulse);
                 }
-            } else if (trailSprite != null && "ribbon".equals(cfg.trailSpriteMode)) {
-                var frame = trailSprite.frameAt((now - trail.startedAt) / 1.0E9, trailSprite.loop());
-                if (frame != null && trail.samples.size() >= 2) {
-                    SpriteRenderer.worldRibbon(trailSprite, frame, trail.samples, camera, trail.now, cfg,
-                            trail.opacity, reflow, pulse);
-                }
-            } else if (trailSprite != null) {
-                emitTrailStamps(trailSprite, trail.samples, trail.now, now, cfg, trail.opacity, reflow, pulse, 1,
-                        (frame, position, size, alpha) -> SpriteRenderer.world(trailSprite, frame, position, camera, size, alpha));
-            } else {
-                appendStyledTube(vertices, trail.samples, camera, trail.now, lifetime, cfg, cfg.effectStrength * trail.opacity,
-                        reflow, pulse);
             }
-            if (flightSprite != null && trail.orbPosition != null) {
+            if (drawFlightSprite && trail.orbPosition != null) {
                 var frame = flightSprite.frameAt((now - trail.startedAt) / 1.0E9, !cfg.showVanillaOrb || flightSprite.loop());
                 if (frame != null) SpriteRenderer.world(flightSprite, frame, trail.orbPosition.add(0, cfg.orbYOffset, 0),
                         camera, 2 * TrailEffects.flightSize(cfg), cfg.effectStrength);
@@ -660,12 +739,16 @@ public final class TrailRenderer {
 
     private static double clamp(double value) { return Math.max(0.0, Math.min(1.0, value)); }
 
-    private static List<Sample> sampleCurve(List<Point> originalPoints, Vec3 livePoint) {
+    private static List<Sample> sampleCurve(List<Point> originalPoints, Vec3 livePoint, List<Sample> previous) {
         int lastIndex = originalPoints.size() - 1;
         Point last = originalPoints.get(lastIndex);
         if (livePoint != null) last = new Point(livePoint, last.time, last.birthDistance);
+        if (previous != null && last.position.equals(previous.getLast().position)) return previous;
         List<Sample> result = new ArrayList<>(lastIndex * CURVE_STEPS + 1);
-        for (int i = 0; i < lastIndex; i++) {
+        // Only the final two Catmull-Rom segments depend on the interpolated head.
+        int firstSegment = previous == null ? 0 : Math.max(0, lastIndex - 2);
+        if (firstSegment > 0) result.addAll(previous.subList(0, firstSegment * CURVE_STEPS));
+        for (int i = firstSegment; i < lastIndex; i++) {
             Point p0 = originalPoints.get(Math.max(0, i - 1));
             Point p1 = originalPoints.get(i);
             Point p2 = i + 1 == lastIndex ? last : originalPoints.get(i + 1);
@@ -739,13 +822,20 @@ public final class TrailRenderer {
     public static synchronized void close() {
         WorldBuffers.BUFFER.close();
         SpriteRenderer.close();
+        SceneOptics.close();
+        BodyPickupEffects.clear();
+        SceneEffects.clear();
+        Workshop.clear();
+        advancedFrame = new EffectFrame();
         TRAILS.clear();
         renderTrails = List.of();
         lastLevel = null;
     }
 
     static final class Trail {
+        AdvancedTrails.State advancedState;
         final List<Point> points = new ArrayList<>();
+        private List<Sample> cachedSamples;
         final FixedStampHistory fixed = new FixedStampHistory();
         FixedStampHistory.Source fixedSource;
         List<FixedStampHistory.Mark> pickupMarks = List.of();
@@ -753,6 +843,7 @@ public final class TrailRenderer {
         long lastSeen;
         long disappearedAt;
         long pickupAt;
+        Object pickupSource;
         double tipDistance;
         Vec3 pickupPosition;
         List<Sample> pickupPath;
@@ -817,15 +908,37 @@ public final class TrailRenderer {
         }
 
         void expireBefore(long oldest) {
-            points.removeIf(point -> point.time < oldest);
+            int expired = 0;
+            while (expired < points.size() && points.get(expired).time < oldest) expired++;
+            if (expired > 0) {
+                points.subList(0, expired).clear();
+                cachedSamples = null;
+            }
+        }
+
+        void expireAdvanced(long now, long lifetime, long seed, TrailConfig cfg) {
+            if (advancedState != null && advancedState.usesExpiry()) {
+                for (int i = 0; i < points.size(); i++) {
+                    Point p = points.get(i);
+                    if (p.time >= now - lifetime) break;
+                    Vec3 tangent = i + 1 < points.size() ? points.get(i + 1).position.subtract(p.position)
+                            : i > 0 ? p.position.subtract(points.get(i - 1).position) : Vec3.ZERO;
+                    advancedState.expire(p.position, tangent, p.time + lifetime, now, seed, cfg);
+                }
+            }
+            expireBefore(now - lifetime);
+            if (points.isEmpty() && advancedState != null) advancedState.endPath();
         }
 
         List<Sample> samples(Vec3 livePoint) {
-            return points.size() < 2 ? List.of() : sampleCurve(points, livePoint);
+            if (points.size() < 2) return List.of();
+            cachedSamples = sampleCurve(points, livePoint, cachedSamples);
+            return cachedSamples;
         }
 
         void append(Vec3 position, long now, double spacing) {
             if (points.isEmpty()) {
+                cachedSamples = null;
                 tipDistance = 0;
                 points.add(new Point(position, now, 0));
                 return;
@@ -835,12 +948,14 @@ public final class TrailRenderer {
             if (points.size() > 1) {
                 Point before = points.get(points.size() - 2);
                 if (before.position.distanceTo(position) < spacing) {
+                    cachedSamples = null;
                     tipDistance += distance;
                     points.set(points.size() - 1, new Point(position, now, previous.birthDistance));
                     return;
                 }
             }
             if (distance < 0.006) return;
+            cachedSamples = null;
             int inserts = Math.min(8, Math.max(1, (int) Math.ceil(distance / spacing)));
             for (int i = 1; i <= inserts; i++) {
                 double t = i / (double) inserts;
@@ -853,6 +968,7 @@ public final class TrailRenderer {
         }
 
         void flow(double strength) {
+            cachedSamples = null;
             int lastPoint = points.size() - 1;
             double rate = 0.008 + strength * 0.055;
             for (int i = 0; i < lastPoint; i++) {
@@ -872,5 +988,5 @@ public final class TrailRenderer {
     }
     private record RenderTrail(List<Sample> samples, List<FixedStampHistory.Mark> marks, FixedStampHistory.Source fixedSource,
                                long now, double opacity, double flashProgress,
-                               Vec3 pickupPosition, Vec3 orbPosition, long startedAt, List<EffectEmission.Frame> emissions) { }
+                               Vec3 pickupPosition, Vec3 orbPosition, long startedAt, List<EffectEmission.Frame> emissions, boolean replacesTrail) { }
 }

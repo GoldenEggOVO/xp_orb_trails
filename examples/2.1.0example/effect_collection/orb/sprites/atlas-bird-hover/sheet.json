@@ -1,0 +1,8 @@
+{
+  "image": "sheet.png",
+  "frameWidth": 28,
+  "frameHeight": 22,
+  "frames": 6,
+  "fps": 12,
+  "loop": true
+}

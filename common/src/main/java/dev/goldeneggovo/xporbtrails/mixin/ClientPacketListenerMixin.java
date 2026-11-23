@@ -16,8 +16,8 @@ public abstract class ClientPacketListenerMixin {
     @Shadow private ClientLevel level;
 
     // Vanilla has moved packet handling onto the client thread before reaching this point.
-    @Inject(method = "handleTakeItemEntity", at = @At("TAIL"))
+    @Inject(method = "handleTakeItemEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getEntity(I)Lnet/minecraft/world/entity/Entity;", ordinal = 0))
     private void xporbtrails$confirmPickup(ClientboundTakeItemEntityPacket packet, CallbackInfo ci) {
-        if (level.getEntity(packet.getItemId()) instanceof ExperienceOrb orb) TrailRenderer.confirmPickup(orb);
+        if (level.getEntity(packet.getItemId()) instanceof ExperienceOrb orb) TrailRenderer.confirmPickup(orb, packet.getPlayerId());
     }
 }

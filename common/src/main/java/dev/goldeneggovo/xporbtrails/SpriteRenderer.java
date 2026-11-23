@@ -58,10 +58,15 @@ final class SpriteRenderer {
     static void world(SpriteSheet sheet, SpriteSheet.Frame frame, Vec3 center, Vec3 camera,
                       double size, double opacity) {
         int alpha = alpha(opacity);
-        if (alpha == 0 || size <= 0) return;
+        worldTinted(sheet, frame, center, camera, size, alpha << 24 | 0xFFFFFF, 0);
+    }
+
+    static void worldTinted(SpriteSheet sheet, SpriteSheet.Frame frame, Vec3 center, Vec3 camera,
+                            double size, int color, double rotation) {
+        if (color >>> 24 == 0 || size <= 0) return;
         Atlas atlas = batch(sheet);
         if (atlas == null) return;
-        atlas.quads.add(new Quad(frame, center.subtract(camera), scale(frame, size), alpha << 24 | 0xFFFFFF));
+        atlas.quads.add(new Quad(frame, center.subtract(camera), scale(frame, size), color, rotation));
     }
 
     static void worldOrb(int icon, int rgb, Vec3 origin, Vec3 camera, double size, double opacity) {
@@ -79,7 +84,7 @@ final class SpriteRenderer {
             frame = new SpriteSheet.Frame(icon % 4 * 16, icon / 4 * 16, 16, 16, 16, 16, 0, 0, 8, 12);
             ORB_ICONS[icon] = frame;
         }
-        orbAtlas.quads.add(new Quad(frame, origin.subtract(camera), size / 16, alpha << 24 | rgb));
+        orbAtlas.quads.add(new Quad(frame, origin.subtract(camera), size / 16, alpha << 24 | rgb, 0));
     }
 
     static void worldRibbon(SpriteSheet sheet, SpriteSheet.Frame frame, List<TrailRenderer.Sample> samples,
@@ -99,6 +104,19 @@ final class SpriteRenderer {
         Atlas atlas = atlas(sheet);
         if (atlas != null && atlas.quads.isEmpty() && atlas.ribbons.isEmpty()) batches.add(atlas);
         return atlas;
+    }
+
+    static void decal(SpriteSheet sheet, SpriteSheet.Frame frame, Vec3 center, Vec3 right, Vec3 up, int color) {
+        var atlas = batch(sheet);
+        if (atlas == null) return;
+        float left = (float)frame.x()/sheet.width(), top = (float)frame.y()/sheet.height();
+        float end = (float)(frame.x()+frame.width())/sheet.width(), bottom = (float)(frame.y()+frame.height())/sheet.height();
+        atlas.ribbons.add(out -> {
+            ribbonVertex(out, center.subtract(right).add(up), left, top, color);
+            ribbonVertex(out, center.subtract(right).subtract(up), left, bottom, color);
+            ribbonVertex(out, center.add(right).subtract(up), end, bottom, color);
+            ribbonVertex(out, center.add(right).add(up), end, top, color);
+        });
     }
 
     private static void ribbonVertex(VertexConsumer out, Vec3 p, float u, float v, int color) {
@@ -165,6 +183,12 @@ final class SpriteRenderer {
     private static void vertex(VertexConsumer out, Quad quad, Matrix4f view, double x, double y, float u, float v) {
         // The camera rotation's first two rows are world-space screen right and up.
         Vec3 origin = quad.origin;
+        if (quad.rotation != 0) {
+            double cos = Math.cos(quad.rotation), sin = Math.sin(quad.rotation);
+            double localX = x * cos - y * sin;
+            y = x * sin + y * cos;
+            x = localX;
+        }
         out.addVertex((float) (origin.x + view.m00() * x - view.m01() * y),
                 (float) (origin.y + view.m10() * x - view.m11() * y),
                 (float) (origin.z + view.m20() * x - view.m21() * y)).setUv(u, v).setColor(quad.color);
@@ -212,18 +236,22 @@ final class SpriteRenderer {
 
     static void gui(GuiGraphicsExtractor graphics, SpriteSheet sheet, SpriteSheet.Frame frame,
                     int x, int y, double size, double opacity) {
-        int alpha = alpha(opacity);
-        if (alpha == 0 || size <= 0) return;
+        guiTinted(graphics, sheet, frame, x, y, size, alpha(opacity) << 24 | 0xFFFFFF, 0);
+    }
+
+    static void guiTinted(GuiGraphicsExtractor graphics, SpriteSheet sheet, SpriteSheet.Frame frame,
+                          float x, float y, double size, int argb, double rotation) {
+        if (argb >>> 24 == 0 || size <= 0) return;
         Atlas atlas = atlas(sheet);
         if (atlas == null) return;
         float scale = (float) scale(frame, size);
         var pose = graphics.pose();
         pose.pushMatrix();
         try {
-            pose.translate(x, y).scale(scale).translate((float) -frame.pivotX(), (float) -frame.pivotY());
+            pose.translate(x, y).rotate((float) rotation).scale(scale).translate((float) -frame.pivotX(), (float) -frame.pivotY());
             var pipeline = XpOrbTrailsClient.CONFIG.additiveGlow ? Pipelines.GUI_ADDITIVE : RenderPipelines.GUI_TEXTURED;
             graphics.blit(pipeline, atlas.id, frame.offsetX(), frame.offsetY(), frame.x(), frame.y(),
-                    frame.width(), frame.height(), sheet.width(), sheet.height(), alpha << 24 | 0xFFFFFF);
+                    frame.width(), frame.height(), sheet.width(), sheet.height(), argb);
         } finally {
             pose.popMatrix();
         }
@@ -294,7 +322,7 @@ final class SpriteRenderer {
         }
     }
 
-    private record Quad(SpriteSheet.Frame frame, Vec3 origin, double scale, int color) { }
+    private record Quad(SpriteSheet.Frame frame, Vec3 origin, double scale, int color, double rotation) { }
 
     private static final class Atlas {
         final Identifier id;

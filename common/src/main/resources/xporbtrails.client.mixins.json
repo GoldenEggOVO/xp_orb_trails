@@ -4,12 +4,16 @@
 	"package": "dev.goldeneggovo.xporbtrails.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
+		"ClientLevelMixin",
 		"ClientPacketListenerMixin",
 		"ExperienceOrbMixin",
 		"ExperienceOrbRendererMixin",
 		"ExperienceOrbRenderStateMixin",
 		"GameRendererMixin",
 		"LevelRendererMixin",
+		"MotionFirstPersonHandMixin",
+		"MotionThirdPersonHandMixin",
+		"MotionItemLayerMixin",
 		"RenderPipelinesAccessor"
 	],
 	"injectors": {

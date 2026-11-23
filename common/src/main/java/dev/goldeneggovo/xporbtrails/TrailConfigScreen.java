@@ -18,6 +18,7 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ public final class TrailConfigScreen extends Screen {
     private final Map<Page, Double> pageScrolls = new EnumMap<>(Page.class);
     private final Map<String, Boolean> expandedGroups = new HashMap<>();
     private final Screen parent;
+    private final Consumer<Path> openFolder;
     private final TrailPreviewScreen preview;
     private Page page = Page.GENERAL;
     private TrailSettingsList list;
@@ -55,8 +57,12 @@ public final class TrailConfigScreen extends Screen {
     private int contentX, sidebarWidth, listY, footerY, previewX, previewWidth;
 
     public TrailConfigScreen(Screen parent) {
+        this(parent, Util.getPlatform()::openPath);
+    }
+    TrailConfigScreen(Screen parent, Consumer<Path> openFolder) {
         super(text("title"));
         this.parent = parent;
+        this.openFolder = openFolder;
         preview = new TrailPreviewScreen(this);
     }
     private static MutableComponent text(String key) { return Component.translatable("screen.xporbtrails." + key); }
@@ -98,19 +104,26 @@ public final class TrailConfigScreen extends Screen {
             case GENERAL -> general();
         }
         list.setScrollAmount(scroll);
-        int fw = Math.min(100, (panelWidth - sidebarWidth - 32) / 3);
+        int footerButtons = page == Page.GENERAL ? 4 : 3;
+        int fw = Math.min(100, (panelWidth - sidebarWidth - 8 * (footerButtons + 1)) / footerButtons);
         int buttonY = footerY + 6;
-        if (page == Page.PROFILES) {
-            var folder = XpOrbTrailsClient.assetDirectory().toAbsolutePath().normalize();
-            int available = panelRight - 24 - fw * 2 - (contentX + 8);
-            var label = text("open_config_folder");
-            var open = new SettingsButton(contentX + 8, buttonY, Math.min(available, font.width(label) + 16),
-                    label, b -> Util.getPlatform().openPath(folder), Style.CONTROL, false);
-            open.setTooltip(Tooltip.create(Component.literal(folder.toString())));
-            addRenderableWidget(open);
-        } else {
-            addRenderableWidget(new SettingsButton(contentX + 8, buttonY, fw, text("reset"), b -> resetPage(),
+        int footerX = contentX + 8;
+        if (page != Page.PROFILES) {
+            addRenderableWidget(new SettingsButton(footerX, buttonY, fw, text("reset"), b -> resetPage(),
                     Style.QUIET, false));
+            footerX += fw + 8;
+        }
+        if (page == Page.GENERAL || page == Page.PROFILES) {
+            var folder = XpOrbTrailsClient.assetDirectory().toAbsolutePath().normalize();
+            boolean packs = page == Page.PROFILES;
+            var target = packs ? folder.resolve("packs") : folder;
+            int available = panelRight - 24 - fw * 2 - footerX;
+            var label = text(packs ? "open_packs" : "open_config_folder");
+            var open = new SettingsButton(footerX, buttonY, Math.min(available, font.width(label) + 16),
+                    label, b -> openFolder.accept(target), Style.CONTROL, false);
+            var tip = packs ? text("open_packs.tip").append("\n") : Component.empty();
+            open.setTooltip(Tooltip.create(tip.append(target.toString())));
+            addRenderableWidget(open);
         }
         boolean pickupPage = page == Page.PICKUP;
         addRenderableWidget(new SettingsButton(panelRight - 16 - fw * 2, buttonY, fw,
@@ -389,7 +402,9 @@ public final class TrailConfigScreen extends Screen {
             });
             reload.setTooltip(Tooltip.create(text("reload_styles.tip")));
             list.row(fileReloadStatus, reload);
-            XpOrbTrailsClient.fileStyles().forEach(this::styleRow);
+            var styles = XpOrbTrailsClient.fileStyles();
+            styles.stream().filter(s -> s.pack() != null).forEach(this::styleRow);
+            styles.stream().filter(s -> s.pack() == null).forEach(this::styleRow);
         });
         group("saved_profiles", true, () -> savedProfiles(c));
     }
@@ -469,9 +484,11 @@ public final class TrailConfigScreen extends Screen {
         TrailConfig c = XpOrbTrailsClient.CONFIG, d = XpOrbTrailsClient.defaults();
         switch (page) {
             case ORB_BODY -> {
+                c.restoreAdvanced(d, "body");
                 c.flightEffect = d.flightEffect; c.showVanillaOrb = d.showVanillaOrb; c.orbScale = d.orbScale;
             }
             case TRAIL -> {
+                c.restoreAdvanced(d, "trail");
                 c.width = d.width; c.lifetimeSeconds = d.lifetimeSeconds; c.pickupFadeSeconds = d.pickupFadeSeconds;
                 c.trailSprite = d.trailSprite; c.trailSpriteMode = d.trailSpriteMode;
                 c.stampScale = d.stampScale; c.stampSpacing = d.stampSpacing;
@@ -484,11 +501,13 @@ public final class TrailConfigScreen extends Screen {
                 lastTrailArtwork = null;
             }
             case PICKUP -> {
+                c.restoreAdvanced(d, "pickup");
                 c.pickupFlash = d.pickupFlash; c.pickupFlashStyle = d.pickupFlashStyle; c.pickupFlashStrength = d.pickupFlashStrength;
                 c.pickupFlashSeconds = d.pickupFlashSeconds; c.pickupFlashSize = d.pickupFlashSize;
                 c.shardCount = d.shardCount; c.spiralTurns = d.spiralTurns;
             }
             case GENERAL -> {
+                c.restoreAdvanced(d, "scene", "optics");
                 c.enabled = d.enabled; c.effectStrength = d.effectStrength; c.additiveGlow = d.additiveGlow;
                 c.colorMode = d.colorMode; c.startColor = d.startColor; c.endColor = d.endColor;
                 c.gradientStops = d.gradientStops; c.rainbowSpeed = d.rainbowSpeed;

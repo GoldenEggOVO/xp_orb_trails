@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.lab_relief",
+  "flightEffect": "none",
+  "showVanillaOrb": false,
+  "additiveGlow": false,
+  "effectStrength": 1,
+  "width": 0.03,
+  "startColor": "#FFE7A2",
+  "endColor": "#6B5260",
+  "advanced": {
+    "workshop": [
+      {
+        "type": "relief",
+        "sprite": "sprite:orb/winding_gear",
+        "depth": 0.29,
+        "size": 0.75,
+        "spin": 32,
+        "minResolution": 3,
+        "maxResolution": 24,
+        "pixelBudget": 864
+      }
+    ]
+  },
+  "gradientStops": [
+    "#BD7D44"
+  ],
+  "lifetimeSeconds": 0.65,
+  "pickupFlashStyle": "file:pickup/ring",
+  "pickupFlashSize": 0.36
+}

@@ -58,6 +58,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .search-box input::placeholder { color: #c1cfc8; }
 kbd { border: 1px solid #546660; padding: 0 5px; border-radius: 3px; font: .74rem/1.4 var(--mono); }
 .out-links, .mobile-links { display: flex; align-items: center; gap: 21px; font-size: .9rem; }
+.language-link { flex: 0 0 auto; padding: 4px 10px; border: 1px solid currentColor; border-radius: 4px; color: var(--lime); font-size: .85rem; }
+.language-link:hover { text-decoration: underline; }
 .out-links a:hover { color: var(--lime); }
 .layout { display: grid; grid-template-columns: clamp(180px, 15vw, 216px) minmax(0,1fr); gap: clamp(28px, 3.4vw, 55px); }
 aside { border-right: 1px solid var(--rule); }
@@ -200,4 +202,11 @@ footer { display: flex; gap: 16px; flex-wrap: wrap; justify-content: space-betwe
   tbody th code { font-weight: 650; }
   tbody th br { display: none; }
   tbody th code + br + code::before { content: " / "; }
+}
+
+@media (max-width: 460px) {
+  .top-inner { gap: 7px; }
+  .brand { font-size: .85rem; }
+  .language-link { padding: 3px 5px; }
+  .search { flex: 1; min-width: 0; }
 }

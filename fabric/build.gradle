@@ -18,6 +18,20 @@ if (project.hasProperty('clientTests')) {
         enableClientGameTests = true
     }
     dependencies { gametestImplementation "com.terraformersmc:modmenu:${modmenu_version}" }
+    tasks.named('runClientGameTest') {
+        dependsOn ':effectCollectionZip', ':spriteExamplesZip'
+        systemProperty 'xporb.effectCollection', rootProject.file('examples/2.1.0example/effect_collection.zip').absolutePath
+        systemProperty 'xporb.spriteExamples', rootProject.file('examples/2.0.0example/sprite_sheet_examples.zip').absolutePath
+        if (project.hasProperty('effectCollectionProbe')) {
+            def part = project.property('effectCollectionProbe')
+            if (part == 'gallery') systemProperty 'xporb.collectionGallery', 'true'
+            else if (part == 'advanced') systemProperty 'xporb.advancedProbe', 'true'
+            else if (part in ['all', 'pixel', 'world', 'motion', 'events', 'menu', 'spawn', 'bench']) {
+                systemProperty 'xporb.labProbe', 'true'
+                systemProperty 'xporb.labPart', part
+            } else throw new GradleException("Unknown effect collection test: ${part}")
+        }
+    }
 }
 processResources {
     def metadata = [version: "${project.version}+mc${rootProject.minecraft_version}",

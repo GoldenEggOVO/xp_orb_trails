@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "nameKey": "screen.xporbtrails.profile.atlas_observatory",
+  "showVanillaOrb": false,
+  "colorMode": "gradient",
+  "startColor": "#5077B6",
+  "endColor": "#FFE3A5",
+  "width": 0.081,
+  "lifetimeSeconds": 2.15,
+  "effectStrength": 0.92,
+  "additiveGlow": false,
+  "pickupFlashStyle": "file:pickup/soft",
+  "pickupFlashSize": 0.35,
+  "pickupFlashSeconds": 0.17,
+  "pickupFlashStrength": 0.42,
+  "advanced": {
+    "body": {
+      "type": "planet",
+      "radius": 0.315,
+      "size": 0.135,
+      "ringWidth": 0.045,
+      "tiltDegrees": 53,
+      "yawDegrees": -23,
+      "precessionDegrees": 0.68,
+      "segments": 30,
+      "color": "#F6C279",
+      "coreColor": "#6876BB"
+    },
+    "trail": {
+      "geometry": "ribbon",
+      "period": 1.72,
+      "roll": 200,
+      "widthCurve": [[0, 0.09], [0.2, 0.55], [0.53, 0.94], [0.82, 1.05], [1, 0.43]],
+      "strands": [
+        {
+          "phase": 0,
+          "radius": 0.121,
+          "depth": 0.072,
+          "width": 0.81,
+          "color": "#E5B47D"
+        },
+        {
+          "phase": 180,
+          "radius": 0.121,
+          "depth": 0.072,
+          "width": 0.62,
+          "color": "#91A9E8"
+        }
+      ]
+    },
+    "pickup": {
+      "type": "fireworks",
+      "count": 5,
+      "size": 0.051,
+      "speed": 0.082,
+      "gravity": 0.0012,
+      "lifetimeTicks": 10,
+      "children": 6,
+      "childSpeed": 0.046,
+      "childLifetimeTicks": 19,
+      "color": "#FFD698",
+      "accent": "#91CBFF"
+    },
+    "scene": [
+      {
+        "type": "stars",
+        "range": 3.6,
+        "count": 2,
+        "width": 0.018,
+        "color": "#83ACD8"
+      },
+      {
+        "type": "chain",
+        "range": 4.5,
+        "count": 3,
+        "width": 0.027,
+        "duration": 0.26,
+        "color": "#FFE9AA",
+        "secondary": "#A795FF"
+      },
+      {
+        "type": "values",
+        "threshold": 7,
+        "count": 2,
+        "radius": 0.405,
+        "width": 0.014,
+        "color": "#F7E5AD",
+        "secondary": "#9DB5DC"
+      }
+    ]
+  }
+}

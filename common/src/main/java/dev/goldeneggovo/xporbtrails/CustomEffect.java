@@ -161,7 +161,7 @@ final class CustomEffect {
         return (1 - u) * from + u * to;
     }
 
-    static CustomEffect read(Reader reader, String fallbackName) throws IOException {
+    static CustomEffect read(Reader reader, String fallbackName, String... legacyNameKeys) throws IOException {
         JsonReader json = new JsonReader(reader);
         json.setStrictness(Strictness.STRICT);
         String name = fallbackName, nameKey = null;
@@ -176,7 +176,7 @@ final class CustomEffect {
                 switch (nextField(json, seen)) {
                     case "version" -> integer(json, 1, 1);
                     case "name" -> name = string(json).strip();
-                    case "nameKey" -> nameKey = string(json);
+                    case "nameKey" -> nameKey = string(json).strip();
                     case "reflow" -> reflow = bool(json);
                     case "rainbowSaturation" -> rainbowSaturation = number(json, 0, 1);
                     case "layers" -> layers = readLayers(json);
@@ -192,7 +192,9 @@ final class CustomEffect {
         if (!seen.contains("version")) throw new IOException("Missing required field version (expected 1)");
         if (name.isBlank()) throw new IOException("Effect name must contain visible text");
         if (layers == null) throw new IOException("Missing required field layers");
-        return new CustomEffect(name, seen.contains("name") ? null : nameKey, layers, reflow, rainbowSaturation, emitter);
+        if (nameKey != null && nameKey.isEmpty()) throw new IOException("Effect nameKey must contain visible text");
+        nameKey = AssetNames.translationKey(seen.contains("name") ? name : null, nameKey, legacyNameKeys);
+        return new CustomEffect(name, nameKey, layers, reflow, rainbowSaturation, emitter);
     }
 
     private static List<Layer> readLayers(JsonReader json) throws IOException {
